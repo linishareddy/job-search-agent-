@@ -1,0 +1,640 @@
+{
+  "started_at": "2026-07-01T19:41:12.111391+00:00",
+  "steps": [
+    {
+      "name": "STEP 0 \u2014 GET /health",
+      "notes": "Confirms API + Postgres are up before starting.",
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "database": "ok",
+          "status": "running"
+        }
+      }
+    },
+    {
+      "name": "STEP 1 \u2014 POST /searches/parse-text  [AI #1: Groq intent parser]",
+      "notes": "Groq model: llama-3.1-8b-instant. Converts plain English \u2192 structured fields. User reviews confidence + ambiguities before saving.",
+      "request": {
+        "text": "Remote senior healthcare analyst in the US, full time, 90k-130k, focusing on EHR and claims data"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "job_title": "Healthcare Analyst",
+          "field_domain": "Healthcare - EHR, claims data analysis",
+          "name": "Healthcare Analyst - Remote US",
+          "location": "United States",
+          "work_mode": "remote",
+          "experience_level": "senior",
+          "employment_type": "full_time",
+          "salary_min": 90000,
+          "salary_max": 130000,
+          "company_slugs": [],
+          "confidence": 0.92,
+          "ambiguities": [],
+          "raw_text": "Remote senior healthcare analyst in the US, full time, 90k-130k, focusing on EHR and claims data"
+        }
+      }
+    },
+    {
+      "name": "STEP 2 \u2014 POST /searches/from-text  [save + full 11-step pipeline]",
+      "notes": "Pipeline completed in 92.6s. Internally ran: field expansion (AI #2) \u2192 6 source fetchers \u2192 normalize \u2192 dedup \u2192 BM25+cosine pre-score \u2192 Groq enrichment (AI #3) \u2192 DB save \u2192 notifications.",
+      "request": {
+        "text": "Remote senior healthcare analyst in the US, full time, 90k-130k, focusing on EHR and claims data",
+        "run_immediately": true,
+        "overrides": {
+          "name": "Full Flow Test 011116"
+        }
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "name": "Full Flow Test 011116",
+          "job_title": "Healthcare Analyst",
+          "field_domain": "Healthcare - EHR, claims data analysis",
+          "location": "United States",
+          "work_mode": "remote",
+          "experience_level": "senior",
+          "employment_type": "full_time",
+          "salary_min": 90000,
+          "salary_max": 130000,
+          "company_slugs": [],
+          "poll_interval_minutes": 60,
+          "id": "87fe6dae-3e65-4052-b7fa-05c7d95ffb62",
+          "is_active": true,
+          "last_run_at": null,
+          "field_expansion_cache": null,
+          "created_at": "2026-07-01T19:41:51.810049+00:00",
+          "updated_at": "2026-07-01T19:41:51.810049+00:00",
+          "run_id": "4947078f-8a81-4f96-bcbb-5788c7c40ba3"
+        },
+        "message": "Pipeline started"
+      }
+    },
+    {
+      "name": "STEP 3 \u2014 GET /searches/{id}  [view AI #2 field expansion cache]",
+      "notes": "field_expansion_cache is Groq AI #2 output (cached 24h). Contains search_queries, primary_keywords, negative_keywords, related_titles, ideal_profile \u2014 used by fetchers and scoring.",
+      "request": {
+        "search_id": "87fe6dae-3e65-4052-b7fa-05c7d95ffb62"
+      },
+      "response": {
+        "search_summary": {
+          "id": "87fe6dae-3e65-4052-b7fa-05c7d95ffb62",
+          "name": "Full Flow Test 011116",
+          "job_title": "Healthcare Analyst",
+          "field_domain": "Healthcare - EHR, claims data analysis",
+          "work_mode": "remote",
+          "experience_level": "senior",
+          "last_run_at": "2026-07-01T19:42:49.041537+00:00"
+        },
+        "field_expansion_cache": {
+          "ideal_profile": "Someone who analyzes clinical, claims, or EHR data inside hospitals, health systems, or payers, turning patient or operational data into reporting and insight.",
+          "related_titles": [
+            "Clinical Analyst",
+            "Health Data Specialist",
+            "Medical Data Analyst"
+          ],
+          "search_queries": [
+            "healthcare analyst EHR",
+            "healthcare claims data analyst",
+            "healthcare data analyst remote",
+            "healthcare EHR analyst",
+            "healthcare claims analyst"
+          ],
+          "primary_keywords": [
+            "healthcare analyst",
+            "EHR",
+            "claims data",
+            "HEDIS",
+            "health informatics",
+            "clinical data",
+            "medical records"
+          ],
+          "negative_keywords": [
+            "game",
+            "retail",
+            "fashion",
+            "real estate",
+            "marketing"
+          ]
+        }
+      }
+    },
+    {
+      "name": "STEP 4 \u2014 GET /searches/{id}/results  [AI-enriched jobs]",
+      "notes": "Each result has relevance_score (Groq AI #3, 0\u20131), match_reason, gaps, plus job summary/skills from Groq. Sorted by relevance_score desc.",
+      "request": {
+        "search_id": "87fe6dae-3e65-4052-b7fa-05c7d95ffb62",
+        "page": 1,
+        "page_size": 10,
+        "only_new": false
+      },
+      "response": {
+        "total": 16,
+        "page": 1,
+        "page_size": 10,
+        "data": [
+          {
+            "id": "c41b49c7-f990-4da7-89f0-9f4a1637cfce",
+            "job": {
+              "id": "97ff8268-05f8-4702-9cdf-12e6491509f0",
+              "title": "Senior Healthcare Data Analyst",
+              "company_name": "Latica",
+              "location": "Palo Alto, CA",
+              "work_mode": null,
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": null,
+              "salary_max": null,
+              "salary_currency": "USD",
+              "salary_listed": false,
+              "description_summary": "The Senior Healthcare Data Analyst will work with a data network and medical intelligence platform to analyze de-identified healthcare data. The role requires 5+ years of experience in a similar analy...",
+              "skills": [
+                "Data Analysis",
+                "Healthcare Industry",
+                "Medical Intelligence",
+                "De-identified Data",
+                "Data Network"
+              ],
+              "apply_url": "https://jooble.org/jdp/7717987808932371761",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/7717987808932371761"
+              ],
+              "posted_at": "2026-06-30T18:30:00+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.9,
+            "bm25_score": 0.6581300638403289,
+            "cosine_score": 0.49126607179641724,
+            "match_reason": "The job title 'Senior Healthcare Data Analyst' perfectly matches the target title, and the domain of healthcare data analysis is a perfect match. The role requires experience in the healthcare industry, which aligns with the target field.",
+            "gaps": "None notable",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "8b024cb9-e444-4897-afb3-1403471f62cd",
+            "job": {
+              "id": "40223784-5118-477d-a790-5f12e66dec98",
+              "title": "Healthcare Data Analyst, Data Ecosystem Team",
+              "company_name": "Truveta",
+              "location": "Seattle, WA",
+              "work_mode": null,
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": 105000,
+              "salary_max": 130000,
+              "salary_currency": "USD",
+              "salary_listed": true,
+              "description_summary": "The Healthcare Data Analyst will work with EHR data to analyze and improve healthcare outcomes. The role requires experience in data analysis and a strong understanding of the healthcare industry.",
+              "skills": [
+                "EHR",
+                "Data Analysis",
+                "Healthcare Outcomes",
+                "Healthcare Industry"
+              ],
+              "apply_url": "https://jooble.org/jdp/-7469334797005303322",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/-7469334797005303322"
+              ],
+              "posted_at": "2025-09-29T18:30:00+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.9,
+            "bm25_score": 0.8690106731828477,
+            "cosine_score": 0.48168766498565674,
+            "match_reason": "The job title 'Healthcare Data Analyst' matches the target title, and the domain of healthcare data analysis is a perfect match. The role requires experience with EHR data and relevant skills in the healthcare industry.",
+            "gaps": "None notable",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "57534758-b7ab-4699-96ea-410da4c9d26d",
+            "job": {
+              "id": "ff3d79aa-9501-4fce-90d6-a9caf245e8c2",
+              "title": "Senior Healthcare Data Analyst",
+              "company_name": "Imagen Technologies",
+              "location": "Remote",
+              "work_mode": null,
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": 90000,
+              "salary_max": 130000,
+              "salary_currency": "USD",
+              "salary_listed": true,
+              "description_summary": "The Senior Healthcare Data Analyst will work with a healthcare startup to analyze and improve healthcare outcomes. The role requires experience in data analysis and a strong understanding of the healt...",
+              "skills": [
+                "Data Analysis",
+                "Healthcare Outcomes",
+                "Healthcare Industry",
+                "Startup Experience"
+              ],
+              "apply_url": "https://jooble.org/jdp/-1133633933596325329",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/-1133633933596325329"
+              ],
+              "posted_at": "2025-09-02T18:30:00+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.9,
+            "bm25_score": 0.407369270034939,
+            "cosine_score": 0.5082535147666931,
+            "match_reason": "The job title 'Senior Healthcare Data Analyst' perfectly matches the target title, and the domain of healthcare data analysis is a perfect match. The role requires experience in data analysis and relevant skills in the healthcare industry.",
+            "gaps": "None notable",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "d5c49599-5b88-4193-a995-9dbf8d24890a",
+            "job": {
+              "id": "8bd381bd-d08e-40c2-bd96-a7b8e55ef2dd",
+              "title": "Healthcare Integration Analyst",
+              "company_name": "EvidenceCare",
+              "location": "Remote",
+              "work_mode": "remote",
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": null,
+              "salary_max": null,
+              "salary_currency": "USD",
+              "salary_listed": false,
+              "description_summary": "The Healthcare Integration Analyst will work with a clinical decision support system (CDSS) to optimize clinician workflows. The role is a full-time position with the option to work remotely.",
+              "skills": [
+                "Healthcare Integration",
+                "CDSS",
+                "EHR",
+                "Clinical Decision Support"
+              ],
+              "apply_url": "https://jooble.org/jdp/109141812701028836",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/109141812701028836"
+              ],
+              "posted_at": "2026-06-30T18:30:00+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.8,
+            "bm25_score": 0.13369507408735468,
+            "cosine_score": 0.5063350796699524,
+            "match_reason": "The job title 'Healthcare Integration Analyst' is closely related to the target title, and the domain of healthcare integration is a perfect match. The role requires experience with EHR and CDSS, which are relevant skills in the healthcare industry.",
+            "gaps": "The job title does not explicitly match the target title, but the domain and skills are closely related.",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "3d5aea23-25e5-424a-a55e-5339990913f1",
+            "job": {
+              "id": "77397f29-3ae5-4a2e-b952-28901564fe4d",
+              "title": "Healthcare Data Analyst",
+              "company_name": "",
+              "location": "Birmingham, AL",
+              "work_mode": "hybrid",
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": null,
+              "salary_max": null,
+              "salary_currency": "USD",
+              "salary_listed": false,
+              "description_summary": "The Healthcare Data Analyst will work with the Epic ecosystem to analyze healthcare data and support data mapping and validation. The role is a contract-to-hire position with 4 days onsite and 1 day r...",
+              "skills": [
+                "Epic Ecosystem",
+                "Data Analysis",
+                "Healthcare Data",
+                "Data Mapping",
+                "SQL"
+              ],
+              "apply_url": "https://jooble.org/jdp/2089196898193731419",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/2089196898193731419"
+              ],
+              "posted_at": "2026-06-29T18:30:00+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.8,
+            "bm25_score": 0.38149947855788063,
+            "cosine_score": 0.5605575442314148,
+            "match_reason": "The job title 'Healthcare Data Analyst' matches the target title, and the domain of healthcare data analysis is closely related. The role requires experience with the Epic ecosystem, which is a relevant skill in the healthcare industry.",
+            "gaps": "The job is a contract-to-hire position, which may not be a perfect match for a senior role.",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "58023262-1fc1-4039-a389-4df67b715d23",
+            "job": {
+              "id": "56ed6142-0c3d-4629-87b3-c123cc1bb5fe",
+              "title": "Healthcare Interoperability Analyst (Remote Opportunity)",
+              "company_name": "VetsEZ",
+              "location": "Remote",
+              "work_mode": "remote",
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": null,
+              "salary_max": null,
+              "salary_currency": "USD",
+              "salary_listed": false,
+              "description_summary": "The Healthcare Interoperability Analyst will work with healthcare data to support a large federal healthcare interoperability program. The role is a remote opportunity and requires experience in data ...",
+              "skills": [
+                "Healthcare Interoperability",
+                "Data Analysis",
+                "Healthcare Data",
+                "Remote Work"
+              ],
+              "apply_url": "https://jooble.org/jdp/-6472235882832647988",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/-6472235882832647988"
+              ],
+              "posted_at": "2026-06-30T18:30:00+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.8,
+            "bm25_score": 0.3941684701921834,
+            "cosine_score": 0.3173803687095642,
+            "match_reason": "The job title 'Healthcare Interoperability Analyst' is closely related to the target title, and the domain of healthcare interoperability is a perfect match. The role requires experience in data analysis and relevant skills in the healthcare industry.",
+            "gaps": "The job title does not explicitly match the target title, but the domain and skills are closely related.",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "a94c98b7-c2a0-4f70-a9e8-07f831cf9674",
+            "job": {
+              "id": "3a2f400f-aa27-4ae2-8224-06927459dc61",
+              "title": "Healthcare Data Analyst",
+              "company_name": "Cyber Resource",
+              "location": "Richmond, VA",
+              "work_mode": null,
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": null,
+              "salary_max": null,
+              "salary_currency": "USD",
+              "salary_listed": false,
+              "description_summary": "The Healthcare Data Analyst will work with EHR data to analyze and improve healthcare outcomes. The role requires experience in data analysis and a strong understanding of the healthcare industry, par...",
+              "skills": [
+                "EHR",
+                "Data Analysis",
+                "Healthcare Outcomes",
+                "Pharmacy"
+              ],
+              "apply_url": "https://jooble.org/jdp/-5543474796802575700",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/-5543474796802575700"
+              ],
+              "posted_at": "2026-06-15T05:19:58.367000+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.8,
+            "bm25_score": 0.7957173655100543,
+            "cosine_score": 0.4981168806552887,
+            "match_reason": "The job title 'Healthcare Data Analyst' matches the target title, and the domain of healthcare data analysis is a perfect match. The role requires experience with EHR data and relevant skills in the healthcare industry.",
+            "gaps": "The job requires experience in pharmacy or similar fields, which may not be a perfect match for all candidates.",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "190b218c-515a-4d91-8cae-297a044cdb43",
+            "job": {
+              "id": "6bcf973e-fe3a-46f5-b6e9-728e80ddeb33",
+              "title": "Healthcare Quality Data Analyst",
+              "company_name": "SGS Consulting",
+              "location": "Maryland",
+              "work_mode": null,
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": null,
+              "salary_max": null,
+              "salary_currency": "USD",
+              "salary_listed": false,
+              "description_summary": "The Healthcare Quality Data Analyst will work with claims data to analyze and improve healthcare quality. The role requires at least 2 years of experience in the healthcare industry and expertise in E...",
+              "skills": [
+                "Claims Data",
+                "Healthcare Quality",
+                "Excel",
+                "SQL",
+                "HEDIS"
+              ],
+              "apply_url": "https://jooble.org/jdp/2559550558724080487",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/2559550558724080487"
+              ],
+              "posted_at": "2026-04-22T08:00:14.697000+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.7,
+            "bm25_score": 1.0,
+            "cosine_score": 0.45550498366355896,
+            "match_reason": "The job title 'Healthcare Quality Data Analyst' is closely related to the target title, and the domain of healthcare quality is a perfect match. The role requires experience with claims data and relevant skills in the healthcare industry.",
+            "gaps": "The job title does not explicitly match the target title, but the domain and skills are closely related.",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "e1eb6bcd-e674-4f86-91ef-039a26ba896a",
+            "job": {
+              "id": "7991e0fd-5653-44ac-a41b-1696343304e2",
+              "title": "Healthcare Data Analyst",
+              "company_name": "Careerscape",
+              "location": "Boston, MA",
+              "work_mode": null,
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": 78000,
+              "salary_max": 105000,
+              "salary_currency": "USD",
+              "salary_listed": true,
+              "description_summary": "The Healthcare Data Analyst will work with clinical, operational, and financial datasets to inform business decisions. The role is a temporary engagement with a healthcare technology company.",
+              "skills": [
+                "Data Analysis",
+                "Healthcare Data",
+                "Clinical Data",
+                "Operational Data",
+                "Financial Data"
+              ],
+              "apply_url": "https://jooble.org/jdp/4498033001652018022",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/4498033001652018022"
+              ],
+              "posted_at": "2026-06-19T23:43:32.273000+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.7,
+            "bm25_score": 0.5029746026163732,
+            "cosine_score": 0.4969669282436371,
+            "match_reason": "The job title 'Healthcare Data Analyst' matches the target title, and the domain of healthcare data analysis is a perfect match. The role requires experience in data analysis and relevant skills in the healthcare industry.",
+            "gaps": "The job is a temporary engagement, which may not be a perfect match for a senior role.",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          },
+          {
+            "id": "3c7c86fd-6a32-4289-adba-cb7784f2f7ed",
+            "job": {
+              "id": "47ccb825-8845-4f7f-a213-12416496e4be",
+              "title": "Healthcare Reporting Analyst",
+              "company_name": " Elite Technical ",
+              "location": "Fairfax, VA",
+              "work_mode": "remote",
+              "employment_type": null,
+              "experience_level": null,
+              "salary_min": null,
+              "salary_max": null,
+              "salary_currency": "USD",
+              "salary_listed": false,
+              "description_summary": "The Healthcare Reporting Analyst will work with healthcare data to provide reporting and analytics support. The role is a remote opportunity and requires experience in data analysis and healthcare rep...",
+              "skills": [
+                "Data Analysis",
+                "Healthcare Reporting",
+                "Healthcare Data",
+                "Remote Work"
+              ],
+              "apply_url": "https://jooble.org/jdp/6897541896884480141",
+              "source": "jooble",
+              "source_urls": [
+                "https://jooble.org/jdp/6897541896884480141"
+              ],
+              "posted_at": "2026-06-04T18:30:00+00:00",
+              "is_active": true,
+              "created_at": "2026-07-01T19:41:51.810049+00:00"
+            },
+            "relevance_score": 0.7,
+            "bm25_score": 0.3583203530118346,
+            "cosine_score": 0.4376565217971802,
+            "match_reason": "The job title 'Healthcare Reporting Analyst' is related to the target title, and the domain of healthcare reporting is a perfect match. The role requires experience in data analysis and relevant skills in the healthcare industry.",
+            "gaps": "The job title does not explicitly match the target title, but the domain and skills are closely related.",
+            "is_new": true,
+            "is_dismissed": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "STEP 5 \u2014 GET /notifications",
+      "notes": "Created when new jobs score >= NOTIFICATION_SCORE_THRESHOLD (default 7/10).",
+      "request": {
+        "unread_only": false
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "b72ea14b-96af-41b5-ab9f-e6926b96bf26",
+            "search_id": "87fe6dae-3e65-4052-b7fa-05c7d95ffb62",
+            "run_id": "4947078f-8a81-4f96-bcbb-5788c7c40ba3",
+            "message": "'Full Flow Test 011116': 16 new job(s) found, 10 high-relevance",
+            "new_job_count": 16,
+            "is_read": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "name": "STEP 6 \u2014 GET /health/sources",
+      "notes": "Shows how many jobs each source contributed in the last 24 hours.",
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "adzuna": {
+            "jobs_last_24h": 0
+          },
+          "jooble": {
+            "jobs_last_24h": 15
+          },
+          "remotive": {
+            "jobs_last_24h": 2
+          },
+          "greenhouse": {
+            "jobs_last_24h": 0
+          },
+          "lever": {
+            "jobs_last_24h": 0
+          },
+          "ashby": {
+            "jobs_last_24h": 0
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "search_id": "87fe6dae-3e65-4052-b7fa-05c7d95ffb62",
+    "run_id": "4947078f-8a81-4f96-bcbb-5788c7c40ba3",
+    "pipeline_seconds": 92.6,
+    "jobs_matched": 16,
+    "parsed_intent": {
+      "job_title": "Healthcare Analyst",
+      "field_domain": "Healthcare - EHR, claims data analysis",
+      "name": "Healthcare Analyst - Remote US",
+      "location": "United States",
+      "work_mode": "remote",
+      "experience_level": "senior",
+      "employment_type": "full_time",
+      "salary_min": 90000,
+      "salary_max": 130000,
+      "company_slugs": [],
+      "confidence": 0.92,
+      "ambiguities": [],
+      "raw_text": "Remote senior healthcare analyst in the US, full time, 90k-130k, focusing on EHR and claims data"
+    },
+    "field_expansion": {
+      "ideal_profile": "Someone who analyzes clinical, claims, or EHR data inside hospitals, health systems, or payers, turning patient or operational data into reporting and insight.",
+      "related_titles": [
+        "Clinical Analyst",
+        "Health Data Specialist",
+        "Medical Data Analyst"
+      ],
+      "search_queries": [
+        "healthcare analyst EHR",
+        "healthcare claims data analyst",
+        "healthcare data analyst remote",
+        "healthcare EHR analyst",
+        "healthcare claims analyst"
+      ],
+      "primary_keywords": [
+        "healthcare analyst",
+        "EHR",
+        "claims data",
+        "HEDIS",
+        "health informatics",
+        "clinical data",
+        "medical records"
+      ],
+      "negative_keywords": [
+        "game",
+        "retail",
+        "fashion",
+        "real estate",
+        "marketing"
+      ]
+    }
+  },
+  "finished_at": "2026-07-01T19:42:49.112038+00:00"
+}

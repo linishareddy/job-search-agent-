@@ -14,7 +14,6 @@ class NotificationService:
 
     async def notify_new_jobs(
         self,
-        user_id: uuid.UUID,
         search_name: str,
         search_id: uuid.UUID,
         run_id: uuid.UUID,
@@ -30,10 +29,9 @@ class NotificationService:
         )
 
         await self._repo.create(
-            user_id=user_id,
             search_id=search_id,
             run_id=run_id,
             message=message,
             new_job_count=new_count,
         )
-        logger.info(f"Notification created for user {user_id}: {message}")
+        logger.info(f"Notification created: {message}")

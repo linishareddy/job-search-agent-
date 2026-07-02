@@ -127,6 +127,8 @@ class PipelineOrchestrator:
                 relevance_score=enriched_job.relevance_score,
                 bm25_score=enriched_job.bm25_score,
                 cosine_score=enriched_job.cosine_score,
+                match_reason=enriched_job.match_reason,
+                gaps=enriched_job.gaps,
                 is_new=is_new,
             )
 
@@ -137,7 +139,6 @@ class PipelineOrchestrator:
         ]
         if high_score_new and new_count > 0:
             await self._notif_repo.create(
-                user_id=search.user_id,
                 search_id=search.id,
                 run_id=run.id,
                 message=f"'{search.name}': {new_count} new job(s) found, {len(high_score_new)} high-relevance",
@@ -170,4 +171,5 @@ class PipelineOrchestrator:
         logger.info(f"Calling Groq for field expansion: '{search.job_title}' in '{search.field_domain}'")
         expansion = await _groq.expand_field_domain(search.job_title, search.field_domain)
         await self._search_repo.cache_field_expansion(search.id, expansion)
+        await self._session.refresh(search)
         return expansion

@@ -4,7 +4,13 @@ from typing import Optional
 
 from rank_bm25 import BM25Okapi
 
-from constants.sources import PRE_SCORE_TOP_K
+from constants.sources import (
+    BM25_WEIGHT,
+    COSINE_WEIGHT,
+    MIN_SEMANTIC_SIMILARITY,
+    PRE_SCORE_TOP_K,
+    RECENCY_WEIGHT,
+)
 from services.embedding_service import EmbeddingService
 from services.pipeline.dedup_service import DeduplicatedJob
 
@@ -36,16 +42,27 @@ def pre_score_and_rank(
     """
     Score each job using BM25 + cosine similarity + recency, then return top-K.
 
-    BM25 is built from job title + description.
-    Cosine is computed between the search query embedding and each job's embedding.
+    BM25 is built from job title + description, using a keyword-dense query text
+    (rewards term frequency). Cosine is computed between a separate, sentence-like
+    semantic query embedding (built from ideal_profile + search_queries — rewards
+    meaning over exact wording) and each job's embedding. Jobs below
+    MIN_SEMANTIC_SIMILARITY are dropped entirely before ranking, so a weak batch
+    isn't padded with irrelevant jobs just to fill PRE_SCORE_TOP_K.
     """
     if not jobs:
         return []
 
-    # Build query string from expansion
+    # Build two purpose-built query strings from expansion
     primary_keywords = expansion.get("primary_keywords", [])
     related_titles = expansion.get("related_titles", [])
-    query_text = f"{job_title} {field_domain} {' '.join(primary_keywords)} {' '.join(related_titles)}"
+    search_queries = expansion.get("search_queries", [])
+    ideal_profile = expansion.get("ideal_profile", "")
+
+    semantic_query_text = f"{job_title} {field_domain}. {ideal_profile} {' '.join(search_queries)}"
+    bm25_query_text = (
+        f"{job_title} {field_domain} {' '.join(primary_keywords)} "
+        f"{' '.join(related_titles)} {' '.join(search_queries)}"
+    )
 
     # --- BM25 ---
     corpus = [
@@ -53,27 +70,35 @@ def pre_score_and_rank(
         for j in jobs
     ]
     bm25 = BM25Okapi(corpus)
-    query_tokens = _tokenize(query_text)
+    query_tokens = _tokenize(bm25_query_text)
     bm25_scores = bm25.get_scores(query_tokens)
 
     bm25_max = max(bm25_scores) if max(bm25_scores) > 0 else 1.0
     bm25_norm = [s / bm25_max for s in bm25_scores]
 
     # --- Cosine similarity ---
-    query_embedding = _embedding_service.embed_single(query_text)
+    query_embedding = _embedding_service.embed_single(semantic_query_text)
     cosine_scores = [
         _embedding_service.cosine_similarity(query_embedding, j.embedding)
         if j.embedding else 0.0
         for j in jobs
     ]
 
+    # --- Absolute semantic floor (applied before ranking, not after) ---
+    kept_indices = [i for i, c in enumerate(cosine_scores) if c >= MIN_SEMANTIC_SIMILARITY]
+    logger.info(
+        f"Semantic floor: {len(jobs)} → {len(kept_indices)} passed "
+        f"MIN_SEMANTIC_SIMILARITY={MIN_SEMANTIC_SIMILARITY}"
+    )
+
     # --- Composite score ---
     scored: list[tuple[float, float, float, DeduplicatedJob]] = []
-    for i, job in enumerate(jobs):
+    for i in kept_indices:
+        job = jobs[i]
         bm25_s = bm25_norm[i]
         cos_s = cosine_scores[i]
         rec_s = _recency_score(job.posted_at)
-        composite = 0.4 * bm25_s + 0.4 * cos_s + 0.2 * rec_s
+        composite = BM25_WEIGHT * bm25_s + COSINE_WEIGHT * cos_s + RECENCY_WEIGHT * rec_s
         scored.append((composite, bm25_s, cos_s, job))
 
     scored.sort(key=lambda x: x[0], reverse=True)

@@ -35,6 +35,8 @@ class JobSearchResultResponse(BaseModel):
     relevance_score: float
     bm25_score: Optional[float]
     cosine_score: Optional[float]
+    match_reason: Optional[str]
+    gaps: Optional[str]
     is_new: bool
     is_dismissed: bool
     created_at: datetime

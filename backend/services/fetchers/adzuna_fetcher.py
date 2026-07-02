@@ -31,8 +31,8 @@ class AdzunaFetcher(BaseJobFetcher):
             logger.warning("Adzuna credentials not configured — skipping")
             return []
 
-        primary_keywords = expansion.get("primary_keywords", [])
-        what = f"{search.job_title} {primary_keywords[0] if primary_keywords else search.field_domain}"
+        search_queries = expansion.get("search_queries", [])
+        what = search_queries[0] if search_queries else f"{search.job_title} {search.field_domain}"
 
         params = {
             "app_id": settings.adzuna_app_id,

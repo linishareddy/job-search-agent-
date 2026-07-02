@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime, timezone, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from models.job import Job
 from models.job_search_result import JobSearchResult
@@ -75,6 +76,8 @@ class JobRepository:
         bm25_score: float | None,
         cosine_score: float | None,
         is_new: bool,
+        match_reason: str | None = None,
+        gaps: str | None = None,
     ) -> None:
         stmt = (
             insert(JobSearchResult)
@@ -86,6 +89,8 @@ class JobRepository:
                 relevance_score=relevance_score,
                 bm25_score=bm25_score,
                 cosine_score=cosine_score,
+                match_reason=match_reason,
+                gaps=gaps,
                 is_new=is_new,
             )
             .on_conflict_do_update(
@@ -95,6 +100,8 @@ class JobRepository:
                     "relevance_score": relevance_score,
                     "bm25_score": bm25_score,
                     "cosine_score": cosine_score,
+                    "match_reason": match_reason,
+                    "gaps": gaps,
                 },
             )
         )
@@ -114,13 +121,6 @@ class JobRepository:
         page_size: int = 20,
         only_new: bool = False,
     ) -> tuple[list[JobSearchResult], int]:
-        query = (
-            select(JobSearchResult)
-            .where(JobSearchResult.search_id == search_id, JobSearchResult.is_dismissed.is_(False))
-        )
-        if only_new:
-            query = query.where(JobSearchResult.is_new.is_(True))
-
         count_q = select(JobSearchResult.id).where(
             JobSearchResult.search_id == search_id,
             JobSearchResult.is_dismissed.is_(False),
@@ -128,8 +128,16 @@ class JobRepository:
         if only_new:
             count_q = count_q.where(JobSearchResult.is_new.is_(True))
 
-        total_result = await self._session.execute(count_q)
-        total = len(total_result.all())
+        count_result = await self._session.execute(select(func.count()).select_from(count_q.subquery()))
+        total = count_result.scalar_one()
+
+        query = (
+            select(JobSearchResult)
+            .options(selectinload(JobSearchResult.job))
+            .where(JobSearchResult.search_id == search_id, JobSearchResult.is_dismissed.is_(False))
+        )
+        if only_new:
+            query = query.where(JobSearchResult.is_new.is_(True))
 
         query = query.order_by(JobSearchResult.relevance_score.desc())
         query = query.offset((page - 1) * page_size).limit(page_size)

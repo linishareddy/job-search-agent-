@@ -7,17 +7,17 @@ from config.database import get_db
 from controllers.search_controller import SearchController
 from core.response import ok
 from schemas.saved_search import SavedSearchCreate, SavedSearchUpdate
+from schemas.search_intent import CreateSearchFromTextRequest, ParseSearchTextRequest
 
 router = APIRouter(prefix="/searches")
 
 
 @router.get("")
 async def list_searches(
-    user_id: uuid.UUID = Query(..., description="User UUID"),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    searches = await ctrl.list_searches(user_id)
+    searches = await ctrl.list_searches()
     return ok(data=[s.model_dump() for s in searches], total=len(searches))
 
 
@@ -29,6 +29,29 @@ async def create_search(
     ctrl = SearchController(db)
     search = await ctrl.create_search(data)
     return ok(data=search.model_dump())
+
+
+@router.post("/parse-text")
+async def parse_search_text(
+    data: ParseSearchTextRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    ctrl = SearchController(db)
+    parsed = await ctrl.parse_text(data.text)
+    return ok(data=parsed.model_dump())
+
+
+@router.post("/from-text", status_code=status.HTTP_201_CREATED)
+async def create_search_from_text(
+    data: CreateSearchFromTextRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    ctrl = SearchController(db)
+    search, run_id = await ctrl.create_from_text(data.text, data.overrides, data.run_immediately)
+    result = search.model_dump()
+    if run_id:
+        result["run_id"] = str(run_id)
+    return ok(data=result, message="Pipeline started" if run_id else None)
 
 
 @router.get("/{search_id}")

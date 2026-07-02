@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 class NotificationResponse(BaseModel):
     id: uuid.UUID
-    user_id: uuid.UUID
     search_id: Optional[uuid.UUID]
     run_id: Optional[uuid.UUID]
     message: str

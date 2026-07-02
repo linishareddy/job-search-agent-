@@ -12,12 +12,11 @@ router = APIRouter(prefix="/notifications")
 
 @router.get("")
 async def list_notifications(
-    user_id: uuid.UUID = Query(...),
     unread_only: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = NotificationController(db)
-    notifications = await ctrl.list_notifications(user_id, unread_only)
+    notifications = await ctrl.list_notifications(unread_only)
     return ok(data=[n.model_dump() for n in notifications], total=len(notifications))
 
 

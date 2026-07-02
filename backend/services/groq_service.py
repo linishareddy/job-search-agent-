@@ -48,9 +48,37 @@ class GroqService:
             logger.error(f"Groq field expansion failed: {e}")
             # Graceful fallback so the pipeline can continue without expansion
             return {
+                "search_queries": [f"{job_title} {field_domain}"],
                 "primary_keywords": [job_title],
                 "negative_keywords": [],
                 "related_titles": [],
+                "ideal_profile": f"{job_title} professional in the {field_domain} field.",
+            }
+
+    async def parse_search_intent(self, text: str) -> dict[str, Any]:
+        """Call Groq to parse a free-text job search description into structured search fields."""
+        from prompts.search_intent_parser import SYSTEM_PROMPT, USER_TEMPLATE
+
+        user_msg = USER_TEMPLATE.format(text=text)
+        try:
+            raw = await self._complete(_FAST_MODEL, SYSTEM_PROMPT, user_msg)
+            return json.loads(raw)
+        except (json.JSONDecodeError, Exception) as e:
+            logger.error(f"Groq search intent parse failed: {e}")
+            # Graceful fallback: treat the whole text as the job title, flag low confidence
+            return {
+                "job_title": text.strip()[:256],
+                "field_domain": text.strip(),
+                "name": text.strip()[:256],
+                "location": None,
+                "work_mode": "any",
+                "experience_level": "any",
+                "employment_type": "any",
+                "salary_min": None,
+                "salary_max": None,
+                "company_slugs": [],
+                "confidence": 0.0,
+                "ambiguities": ["Automatic parsing failed — please review all fields carefully."],
             }
 
     async def enrich_jobs(

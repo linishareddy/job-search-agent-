@@ -2,18 +2,25 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from config.database import engine, Base
 from config.logging import setup_logging
 from exceptions.handlers import register_exception_handlers
-from routes import searches, jobs, companies, notifications, health
+from routes import searches, companies, notifications, health
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
     async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         await conn.run_sync(Base.metadata.create_all)
+        # TEMP: mirrors alembic/versions/002_phase2_match_reasoning.py — remove once a
+        # real migration step runs at deploy time. create_all() only creates missing
+        # tables, so already-existing tables need these backfilled explicitly.
+        await conn.execute(text("ALTER TABLE job_search_result ADD COLUMN IF NOT EXISTS match_reason TEXT"))
+        await conn.execute(text("ALTER TABLE job_search_result ADD COLUMN IF NOT EXISTS gaps TEXT"))
     yield
 
 
@@ -35,7 +42,6 @@ app.add_middleware(
 register_exception_handlers(app)
 
 app.include_router(searches.router, prefix="/api/v1", tags=["searches"])
-app.include_router(jobs.router, prefix="/api/v1", tags=["jobs"])
 app.include_router(companies.router, prefix="/api/v1", tags=["companies"])
 app.include_router(notifications.router, prefix="/api/v1", tags=["notifications"])
 app.include_router(health.router, prefix="/api/v1", tags=["health"])

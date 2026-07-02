@@ -24,11 +24,9 @@ class SavedSearchRepository:
         )
         return result.scalar_one_or_none()
 
-    async def get_by_user(self, user_id: uuid.UUID) -> list[SavedSearch]:
+    async def get_all(self) -> list[SavedSearch]:
         result = await self._session.execute(
-            select(SavedSearch)
-            .where(SavedSearch.user_id == user_id)
-            .order_by(SavedSearch.created_at.desc())
+            select(SavedSearch).order_by(SavedSearch.created_at.desc())
         )
         return result.scalars().all()
 

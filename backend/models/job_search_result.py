@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, UniqueConstraint, func
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -21,6 +21,8 @@ class JobSearchResult(Base):
     relevance_score: Mapped[float] = mapped_column(Float, nullable=False)  # Groq 1-10 normalized to 0-1
     bm25_score: Mapped[float | None] = mapped_column(Float)
     cosine_score: Mapped[float | None] = mapped_column(Float)
+    match_reason: Mapped[str | None] = mapped_column(Text)
+    gaps: Mapped[str | None] = mapped_column(Text)
     is_new: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     is_dismissed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)

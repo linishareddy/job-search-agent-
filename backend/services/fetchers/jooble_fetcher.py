@@ -36,7 +36,8 @@ class JoobleFetcher(BaseJobFetcher):
             logger.warning("Jooble API key not configured — skipping")
             return []
 
-        keywords = f"{search.job_title} {search.field_domain}"
+        search_queries = expansion.get("search_queries", [])
+        keywords = search_queries[0] if search_queries else f"{search.job_title} {search.field_domain}"
         location = search.location or "United States"
 
         payload = {

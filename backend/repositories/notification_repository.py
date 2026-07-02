@@ -12,14 +12,12 @@ class NotificationRepository:
 
     async def create(
         self,
-        user_id: uuid.UUID,
         message: str,
         new_job_count: int,
         search_id: uuid.UUID | None = None,
         run_id: uuid.UUID | None = None,
     ) -> Notification:
         notification = Notification(
-            user_id=user_id,
             search_id=search_id,
             run_id=run_id,
             message=message,
@@ -29,8 +27,8 @@ class NotificationRepository:
         await self._session.flush()
         return notification
 
-    async def get_for_user(self, user_id: uuid.UUID, unread_only: bool = False) -> list[Notification]:
-        query = select(Notification).where(Notification.user_id == user_id)
+    async def get_all(self, unread_only: bool = False) -> list[Notification]:
+        query = select(Notification)
         if unread_only:
             query = query.where(Notification.is_read.is_(False))
         query = query.order_by(Notification.created_at.desc())

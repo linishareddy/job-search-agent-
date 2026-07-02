@@ -43,7 +43,12 @@ class LeverFetcher(BaseJobFetcher):
             return []
 
         jobs: list[JobRaw] = []
-        keywords = [search.job_title] + expansion.get("primary_keywords", []) + expansion.get("related_titles", [])
+        keywords = (
+            [search.job_title]
+            + expansion.get("search_queries", [])
+            + expansion.get("primary_keywords", [])
+            + expansion.get("related_titles", [])
+        )
         negative_keywords = expansion.get("negative_keywords", [])
 
         for slug in slugs:

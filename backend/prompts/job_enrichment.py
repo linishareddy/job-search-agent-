@@ -13,7 +13,9 @@ Return a JSON array. Each element must have ALL these fields:
   "work_mode": "<one of: remote | hybrid | onsite | unknown>",
   "salary_min": <integer annual USD or null>,
   "salary_max": <integer annual USD or null>,
-  "relevance_score": <integer 1-10, where 10 = perfect match for job title + field + level>
+  "relevance_score": <integer 1-10, where 10 = perfect match for job title + field + level>,
+  "match_reason": "<1-2 sentences: specifically why THIS job fits the target title/field/level — cite concrete overlaps>",
+  "gaps": "<1-2 sentences: what's missing or mismatched (e.g. wrong seniority, adjacent-but-different domain, unclear remote policy) — say 'None notable' if it's a strong match with no real gaps>"
 }}
 
 Scoring guidance:

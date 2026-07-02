@@ -16,7 +16,6 @@ class SavedSearch(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     job_title: Mapped[str] = mapped_column(String(256), nullable=False)
     field_domain: Mapped[str] = mapped_column(Text, nullable=False)
@@ -37,7 +36,6 @@ class SavedSearch(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
-    user: Mapped["User"] = relationship("User", back_populates="saved_searches")
     search_runs: Mapped[list["SearchRun"]] = relationship("SearchRun", back_populates="saved_search", cascade="all, delete-orphan")
     results: Mapped[list["JobSearchResult"]] = relationship("JobSearchResult", back_populates="saved_search", cascade="all, delete-orphan")
     notifications: Mapped[list["Notification"]] = relationship("Notification", back_populates="saved_search")

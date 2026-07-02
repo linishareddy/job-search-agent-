@@ -26,7 +26,7 @@ class SavedSearchBase(BaseModel):
 
 
 class SavedSearchCreate(SavedSearchBase):
-    user_id: uuid.UUID
+    pass
 
 
 class SavedSearchUpdate(BaseModel):
@@ -46,7 +46,6 @@ class SavedSearchUpdate(BaseModel):
 
 class SavedSearchResponse(SavedSearchBase):
     id: uuid.UUID
-    user_id: uuid.UUID
     is_active: bool
     last_run_at: Optional[datetime]
     field_expansion_cache: Optional[dict[str, Any]]

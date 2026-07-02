@@ -21,19 +21,8 @@ def upgrade() -> None:
     op.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto")
 
     op.create_table(
-        "user",
-        sa.Column("id", UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()")),
-        sa.Column("email", sa.String(255), nullable=False, unique=True),
-        sa.Column("display_name", sa.String(100)),
-        sa.Column("is_active", sa.Boolean, nullable=False, server_default="true"),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-    )
-
-    op.create_table(
         "saved_search",
         sa.Column("id", UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()")),
-        sa.Column("user_id", UUID(as_uuid=True), sa.ForeignKey("user.id", ondelete="CASCADE"), nullable=False),
         sa.Column("name", sa.String(256), nullable=False),
         sa.Column("job_title", sa.String(256), nullable=False),
         sa.Column("field_domain", sa.Text, nullable=False),
@@ -54,7 +43,6 @@ def upgrade() -> None:
         sa.CheckConstraint("poll_interval_minutes >= 30", name="ck_poll_interval_min"),
         sa.CheckConstraint("poll_interval_minutes <= 1440", name="ck_poll_interval_max"),
     )
-    op.create_index("idx_saved_search_user", "saved_search", ["user_id"])
     op.create_index("idx_saved_search_active", "saved_search", ["is_active"], postgresql_where=sa.text("is_active = TRUE"))
 
     op.create_table(
@@ -139,7 +127,6 @@ def upgrade() -> None:
     op.create_table(
         "notification",
         sa.Column("id", UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()")),
-        sa.Column("user_id", UUID(as_uuid=True), sa.ForeignKey("user.id", ondelete="CASCADE"), nullable=False),
         sa.Column("search_id", UUID(as_uuid=True), sa.ForeignKey("saved_search.id", ondelete="SET NULL")),
         sa.Column("run_id", UUID(as_uuid=True), sa.ForeignKey("search_run.id", ondelete="SET NULL")),
         sa.Column("message", sa.Text, nullable=False),
@@ -147,7 +134,7 @@ def upgrade() -> None:
         sa.Column("is_read", sa.Boolean, nullable=False, server_default="false"),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
     )
-    op.create_index("idx_notification_user", "notification", ["user_id", "is_read"])
+    op.create_index("idx_notification_read", "notification", ["is_read"])
 
 
 def downgrade() -> None:
@@ -157,5 +144,4 @@ def downgrade() -> None:
     op.drop_table("job")
     op.drop_table("ats_company")
     op.drop_table("saved_search")
-    op.drop_table("user")
     op.execute("DROP EXTENSION IF EXISTS vector")

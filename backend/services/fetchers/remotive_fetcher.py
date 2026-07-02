@@ -31,7 +31,9 @@ class RemotiveFetcher(BaseJobFetcher):
         if search.work_mode == "onsite":
             return []
 
-        params = {"search": search.job_title, "limit": 100}
+        search_queries = expansion.get("search_queries", [])
+        query = search_queries[0] if search_queries else search.job_title
+        params = {"search": query, "limit": 100}
 
         try:
             data = await self._get(params)
