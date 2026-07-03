@@ -2,15 +2,21 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from exceptions.handlers import NotFoundError
 from repositories.job_repository import JobRepository
+from repositories.resume_repository import ResumeRepository
 from repositories.saved_search_repository import SavedSearchRepository
-from schemas.job import JobSearchResultResponse
+from schemas.analytics import SearchAnalytics
+from schemas.job import CoverLetterResponse, JobSearchResultResponse
+from services import analytics_service, resume_match_service
+from services.groq_service import GroqService
 
 
 class JobController:
     def __init__(self, session: AsyncSession):
         self._repo = JobRepository(session)
         self._search_repo = SavedSearchRepository(session)
+        self._resume_repo = ResumeRepository(session)
 
     async def get_results(
         self,
@@ -19,6 +25,7 @@ class JobController:
         page_size: int = 20,
         only_new: bool = False,
         posted_within_days: int | None = None,
+        resume_id: uuid.UUID | None = None,
     ) -> tuple[list[JobSearchResultResponse], int]:
         # Query param wins if given; otherwise fall back to the search's saved default.
         effective_posted_within_days = posted_within_days
@@ -34,4 +41,46 @@ class JobController:
             only_new=only_new,
             posted_within_days=effective_posted_within_days,
         )
-        return [JobSearchResultResponse.model_validate(r) for r in results], total
+
+        responses = [JobSearchResultResponse.model_validate(r) for r in results]
+
+        # Optional personalized match: score this page's jobs against a chosen resume.
+        if resume_id is not None:
+            resume = await self._resume_repo.get_by_id(resume_id)
+            if resume:
+                resume_skills = (resume.parsed_data or {}).get("skills", [])
+                match_by_job = resume_match_service.match_jobs(
+                    resume_text=resume.raw_text,
+                    resume_skills=resume_skills,
+                    jobs=[r.job for r in results],
+                )
+                for resp in responses:
+                    resp.match = match_by_job.get(str(resp.job.id))
+
+        return responses, total
+
+    async def generate_cover_letter(
+        self, job_id: uuid.UUID, resume_id: uuid.UUID
+    ) -> CoverLetterResponse:
+        job = await self._repo.get_by_id(job_id)
+        if not job:
+            raise NotFoundError("Job", str(job_id))
+        resume = await self._resume_repo.get_by_id(resume_id)
+        if not resume:
+            raise NotFoundError("Resume", str(resume_id))
+
+        job_dict = {
+            "title": job.title,
+            "company_name": job.company_name,
+            "description_summary": job.description_summary,
+            "skills": job.skills,
+        }
+        cover_letter = await GroqService().generate_cover_letter(job_dict, resume.raw_text)
+        return CoverLetterResponse(cover_letter=cover_letter)
+
+    async def get_analytics(self, search_id: uuid.UUID) -> SearchAnalytics:
+        search = await self._search_repo.get_by_id(search_id)
+        if not search:
+            raise NotFoundError("SavedSearch", str(search_id))
+        jobs = await self._repo.get_all_jobs_for_search(search_id)
+        return analytics_service.compute_analytics(jobs)

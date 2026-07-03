@@ -20,6 +20,16 @@ export interface Job {
   created_at: string;
 }
 
+export interface JobMatchDetail {
+  match_score: number;
+  matched_skills: string[];
+  missing_skills: string[];
+}
+
+export interface CoverLetterResult {
+  cover_letter: string;
+}
+
 export interface JobSearchResult {
   id: string;
   job: Job;
@@ -31,6 +41,7 @@ export interface JobSearchResult {
   is_new: boolean;
   is_dismissed: boolean;
   created_at: string;
+  match?: JobMatchDetail | null;
 }
 
 export interface SearchResultsParams {
@@ -38,4 +49,5 @@ export interface SearchResultsParams {
   page_size?: number;
   only_new?: boolean;
   posted_within_days?: number | null;
+  resume_id?: string | null;
 }

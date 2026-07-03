@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Any
 
 from groq import AsyncGroq
@@ -12,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 _FAST_MODEL = "llama-3.1-8b-instant"       # field expansion — simple structured task
 _SMART_MODEL = "llama-3.3-70b-versatile"   # job enrichment — nuanced relevance judgment
+
+_CODE_FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
 
 
 class GroqService:
@@ -34,7 +37,9 @@ class GroqService:
             temperature=0.1,
             max_tokens=4096,
         )
-        return response.choices[0].message.content or ""
+        raw = response.choices[0].message.content or ""
+        # Some models wrap JSON responses in a ```json ... ``` fence despite instructions not to.
+        return _CODE_FENCE_RE.sub("", raw).strip()
 
     async def expand_field_domain(self, job_title: str, field_domain: str) -> dict[str, Any]:
         """Call Groq to expand free-text field/domain into keywords, negatives, related titles."""
@@ -80,6 +85,41 @@ class GroqService:
                 "confidence": 0.0,
                 "ambiguities": ["Automatic parsing failed — please review all fields carefully."],
             }
+
+    async def parse_resume(self, text: str) -> dict[str, Any]:
+        """Call Groq to extract structured profile data (skills, titles, experience) from resume text."""
+        from prompts.resume_parser import SYSTEM_PROMPT, USER_TEMPLATE
+
+        user_msg = USER_TEMPLATE.format(text=text[:12000])
+        try:
+            raw = await self._complete(_FAST_MODEL, SYSTEM_PROMPT, user_msg)
+            return json.loads(raw)
+        except (json.JSONDecodeError, Exception) as e:
+            logger.error(f"Groq resume parse failed: {e}")
+            return {
+                "skills": [],
+                "job_titles": [],
+                "experience_level": None,
+                "years_experience": None,
+                "summary": None,
+            }
+
+    async def generate_cover_letter(self, job: dict, resume_text: str) -> str:
+        """Generate a tailored cover letter (plain text) for a job + resume via Groq."""
+        from prompts.cover_letter import SYSTEM_PROMPT, USER_TEMPLATE
+
+        user_msg = USER_TEMPLATE.format(
+            job_title=job.get("title", ""),
+            company_name=job.get("company_name", ""),
+            description_summary=job.get("description_summary") or "(no summary available)",
+            skills=", ".join(job.get("skills") or []) or "(not specified)",
+            resume_text=resume_text[:12000],
+        )
+        try:
+            return await self._complete(_SMART_MODEL, SYSTEM_PROMPT, user_msg)
+        except Exception as e:
+            logger.error(f"Groq cover letter generation failed: {e}")
+            raise GroqError(str(e)) from e
 
     async def enrich_jobs(
         self,

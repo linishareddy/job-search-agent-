@@ -7,7 +7,7 @@ from sqlalchemy import text
 from config.database import engine, Base
 from config.logging import setup_logging
 from exceptions.handlers import register_exception_handlers
-from routes import searches, companies, notifications, health
+from routes import searches, companies, notifications, health, resumes, jobs, applications
 
 
 @asynccontextmanager
@@ -49,6 +49,9 @@ app.include_router(searches.router, prefix="/api/v1", tags=["searches"])
 app.include_router(companies.router, prefix="/api/v1", tags=["companies"])
 app.include_router(notifications.router, prefix="/api/v1", tags=["notifications"])
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
+app.include_router(resumes.router, prefix="/api/v1", tags=["resumes"])
+app.include_router(jobs.router, prefix="/api/v1", tags=["jobs"])
+app.include_router(applications.router, prefix="/api/v1", tags=["applications"])
 
 
 if __name__ == "__main__":

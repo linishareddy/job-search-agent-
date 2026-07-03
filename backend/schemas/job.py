@@ -29,6 +29,21 @@ class JobResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class CoverLetterRequest(BaseModel):
+    resume_id: uuid.UUID
+
+
+class CoverLetterResponse(BaseModel):
+    cover_letter: str
+
+
+class JobMatchDetail(BaseModel):
+    """How well a specific job fits a chosen resume (computed at read time)."""
+    match_score: float  # cosine similarity 0-1 between resume and job embeddings
+    matched_skills: list[str]
+    missing_skills: list[str]
+
+
 class JobSearchResultResponse(BaseModel):
     id: uuid.UUID
     job: JobResponse
@@ -40,5 +55,7 @@ class JobSearchResultResponse(BaseModel):
     is_new: bool
     is_dismissed: bool
     created_at: datetime
+    # Populated only when the results request supplies a resume_id to match against.
+    match: Optional[JobMatchDetail] = None
 
     model_config = {"from_attributes": True}

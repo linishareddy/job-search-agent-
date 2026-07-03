@@ -15,6 +15,10 @@ class JobRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
 
+    async def get_by_id(self, job_id: uuid.UUID) -> Job | None:
+        result = await self._session.execute(select(Job).where(Job.id == job_id))
+        return result.scalar_one_or_none()
+
     async def get_existing_fingerprints(self, fingerprints: list[str]) -> set[str]:
         """Return which fingerprints already exist in the DB."""
         result = await self._session.execute(
@@ -106,6 +110,18 @@ class JobRepository:
             )
         )
         await self._session.execute(stmt)
+
+    async def get_all_jobs_for_search(self, search_id: uuid.UUID) -> list[Job]:
+        """All (non-dismissed) jobs for a search, unpaginated — for analytics aggregation."""
+        result = await self._session.execute(
+            select(Job)
+            .join(JobSearchResult, JobSearchResult.job_id == Job.id)
+            .where(
+                JobSearchResult.search_id == search_id,
+                JobSearchResult.is_dismissed.is_(False),
+            )
+        )
+        return result.scalars().all()
 
     async def get_previous_job_ids(self, search_id: uuid.UUID) -> set[uuid.UUID]:
         """Return job IDs from the last completed run for a search (for is_new detection)."""

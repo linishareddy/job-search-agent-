@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  BarChart3,
   ChevronLeft,
   Loader2,
   Pencil,
@@ -13,7 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { searchesApi } from "@/lib/api";
+import { resumesApi, searchesApi } from "@/lib/api";
 import { parseApiError } from "@/lib/types/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +41,13 @@ export default function SearchDetailPage() {
   const [page, setPage] = useState(1);
   const [pipelineStep, setPipelineStep] = useState(0);
   const [isPolling, setIsPolling] = useState(searchParams.get("running") === "1");
+  const [resumeId, setResumeId] = useState<string>("");
+
+  const resumesQuery = useQuery({
+    queryKey: ["resumes"],
+    queryFn: () => resumesApi.list(),
+  });
+  const resumes = resumesQuery.data?.data ?? [];
 
   const { data: searchRes, isLoading: searchLoading } = useQuery({
     queryKey: ["search", id],
@@ -56,13 +64,14 @@ export default function SearchDetailPage() {
   }, [search, postedDays]);
 
   const resultsQuery = useQuery({
-    queryKey: ["search-results", id, { page, onlyNew, postedDays }],
+    queryKey: ["search-results", id, { page, onlyNew, postedDays, resumeId }],
     queryFn: () =>
       searchesApi.results(id, {
         page,
         page_size: 20,
         only_new: onlyNew,
         posted_within_days: postedDays > 0 ? postedDays : undefined,
+        resume_id: resumeId || undefined,
       }),
     enabled: !!id,
     refetchInterval: isPolling ? 5000 : false,
@@ -186,6 +195,11 @@ export default function SearchDetailPage() {
           >
             {search.is_active ? "Pause" : "Resume"}
           </Button>
+          <Link href={`/dashboard/searches/${id}/analytics`}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <BarChart3 className="h-4 w-4" /> Insights
+            </Button>
+          </Link>
           <Link href={`/dashboard/searches/${id}/edit`}>
             <Button variant="outline" size="sm" className="gap-2">
               <Pencil className="h-4 w-4" /> Edit
@@ -238,9 +252,31 @@ export default function SearchDetailPage() {
         </Button>
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        <span className="font-medium text-foreground">{total}</span> matching jobs
-      </p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{total}</span> matching jobs
+        </p>
+        {resumes.length > 0 && (
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            Match against resume:
+            <select
+              value={resumeId}
+              onChange={(e) => {
+                setResumeId(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <option value="">None</option>
+              {resumes.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.filename}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
 
       {resultsQuery.isLoading && (
         <div className="space-y-4">

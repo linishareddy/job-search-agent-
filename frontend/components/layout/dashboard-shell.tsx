@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import {
   Bell,
   Building2,
+  FileText,
+  KanbanSquare,
   LayoutDashboard,
   Plus,
   Radar,
@@ -20,6 +22,8 @@ const NAV = [
   { href: "/dashboard", label: "Searches", icon: LayoutDashboard },
   { href: "/dashboard/new", label: "New Search", icon: Plus },
   { href: "/dashboard/companies", label: "Companies", icon: Building2 },
+  { href: "/dashboard/resume", label: "Resume", icon: FileText },
+  { href: "/dashboard/tracker", label: "Tracker", icon: KanbanSquare },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
 ];
 

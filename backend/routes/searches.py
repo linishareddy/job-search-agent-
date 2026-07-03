@@ -110,14 +110,34 @@ async def get_results(
             "unknown posted date are always included."
         ),
     ),
+    resume_id: uuid.UUID | None = Query(
+        default=None,
+        description=(
+            "If given, score each returned job against this resume and include a "
+            "'match' object (cosine similarity + matched/missing skills) per result."
+        ),
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     from controllers.job_controller import JobController
     ctrl = JobController(db)
-    results, total = await ctrl.get_results(search_id, page, page_size, only_new, posted_within_days)
+    results, total = await ctrl.get_results(
+        search_id, page, page_size, only_new, posted_within_days, resume_id
+    )
     return ok(
         data=[r.model_dump() for r in results],
         total=total,
         page=page,
         page_size=page_size,
     )
+
+
+@router.get("/{search_id}/analytics")
+async def get_analytics(
+    search_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    from controllers.job_controller import JobController
+    ctrl = JobController(db)
+    analytics = await ctrl.get_analytics(search_id)
+    return ok(data=analytics.model_dump())

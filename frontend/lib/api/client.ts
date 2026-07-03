@@ -63,12 +63,26 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<ApiRespo
   });
 }
 
+export async function apiPostForm<T>(path: string, formData: FormData): Promise<ApiResponse<T>> {
+  const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  const res = await fetch(url, { method: "POST", body: formData });
+
+  if (!res.ok) {
+    throw await parseError(res);
+  }
+
+  return res.json() as Promise<ApiResponse<T>>;
+}
+
 export async function apiPut<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
   return apiRequest<T>(path, { method: "PUT", body: JSON.stringify(body) });
 }
 
-export async function apiPatch<T>(path: string): Promise<ApiResponse<T>> {
-  return apiRequest<T>(path, { method: "PATCH" });
+export async function apiPatch<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
+  return apiRequest<T>(path, {
+    method: "PATCH",
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
 }
 
 export async function apiDelete(path: string): Promise<void> {

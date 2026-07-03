@@ -28,17 +28,6 @@ export function formatRelativeDate(iso?: string | null): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export function scoreLabel(score: number): string {
-  return (score * 10).toFixed(1);
-}
-
-export function scoreColor(score: number): string {
-  const s = score * 10;
-  if (s >= 7) return "text-success";
-  if (s >= 5) return "text-warning";
-  return "text-muted-foreground";
-}
-
 const SOURCE_COLORS: Record<string, string> = {
   adzuna: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
   jooble: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",

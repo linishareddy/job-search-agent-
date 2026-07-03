@@ -29,5 +29,9 @@ apscheduler>=3.10.0
 pydantic>=2.7.0
 pydantic-settings>=2.3.0
 
+# Resume parsing
+pypdf>=4.2.0
+python-docx>=1.1.0
+
 # Utilities
 python-dotenv>=1.0.0

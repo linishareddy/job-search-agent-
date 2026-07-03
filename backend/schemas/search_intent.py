@@ -7,7 +7,7 @@ from schemas.saved_search import CompanySlug, SavedSearchUpdate
 
 
 class ParseSearchTextRequest(BaseModel):
-    text: str = Field(..., min_length=10, max_length=2000)
+    text: str = Field(..., min_length=10, max_length=5000)
 
 
 class ParsedSearchIntent(BaseModel):
@@ -27,6 +27,6 @@ class ParsedSearchIntent(BaseModel):
 
 
 class CreateSearchFromTextRequest(BaseModel):
-    text: str = Field(..., min_length=10, max_length=2000)
+    text: str = Field(..., min_length=10, max_length=5000)
     overrides: Optional[SavedSearchUpdate] = None
     run_immediately: bool = True

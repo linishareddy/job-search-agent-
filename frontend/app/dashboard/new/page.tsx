@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ParsedIntentPreview } from "@/components/search/parsed-intent-preview";
+import { ResumeAttach } from "@/components/search/resume-attach";
 import { FilterChips } from "@/components/search/search-filters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -27,6 +28,7 @@ const POSTED_OPTIONS = [
 ] as const;
 
 export default function NewSearchPage() {
+  const MAX_CHARS = 5000;
   const router = useRouter();
   const [text, setText] = useState("");
   const [parsed, setParsed] = useState<ParsedSearchIntent | null>(null);
@@ -92,16 +94,24 @@ export default function NewSearchPage() {
     }
   }
 
+  function handleResumeExtracted(extractedText: string) {
+    const merged = text.trim() ? `${text.trim()}\n\n${extractedText}` : extractedText;
+    handleTextChange(merged);
+  }
+
   function handleTextChange(value: string) {
-    setText(value);
+    const capped = value.slice(0, MAX_CHARS);
+    setText(capped);
     // Clear stale preview when user edits — no API call until they click Preview.
-    if (value.trim() !== lastParsedTextRef.current) {
+    if (capped.trim() !== lastParsedTextRef.current) {
       setParsed(null);
       setParseError(null);
     }
   }
 
-  const canCreate = text.trim().length >= 10 && !createMutation.isPending;
+  const charCount = text.length;
+  const isOverLimit = charCount > MAX_CHARS;
+  const canCreate = text.trim().length >= 10 && !createMutation.isPending && !isOverLimit;
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
@@ -121,8 +131,14 @@ export default function NewSearchPage() {
             placeholder={EXAMPLE}
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
+            maxLength={MAX_CHARS}
             className="min-h-[140px] text-base"
           />
+          <div className="flex justify-end">
+            <span className={`text-xs ${isOverLimit ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+              {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()} characters
+            </span>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
@@ -152,6 +168,7 @@ export default function NewSearchPage() {
               )}
               Preview with AI
             </Button>
+            <ResumeAttach onExtracted={handleResumeExtracted} />
             <span className="text-xs text-muted-foreground">
               Preview is optional — one Groq call when you click
             </span>
