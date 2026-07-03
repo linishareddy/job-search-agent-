@@ -22,14 +22,25 @@ _FETCHERS = [
 ]
 
 
-async def fetch_all_sources(search: SavedSearchResponse, expansion: dict) -> list[JobRaw]:
-    """Fetch from all 6 sources in parallel. Individual source failures are logged and skipped."""
+async def fetch_all_sources(
+    search: SavedSearchResponse, expansion: dict
+) -> tuple[list[JobRaw], dict[str, dict]]:
+    """Fetch from all 6 sources in parallel. Individual source failures are logged and skipped.
+
+    Returns (jobs, stats) where stats maps source name to
+    {"fetched": int, "error": str | None} so each run records whether an empty source
+    had no matches or actually failed.
+    """
+    stats: dict[str, dict] = {}
 
     async def safe_fetch(fetcher, search, expansion):
         try:
-            return await fetcher.fetch(search, expansion)
+            batch = await fetcher.fetch(search, expansion)
+            stats[fetcher.source_name] = {"fetched": len(batch), "error": None}
+            return batch
         except Exception as e:
             logger.error(f"Source {fetcher.source_name} failed: {e}")
+            stats[fetcher.source_name] = {"fetched": 0, "error": str(e)[:500]}
             return []
 
     results = await asyncio.gather(*[safe_fetch(f, search, expansion) for f in _FETCHERS])
@@ -39,4 +50,4 @@ async def fetch_all_sources(search: SavedSearchResponse, expansion: dict) -> lis
         all_jobs.extend(batch)
 
     logger.info(f"Total raw jobs fetched across all sources: {len(all_jobs)}")
-    return all_jobs
+    return all_jobs, stats

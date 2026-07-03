@@ -36,8 +36,8 @@ class AshbyFetcher(BaseJobFetcher):
 
     async def fetch(self, search: SavedSearchResponse, expansion: dict) -> list[JobRaw]:
         slugs = [
-            c["slug"] for c in (search.company_slugs or [])
-            if c.get("source") == ASHBY
+            c.slug for c in (search.company_slugs or [])
+            if c.source == ASHBY
         ]
 
         if not slugs:

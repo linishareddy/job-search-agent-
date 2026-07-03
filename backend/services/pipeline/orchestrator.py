@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from constants.sources import NOTIFICATION_SCORE_THRESHOLD
+from repositories.ats_company_repository import AtsCompanyRepository
 from repositories.job_repository import JobRepository
 from repositories.notification_repository import NotificationRepository
 from repositories.saved_search_repository import SavedSearchRepository
@@ -63,9 +64,21 @@ class PipelineOrchestrator:
         expansion = await self._get_expansion(search)
 
         # ── Step 2: Parallel fetch from all 6 sources ───────────────────────────
-        from schemas.saved_search import SavedSearchResponse
+        from schemas.saved_search import CompanySlug, SavedSearchResponse
         search_schema = SavedSearchResponse.model_validate(search)
-        raw_jobs = await fetcher_service.fetch_all_sources(search_schema, expansion)
+
+        # Merge the global ATS company watch-list into this search's slugs so
+        # Greenhouse/Lever/Ashby cover every tracked company, not only those named
+        # explicitly on the search itself.
+        watchlist = await AtsCompanyRepository(self._session).get_all_active()
+        seen = {(c.slug, c.source) for c in search_schema.company_slugs}
+        search_schema.company_slugs += [
+            CompanySlug(name=c.name, slug=c.slug, source=c.source)
+            for c in watchlist
+            if (c.slug, c.source) not in seen
+        ]
+
+        raw_jobs, source_stats = await fetcher_service.fetch_all_sources(search_schema, expansion)
         jobs_fetched = len(raw_jobs)
         logger.info(f"[Run {run.id}] Step 2: {jobs_fetched} raw jobs fetched")
 
@@ -78,7 +91,7 @@ class PipelineOrchestrator:
         )
 
         if not filtered:
-            await self._run_repo.complete(run.id, jobs_fetched, 0, 0)
+            await self._run_repo.complete(run.id, jobs_fetched, 0, 0, source_stats=source_stats)
             await self._search_repo.update_last_run(search.id)
             return
 
@@ -90,7 +103,7 @@ class PipelineOrchestrator:
         deduped = dedup_in_memory(filtered, existing_fps)
 
         if not deduped:
-            await self._run_repo.complete(run.id, jobs_fetched, 0, 0)
+            await self._run_repo.complete(run.id, jobs_fetched, 0, 0, source_stats=source_stats)
             await self._search_repo.update_last_run(search.id)
             return
 
@@ -146,7 +159,7 @@ class PipelineOrchestrator:
             )
 
         # ── Finalize ─────────────────────────────────────────────────────────────
-        await self._run_repo.complete(run.id, jobs_fetched, len(enriched), new_count)
+        await self._run_repo.complete(run.id, jobs_fetched, len(enriched), new_count, source_stats=source_stats)
         await self._search_repo.update_last_run(search.id)
 
         logger.info(

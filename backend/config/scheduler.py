@@ -33,6 +33,9 @@ async def run_due_searches() -> None:
             async with AsyncSessionLocal() as session:
                 orchestrator = PipelineOrchestrator(session)
                 await orchestrator.run(str(search.id))
+                # Repositories only flush(); outside the API's get_db dependency the
+                # session never commits on close, so scheduled runs must commit here.
+                await session.commit()
             await asyncio.sleep(2)  # stagger Groq calls
         except Exception as e:
             logger.error(f"Pipeline failed for search {search.id}: {e}")

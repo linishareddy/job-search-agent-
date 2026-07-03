@@ -1,10 +1,10 @@
 SYSTEM_PROMPT = """You are a job search query builder and candidate-profile writer. Return ONLY valid JSON, no explanation."""
 
-# search_queries are consumed as: the single best query for quota-limited sources
-# (Adzuna/Jooble/Remotive get exactly one API call each, using search_queries[0]) and
-# as extra fuzzy-match terms + semantic/BM25 corpus text for ATS sources and local
-# scoring (Greenhouse/Lever/Ashby, scoring_service.py) — never fanned out into
-# multiple API calls per source.
+# search_queries are consumed as: additional API queries for breadth sources
+# (Adzuna/Jooble/Remotive query the job title plus the top expansion queries — see
+# base_fetcher.build_search_queries) and as extra fuzzy-match terms + semantic/BM25
+# corpus text for ATS sources and local scoring (Greenhouse/Lever/Ashby,
+# scoring_service.py).
 USER_TEMPLATE = """Given this job search:
 - Job Title: {job_title}
 - Field/Domain: {field_domain}

@@ -5,11 +5,11 @@ import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config.settings import settings
-from constants.sources import JOOBLE
+from constants.sources import JOOBLE, SOURCE_RESULT_CAPS
 from exceptions.handlers import SourceFetchError
 from schemas.job_raw import JobRaw
 from schemas.saved_search import SavedSearchResponse
-from services.fetchers.base_fetcher import BaseJobFetcher
+from services.fetchers.base_fetcher import BaseJobFetcher, build_search_queries
 from utils.salary_extractor import extract_salary
 
 logger = logging.getLogger(__name__)
@@ -36,25 +36,42 @@ class JoobleFetcher(BaseJobFetcher):
             logger.warning("Jooble API key not configured — skipping")
             return []
 
-        search_queries = expansion.get("search_queries", [])
-        keywords = search_queries[0] if search_queries else f"{search.job_title} {search.field_domain}"
         location = search.location or "United States"
+        cap = SOURCE_RESULT_CAPS[JOOBLE]
+        jobs: list[JobRaw] = []
+        seen_links: set[str] = set()
+        last_error: str | None = None
 
-        payload = {
-            "keywords": keywords,
-            "location": location,
-            "page": 1,
-        }
+        for keywords in build_search_queries(search, expansion):
+            payload = {
+                "keywords": keywords,
+                "location": location,
+                "page": 1,
+            }
+            if search.work_mode == "remote":
+                payload["remotetype"] = "remote"
 
-        if search.work_mode == "remote":
-            payload["remotetype"] = "remote"
+            try:
+                data = await self._post(settings.jooble_api_key, payload)
+            except httpx.HTTPError as e:
+                last_error = str(e)
+                logger.warning(f"Jooble query '{keywords}' failed: {e}")
+                continue
 
-        try:
-            data = await self._post(settings.jooble_api_key, payload)
-        except httpx.HTTPError as e:
-            raise SourceFetchError(JOOBLE, str(e))
+            for item in data.get("jobs", []):
+                link = item.get("link", "")
+                if link and link in seen_links:
+                    continue
+                seen_links.add(link)
+                jobs.append(self._map(item))
 
-        jobs = [self._map(item) for item in data.get("jobs", [])]
+            if len(jobs) >= cap:
+                break
+
+        if not jobs and last_error:
+            raise SourceFetchError(JOOBLE, last_error)
+
+        del jobs[cap:]
         logger.info(f"Jooble: fetched {len(jobs)} jobs")
         return jobs
 

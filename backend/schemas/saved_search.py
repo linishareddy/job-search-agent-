@@ -23,6 +23,9 @@ class SavedSearchBase(BaseModel):
     salary_max: Optional[int] = Field(None, gt=0)
     company_slugs: list[CompanySlug] = Field(default_factory=list)
     poll_interval_minutes: int = Field(default=60, ge=30, le=1440)
+    # Default "only show jobs posted in the last N days" filter for this search.
+    # Null = no time filter. Can be overridden per-request via the results endpoint.
+    posted_within_days: Optional[int] = Field(None, ge=1, le=365)
 
 
 class SavedSearchCreate(SavedSearchBase):
@@ -41,6 +44,7 @@ class SavedSearchUpdate(BaseModel):
     salary_max: Optional[int] = Field(None, gt=0)
     company_slugs: Optional[list[CompanySlug]] = None
     poll_interval_minutes: Optional[int] = Field(None, ge=30, le=1440)
+    posted_within_days: Optional[int] = Field(None, ge=1, le=365)
     is_active: Optional[bool] = None
 
 

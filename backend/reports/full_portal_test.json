@@ -1,0 +1,580 @@
+{
+  "meta": {
+    "started_at": "2026-07-03T07:43:08.786043+00:00",
+    "portals_tested": [
+      "adzuna",
+      "jooble",
+      "remotive",
+      "greenhouse",
+      "lever",
+      "ashby"
+    ],
+    "ats_companies_configured": [
+      {
+        "name": "Stripe",
+        "slug": "stripe",
+        "source": "greenhouse"
+      },
+      {
+        "name": "Airbnb",
+        "slug": "airbnb",
+        "source": "greenhouse"
+      },
+      {
+        "name": "Netflix",
+        "slug": "netflix",
+        "source": "lever"
+      },
+      {
+        "name": "Linear",
+        "slug": "linear",
+        "source": "ashby"
+      }
+    ],
+    "finished_at": "2026-07-03T07:44:52.787878+00:00"
+  },
+  "steps": [
+    {
+      "step": "0_health",
+      "notes": "API + DB check",
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "database": "ok",
+          "status": "running"
+        }
+      },
+      "timestamp": "2026-07-03T07:43:08.823173+00:00"
+    },
+    {
+      "step": "0b_sources_before",
+      "notes": "Jobs per portal before run",
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "adzuna": {
+            "jobs_last_24h": 8
+          },
+          "jooble": {
+            "jobs_last_24h": 100
+          },
+          "remotive": {
+            "jobs_last_24h": 0
+          },
+          "greenhouse": {
+            "jobs_last_24h": 65
+          },
+          "lever": {
+            "jobs_last_24h": 0
+          },
+          "ashby": {
+            "jobs_last_24h": 0
+          }
+        }
+      },
+      "timestamp": "2026-07-03T07:43:08.828857+00:00"
+    },
+    {
+      "step": "1_register_ats_companies",
+      "notes": "Registers Greenhouse/Lever/Ashby company slugs for depth layer",
+      "request": {
+        "companies": [
+          {
+            "name": "Stripe",
+            "slug": "stripe",
+            "source": "greenhouse"
+          },
+          {
+            "name": "Airbnb",
+            "slug": "airbnb",
+            "source": "greenhouse"
+          },
+          {
+            "name": "Netflix",
+            "slug": "netflix",
+            "source": "lever"
+          },
+          {
+            "name": "Linear",
+            "slug": "linear",
+            "source": "ashby"
+          }
+        ]
+      },
+      "response": [
+        {
+          "success": true,
+          "data": {
+            "id": "3ab15c29-e137-4dfa-a9ea-dcab488cce33",
+            "name": "Stripe",
+            "slug": "stripe",
+            "source": "greenhouse",
+            "is_active": true,
+            "created_at": "2026-07-03T07:43:08.850440+00:00"
+          }
+        },
+        {
+          "success": true,
+          "data": {
+            "id": "1d397c37-3203-4ead-a51e-65608b85169a",
+            "name": "Airbnb",
+            "slug": "airbnb",
+            "source": "greenhouse",
+            "is_active": true,
+            "created_at": "2026-07-03T07:43:08.855469+00:00"
+          }
+        },
+        {
+          "success": true,
+          "data": {
+            "id": "9b9382a2-94da-4b17-8a29-e6324b81f767",
+            "name": "Netflix",
+            "slug": "netflix",
+            "source": "lever",
+            "is_active": true,
+            "created_at": "2026-07-03T07:43:08.859211+00:00"
+          }
+        },
+        {
+          "success": true,
+          "data": {
+            "id": "9ab7ec46-0840-4181-8345-87eb39a75cfd",
+            "name": "Linear",
+            "slug": "linear",
+            "source": "ashby",
+            "is_active": true,
+            "created_at": "2026-07-03T07:43:08.862380+00:00"
+          }
+        }
+      ],
+      "timestamp": "2026-07-03T07:43:08.863595+00:00"
+    },
+    {
+      "step": "2_parse_text_ai1",
+      "notes": "Groq intent parser",
+      "request": {
+        "text": "Remote senior healthcare analyst in the US, full time, 90k-130k, focusing on EHR and claims data"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "job_title": "Healthcare Analyst",
+          "field_domain": "Healthcare - EHR, claims data analysis",
+          "name": "Healthcare Analyst - Remote US",
+          "location": "United States",
+          "work_mode": "remote",
+          "experience_level": "senior",
+          "employment_type": "full_time",
+          "salary_min": 90000,
+          "salary_max": 130000,
+          "company_slugs": [],
+          "confidence": 0.92,
+          "ambiguities": [],
+          "raw_text": "Remote senior healthcare analyst in the US, full time, 90k-130k, focusing on EHR and claims data"
+        }
+      },
+      "timestamp": "2026-07-03T07:43:09.881149+00:00"
+    },
+    {
+      "step": "3_from_text_pipeline",
+      "notes": "Full 11-step pipeline across all portals. Took 102.9s",
+      "request": {
+        "text": "Remote senior healthcare analyst in the US, full time, 90k-130k, focusing on EHR and claims data",
+        "run_immediately": true,
+        "overrides": {
+          "name": "Portal Test 20260703_131309",
+          "company_slugs": [
+            {
+              "name": "Stripe",
+              "slug": "stripe",
+              "source": "greenhouse"
+            },
+            {
+              "name": "Airbnb",
+              "slug": "airbnb",
+              "source": "greenhouse"
+            },
+            {
+              "name": "Netflix",
+              "slug": "netflix",
+              "source": "lever"
+            },
+            {
+              "name": "Linear",
+              "slug": "linear",
+              "source": "ashby"
+            }
+          ]
+        }
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "name": "Portal Test 20260703_131309",
+          "job_title": "Healthcare Analyst",
+          "field_domain": "Healthcare - EHR, claims data analysis",
+          "location": "United States",
+          "work_mode": "remote",
+          "experience_level": "senior",
+          "employment_type": "full_time",
+          "salary_min": 90000,
+          "salary_max": 130000,
+          "company_slugs": [
+            {
+              "name": "Stripe",
+              "slug": "stripe",
+              "source": "greenhouse"
+            },
+            {
+              "name": "Airbnb",
+              "slug": "airbnb",
+              "source": "greenhouse"
+            },
+            {
+              "name": "Netflix",
+              "slug": "netflix",
+              "source": "lever"
+            },
+            {
+              "name": "Linear",
+              "slug": "linear",
+              "source": "ashby"
+            }
+          ],
+          "poll_interval_minutes": 60,
+          "id": "774ead62-8e04-4f9e-82bf-e56449bf2dad",
+          "is_active": true,
+          "last_run_at": null,
+          "field_expansion_cache": null,
+          "created_at": "2026-07-03T07:43:45.889686+00:00",
+          "updated_at": "2026-07-03T07:43:45.889686+00:00",
+          "run_id": "7efb06b7-9281-49e1-aed0-79816d26c1e2"
+        },
+        "message": "Pipeline started"
+      },
+      "timestamp": "2026-07-03T07:44:52.763768+00:00"
+    },
+    {
+      "step": "4_search_detail_ai2_expansion",
+      "notes": "field_expansion_cache = Groq AI #2 output used by fetchers",
+      "request": {
+        "search_id": "774ead62-8e04-4f9e-82bf-e56449bf2dad"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "name": "Portal Test 20260703_131309",
+          "job_title": "Healthcare Analyst",
+          "field_domain": "Healthcare - EHR, claims data analysis",
+          "location": "United States",
+          "work_mode": "remote",
+          "experience_level": "senior",
+          "employment_type": "full_time",
+          "salary_min": 90000,
+          "salary_max": 130000,
+          "company_slugs": [
+            {
+              "name": "Stripe",
+              "slug": "stripe",
+              "source": "greenhouse"
+            },
+            {
+              "name": "Airbnb",
+              "slug": "airbnb",
+              "source": "greenhouse"
+            },
+            {
+              "name": "Netflix",
+              "slug": "netflix",
+              "source": "lever"
+            },
+            {
+              "name": "Linear",
+              "slug": "linear",
+              "source": "ashby"
+            }
+          ],
+          "poll_interval_minutes": 60,
+          "id": "774ead62-8e04-4f9e-82bf-e56449bf2dad",
+          "is_active": true,
+          "last_run_at": "2026-07-03T07:44:52.761112+00:00",
+          "field_expansion_cache": {
+            "ideal_profile": "Someone who analyzes clinical, claims, or EHR data inside hospitals, health systems, or payers, turning patient or operational data into reporting and insight.",
+            "related_titles": [
+              "Clinical Analyst",
+              "Health Data Specialist",
+              "Medical Data Analyst"
+            ],
+            "search_queries": [
+              "healthcare analyst EHR",
+              "healthcare claims data analyst",
+              "healthcare data analyst remote",
+              "healthcare EHR analyst",
+              "healthcare claims analyst"
+            ],
+            "primary_keywords": [
+              "healthcare analyst",
+              "EHR",
+              "claims data",
+              "HEDIS",
+              "health informatics",
+              "clinical data",
+              "medical records"
+            ],
+            "negative_keywords": [
+              "game",
+              "retail",
+              "fashion",
+              "real estate",
+              "marketing"
+            ]
+          },
+          "created_at": "2026-07-03T07:43:45.889686+00:00",
+          "updated_at": "2026-07-03T07:43:45.889686+00:00"
+        }
+      },
+      "timestamp": "2026-07-03T07:44:52.770329+00:00"
+    },
+    {
+      "step": "5_all_results",
+      "notes": "Complete job results with AI scores, match_reason, gaps \u2014 grouped by portal below",
+      "request": {
+        "search_id": "774ead62-8e04-4f9e-82bf-e56449bf2dad",
+        "page_size": 100
+      },
+      "response": {
+        "total": 0,
+        "pages_fetched": 1,
+        "by_portal_count": {
+          "adzuna": 0,
+          "jooble": 0,
+          "remotive": 0,
+          "greenhouse": 0,
+          "lever": 0,
+          "ashby": 0
+        },
+        "full_results": []
+      },
+      "timestamp": "2026-07-03T07:44:52.778583+00:00"
+    },
+    {
+      "step": "6_notifications",
+      "notes": "Alerts for score >= 7/10",
+      "request": {
+        "unread_only": false
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "33435890-ba36-4bf7-b5ad-c72f43fbc8be",
+            "search_id": "4469b55d-36f8-4ed9-a2f9-10b67b17e127",
+            "run_id": "d8e6853b-e4c4-4c6c-9538-6425de4e8b6f",
+            "message": "'Full Flow Test 010234': 2 new job(s) found, 1 high-relevance",
+            "new_job_count": 2,
+            "is_read": false,
+            "created_at": "2026-07-03T07:07:59.966552+00:00"
+          },
+          {
+            "id": "b72ea14b-96af-41b5-ab9f-e6926b96bf26",
+            "search_id": "87fe6dae-3e65-4052-b7fa-05c7d95ffb62",
+            "run_id": "4947078f-8a81-4f96-bcbb-5788c7c40ba3",
+            "message": "'Full Flow Test 011116': 16 new job(s) found, 10 high-relevance",
+            "new_job_count": 16,
+            "is_read": false,
+            "created_at": "2026-07-01T19:41:51.810049+00:00"
+          }
+        ],
+        "total": 2
+      },
+      "timestamp": "2026-07-03T07:44:52.782629+00:00"
+    },
+    {
+      "step": "7_sources_after",
+      "notes": "Jobs per portal in last 24h",
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "adzuna": {
+            "jobs_last_24h": 8
+          },
+          "jooble": {
+            "jobs_last_24h": 100
+          },
+          "remotive": {
+            "jobs_last_24h": 0
+          },
+          "greenhouse": {
+            "jobs_last_24h": 65
+          },
+          "lever": {
+            "jobs_last_24h": 0
+          },
+          "ashby": {
+            "jobs_last_24h": 0
+          }
+        }
+      },
+      "timestamp": "2026-07-03T07:44:52.785338+00:00"
+    },
+    {
+      "step": "8_companies_list",
+      "notes": "All registered ATS companies",
+      "request": null,
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1d397c37-3203-4ead-a51e-65608b85169a",
+            "name": "Airbnb",
+            "slug": "airbnb",
+            "source": "greenhouse",
+            "is_active": true,
+            "created_at": "2026-07-03T07:43:08.855469+00:00"
+          },
+          {
+            "id": "9ab7ec46-0840-4181-8345-87eb39a75cfd",
+            "name": "Linear",
+            "slug": "linear",
+            "source": "ashby",
+            "is_active": true,
+            "created_at": "2026-07-03T07:43:08.862380+00:00"
+          },
+          {
+            "id": "9b9382a2-94da-4b17-8a29-e6324b81f767",
+            "name": "Netflix",
+            "slug": "netflix",
+            "source": "lever",
+            "is_active": true,
+            "created_at": "2026-07-03T07:43:08.859211+00:00"
+          },
+          {
+            "id": "3ab15c29-e137-4dfa-a9ea-dcab488cce33",
+            "name": "Stripe",
+            "slug": "stripe",
+            "source": "greenhouse",
+            "is_active": true,
+            "created_at": "2026-07-03T07:43:08.850440+00:00"
+          }
+        ],
+        "total": 4
+      },
+      "timestamp": "2026-07-03T07:44:52.787798+00:00"
+    }
+  ],
+  "results_by_portal": {},
+  "summary": {
+    "search_id": "774ead62-8e04-4f9e-82bf-e56449bf2dad",
+    "run_id": "7efb06b7-9281-49e1-aed0-79816d26c1e2",
+    "pipeline_seconds": 102.9,
+    "total_jobs_matched": 0,
+    "portal_breakdown": {
+      "adzuna": {
+        "count": 0,
+        "avg_relevance_score": 0,
+        "top_score": 0,
+        "sample_titles": []
+      },
+      "jooble": {
+        "count": 0,
+        "avg_relevance_score": 0,
+        "top_score": 0,
+        "sample_titles": []
+      },
+      "remotive": {
+        "count": 0,
+        "avg_relevance_score": 0,
+        "top_score": 0,
+        "sample_titles": []
+      },
+      "greenhouse": {
+        "count": 0,
+        "avg_relevance_score": 0,
+        "top_score": 0,
+        "sample_titles": []
+      },
+      "lever": {
+        "count": 0,
+        "avg_relevance_score": 0,
+        "top_score": 0,
+        "sample_titles": []
+      },
+      "ashby": {
+        "count": 0,
+        "avg_relevance_score": 0,
+        "top_score": 0,
+        "sample_titles": []
+      }
+    },
+    "parsed_intent": {
+      "job_title": "Healthcare Analyst",
+      "field_domain": "Healthcare - EHR, claims data analysis",
+      "name": "Healthcare Analyst - Remote US",
+      "location": "United States",
+      "work_mode": "remote",
+      "experience_level": "senior",
+      "employment_type": "full_time",
+      "salary_min": 90000,
+      "salary_max": 130000,
+      "company_slugs": [],
+      "confidence": 0.92,
+      "ambiguities": [],
+      "raw_text": "Remote senior healthcare analyst in the US, full time, 90k-130k, focusing on EHR and claims data"
+    },
+    "field_expansion": {
+      "ideal_profile": "Someone who analyzes clinical, claims, or EHR data inside hospitals, health systems, or payers, turning patient or operational data into reporting and insight.",
+      "related_titles": [
+        "Clinical Analyst",
+        "Health Data Specialist",
+        "Medical Data Analyst"
+      ],
+      "search_queries": [
+        "healthcare analyst EHR",
+        "healthcare claims data analyst",
+        "healthcare data analyst remote",
+        "healthcare EHR analyst",
+        "healthcare claims analyst"
+      ],
+      "primary_keywords": [
+        "healthcare analyst",
+        "EHR",
+        "claims data",
+        "HEDIS",
+        "health informatics",
+        "clinical data",
+        "medical records"
+      ],
+      "negative_keywords": [
+        "game",
+        "retail",
+        "fashion",
+        "real estate",
+        "marketing"
+      ]
+    },
+    "notifications_count": 2,
+    "sources_24h_after": {
+      "adzuna": {
+        "jobs_last_24h": 8
+      },
+      "jooble": {
+        "jobs_last_24h": 100
+      },
+      "remotive": {
+        "jobs_last_24h": 0
+      },
+      "greenhouse": {
+        "jobs_last_24h": 65
+      },
+      "lever": {
+        "jobs_last_24h": 0
+      },
+      "ashby": {
+        "jobs_last_24h": 0
+      }
+    }
+  }
+}

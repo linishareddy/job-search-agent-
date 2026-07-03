@@ -35,8 +35,8 @@ class LeverFetcher(BaseJobFetcher):
 
     async def fetch(self, search: SavedSearchResponse, expansion: dict) -> list[JobRaw]:
         slugs = [
-            c["slug"] for c in (search.company_slugs or [])
-            if c.get("source") == LEVER
+            c.slug for c in (search.company_slugs or [])
+            if c.source == LEVER
         ]
 
         if not slugs:

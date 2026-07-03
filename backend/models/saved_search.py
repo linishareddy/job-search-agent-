@@ -28,6 +28,8 @@ class SavedSearch(Base):
     # ATS company slugs: [{"name": "Stripe", "slug": "stripe", "source": "greenhouse"}, ...]
     company_slugs: Mapped[dict] = mapped_column(JSONB, nullable=False, default=list)
     poll_interval_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=60)
+    # Default "posted in the last N days" filter applied to /results unless overridden per-request
+    posted_within_days: Mapped[int | None] = mapped_column(Integer)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     last_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Groq expansion cached here (refreshed when field_domain or job_title changes)

@@ -100,11 +100,21 @@ async def get_results(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     only_new: bool = Query(default=False),
+    posted_within_days: int | None = Query(
+        default=None,
+        ge=1,
+        le=365,
+        description=(
+            "Only return jobs posted within the last N days. Overrides the search's "
+            "saved posted_within_days default for this request only. Jobs with an "
+            "unknown posted date are always included."
+        ),
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     from controllers.job_controller import JobController
     ctrl = JobController(db)
-    results, total = await ctrl.get_results(search_id, page, page_size, only_new)
+    results, total = await ctrl.get_results(search_id, page, page_size, only_new, posted_within_days)
     return ok(
         data=[r.model_dump() for r in results],
         total=total,

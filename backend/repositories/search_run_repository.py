@@ -17,7 +17,14 @@ class SearchRunRepository:
         await self._session.flush()
         return run
 
-    async def complete(self, run_id: uuid.UUID, jobs_fetched: int, jobs_matched: int, new_jobs: int) -> None:
+    async def complete(
+        self,
+        run_id: uuid.UUID,
+        jobs_fetched: int,
+        jobs_matched: int,
+        new_jobs: int,
+        source_stats: dict | None = None,
+    ) -> None:
         await self._session.execute(
             update(SearchRun)
             .where(SearchRun.id == run_id)
@@ -27,11 +34,12 @@ class SearchRunRepository:
                 jobs_fetched=jobs_fetched,
                 jobs_matched=jobs_matched,
                 new_jobs=new_jobs,
+                source_stats=source_stats,
             )
         )
         await self._session.flush()
 
-    async def fail(self, run_id: uuid.UUID, error_detail: str) -> None:
+    async def fail(self, run_id: uuid.UUID, error_detail: str, source_stats: dict | None = None) -> None:
         await self._session.execute(
             update(SearchRun)
             .where(SearchRun.id == run_id)
@@ -39,6 +47,7 @@ class SearchRunRepository:
                 status="failed",
                 finished_at=datetime.now(timezone.utc),
                 error_detail=error_detail[:2000],
+                source_stats=source_stats,
             )
         )
         await self._session.flush()

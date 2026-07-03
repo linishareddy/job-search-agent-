@@ -4,11 +4,11 @@ from datetime import datetime
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from constants.sources import REMOTIVE
+from constants.sources import REMOTIVE, SOURCE_RESULT_CAPS
 from exceptions.handlers import SourceFetchError
 from schemas.job_raw import JobRaw
 from schemas.saved_search import SavedSearchResponse
-from services.fetchers.base_fetcher import BaseJobFetcher
+from services.fetchers.base_fetcher import BaseJobFetcher, build_search_queries
 from utils.salary_extractor import extract_salary
 
 logger = logging.getLogger(__name__)
@@ -31,16 +31,35 @@ class RemotiveFetcher(BaseJobFetcher):
         if search.work_mode == "onsite":
             return []
 
-        search_queries = expansion.get("search_queries", [])
-        query = search_queries[0] if search_queries else search.job_title
-        params = {"search": query, "limit": 100}
+        cap = SOURCE_RESULT_CAPS[REMOTIVE]
+        jobs: list[JobRaw] = []
+        seen_ids: set[str] = set()
+        last_error: str | None = None
 
-        try:
-            data = await self._get(params)
-        except httpx.HTTPError as e:
-            raise SourceFetchError(REMOTIVE, str(e))
+        for query in build_search_queries(search, expansion):
+            params = {"search": query, "limit": min(100, cap)}
 
-        jobs = [self._map(item) for item in data.get("jobs", [])]
+            try:
+                data = await self._get(params)
+            except httpx.HTTPError as e:
+                last_error = str(e)
+                logger.warning(f"Remotive query '{query}' failed: {e}")
+                continue
+
+            for item in data.get("jobs", []):
+                job = self._map(item)
+                if job.external_id and job.external_id in seen_ids:
+                    continue
+                seen_ids.add(job.external_id)
+                jobs.append(job)
+
+            if len(jobs) >= cap:
+                break
+
+        if not jobs and last_error:
+            raise SourceFetchError(REMOTIVE, last_error)
+
+        del jobs[cap:]
         logger.info(f"Remotive: fetched {len(jobs)} jobs")
         return jobs
 

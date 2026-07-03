@@ -21,6 +21,10 @@ async def lifespan(app: FastAPI):
         # tables, so already-existing tables need these backfilled explicitly.
         await conn.execute(text("ALTER TABLE job_search_result ADD COLUMN IF NOT EXISTS match_reason TEXT"))
         await conn.execute(text("ALTER TABLE job_search_result ADD COLUMN IF NOT EXISTS gaps TEXT"))
+        # Mirrors alembic/versions/003_source_stats.py
+        await conn.execute(text("ALTER TABLE search_run ADD COLUMN IF NOT EXISTS source_stats JSONB"))
+        # Mirrors alembic/versions/004_posted_within_days.py
+        await conn.execute(text("ALTER TABLE saved_search ADD COLUMN IF NOT EXISTS posted_within_days INTEGER"))
     yield
 
 

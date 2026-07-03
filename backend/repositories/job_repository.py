@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone, timedelta
 
-from sqlalchemy import select, update, func
+from sqlalchemy import or_, select, update, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -120,25 +120,35 @@ class JobRepository:
         page: int = 1,
         page_size: int = 20,
         only_new: bool = False,
+        posted_within_days: int | None = None,
     ) -> tuple[list[JobSearchResult], int]:
-        count_q = select(JobSearchResult.id).where(
-            JobSearchResult.search_id == search_id,
-            JobSearchResult.is_dismissed.is_(False),
-        )
-        if only_new:
-            count_q = count_q.where(JobSearchResult.is_new.is_(True))
+        """
+        posted_within_days: if set, only include jobs posted within the last N days.
+        Jobs with an unknown posted_at (None) are still included — same "include and
+        flag" philosophy used for missing salary, rather than silently hiding them.
+        """
+        def _apply_filters(stmt):
+            stmt = stmt.where(
+                JobSearchResult.search_id == search_id,
+                JobSearchResult.is_dismissed.is_(False),
+            )
+            if only_new:
+                stmt = stmt.where(JobSearchResult.is_new.is_(True))
+            if posted_within_days is not None:
+                cutoff = datetime.now(timezone.utc) - timedelta(days=posted_within_days)
+                stmt = stmt.where(or_(Job.posted_at.is_(None), Job.posted_at >= cutoff))
+            return stmt
 
-        count_result = await self._session.execute(select(func.count()).select_from(count_q.subquery()))
-        total = count_result.scalar_one()
+        count_q = select(func.count(JobSearchResult.id))
+        if posted_within_days is not None:
+            count_q = count_q.join(Job, Job.id == JobSearchResult.job_id)
+        count_q = _apply_filters(count_q)
+        total = (await self._session.execute(count_q)).scalar_one()
 
-        query = (
-            select(JobSearchResult)
-            .options(selectinload(JobSearchResult.job))
-            .where(JobSearchResult.search_id == search_id, JobSearchResult.is_dismissed.is_(False))
-        )
-        if only_new:
-            query = query.where(JobSearchResult.is_new.is_(True))
-
+        query = select(JobSearchResult).options(selectinload(JobSearchResult.job))
+        if posted_within_days is not None:
+            query = query.join(Job, Job.id == JobSearchResult.job_id)
+        query = _apply_filters(query)
         query = query.order_by(JobSearchResult.relevance_score.desc())
         query = query.offset((page - 1) * page_size).limit(page_size)
 

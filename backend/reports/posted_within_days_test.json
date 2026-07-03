@@ -1,0 +1,245 @@
+{
+  "tested_at": "2026-07-03T08:24:58.542433+00:00",
+  "base_url": "http://127.0.0.1:8000/api/v1",
+  "steps": [
+    {
+      "step": "baseline_no_filter",
+      "total": 32
+    },
+    {
+      "step": "filter_sweep",
+      "totals_by_days": {
+        "1": 2,
+        "3": 15,
+        "7": 19,
+        "14": 27,
+        "30": 32,
+        "60": 39,
+        "90": 40,
+        "365": 60
+      }
+    },
+    {
+      "step": "last_7_days_sample",
+      "total": 19,
+      "jobs": [
+        {
+          "title": "Senior Software Engineer, (Python, GenAI, MCP)",
+          "company": "Software Engineering",
+          "source": "greenhouse",
+          "posted_at": "2026-06-26T16:07:12+00:00",
+          "posted_ago": "6d ago",
+          "relevance_score": 0.8
+        },
+        {
+          "title": "Senior Software Engineer, Dev Tools",
+          "company": "Software Engineering",
+          "source": "greenhouse",
+          "posted_at": "2026-07-02T18:42:34+00:00",
+          "posted_ago": "0d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer - Backend",
+          "company": "Databricks",
+          "source": "jooble",
+          "posted_at": "2026-07-01T18:30:00+00:00",
+          "posted_ago": "1d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Developer Engineer in Test",
+          "company": "JetBlue Airways Corporation",
+          "source": "jooble",
+          "posted_at": "2026-06-30T05:33:32.007000+00:00",
+          "posted_ago": "3d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer (Backend)",
+          "company": "VibeIQ Inc.",
+          "source": "jooble",
+          "posted_at": "2026-06-30T18:30:00+00:00",
+          "posted_ago": "2d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer",
+          "company": "ruchika@arsquaretech.com",
+          "source": "jooble",
+          "posted_at": "2026-07-01T07:09:18.150000+00:00",
+          "posted_ago": "2d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer",
+          "company": "A2Zxperts",
+          "source": "jooble",
+          "posted_at": "2026-07-01T05:26:42.630000+00:00",
+          "posted_ago": "2d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Backend Software Engineer",
+          "company": "Book of the Month",
+          "source": "jooble",
+          "posted_at": "2026-06-28T18:30:00+00:00",
+          "posted_ago": "4d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer",
+          "company": "Trust In SODA",
+          "source": "jooble",
+          "posted_at": "2026-07-01T18:30:00+00:00",
+          "posted_ago": "1d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer",
+          "company": "Stripe",
+          "source": "jooble",
+          "posted_at": "2026-07-01T18:30:00+00:00",
+          "posted_ago": "1d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer (Backend) - AI/ML Environments",
+          "company": "Databricks",
+          "source": "jooble",
+          "posted_at": "2026-07-01T18:30:00+00:00",
+          "posted_ago": "1d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Staff Software Engineer, Host Pricing & Settings",
+          "company": "Software Engineering",
+          "source": "greenhouse",
+          "posted_at": "2026-06-30T22:41:52+00:00",
+          "posted_ago": "2d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer",
+          "company": "Saab",
+          "source": "adzuna",
+          "posted_at": "2026-07-01T08:30:24+00:00",
+          "posted_ago": "1d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer - 14718",
+          "company": "ComXPS",
+          "source": "jooble",
+          "posted_at": "2026-06-26T12:22:07.877000+00:00",
+          "posted_ago": "6d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer",
+          "company": "Mastercard",
+          "source": "adzuna",
+          "posted_at": "2026-07-01T08:28:48+00:00",
+          "posted_ago": "1d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Senior Software Engineer, Backend",
+          "company": "Oscar Health",
+          "source": "jooble",
+          "posted_at": "2026-06-30T18:30:00+00:00",
+          "posted_ago": "2d ago",
+          "relevance_score": 0.5
+        },
+        {
+          "title": "Software Engineer, Guest & Host - Notifications",
+          "company": "Software Engineering",
+          "source": "greenhouse",
+          "posted_at": "2026-07-02T09:06:13+00:00",
+          "posted_ago": "0d ago",
+          "relevance_score": 0.3
+        },
+        {
+          "title": "Full Stack Engineer, Support Experience",
+          "company": "8216 Risk Onboarding and Trusted Users",
+          "source": "greenhouse",
+          "posted_at": "2026-06-30T17:48:40+00:00",
+          "posted_ago": "2d ago",
+          "relevance_score": 0.3
+        },
+        {
+          "title": "Full Stack Engineer, Support Experience (Greater China Support)",
+          "company": "4145 Support Products - Eng",
+          "source": "greenhouse",
+          "posted_at": "2026-06-30T20:36:05+00:00",
+          "posted_ago": "2d ago",
+          "relevance_score": 0.3
+        }
+      ]
+    },
+    {
+      "step": "create_with_config",
+      "search_id": "84aa380c-6863-4432-8a08-c9d0170fb14e",
+      "posted_within_days": 14
+    },
+    {
+      "step": "validation",
+      "cases": [
+        {
+          "case": "body_0",
+          "status": 422,
+          "passed": true
+        },
+        {
+          "case": "body_400",
+          "status": 422,
+          "passed": true
+        },
+        {
+          "case": "query_0",
+          "status": 422,
+          "passed": true
+        },
+        {
+          "case": "query_400",
+          "status": 422,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "step": "saved_default_vs_override",
+      "saved_default_days": 30,
+      "no_query_param_total": 32,
+      "override_7_days_total": 19
+    }
+  ],
+  "health": {
+    "success": true,
+    "data": {
+      "database": "ok",
+      "status": "running"
+    }
+  },
+  "auto_selected_search": {
+    "id": "a6c5a8cf-8574-40c0-8671-b62b43ba4c69",
+    "name": "Portal Test 20260703_131542",
+    "total_jobs": 32
+  },
+  "summary": {
+    "search_id": "a6c5a8cf-8574-40c0-8671-b62b43ba4c69",
+    "baseline_total": 32,
+    "filter_totals": {
+      "1": 2,
+      "3": 15,
+      "7": 19,
+      "14": 27,
+      "30": 32,
+      "60": 39,
+      "90": 40,
+      "365": 60
+    },
+    "last_7_days_total": 19,
+    "all_validation_passed": true
+  }
+}

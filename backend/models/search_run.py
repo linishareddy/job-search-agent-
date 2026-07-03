@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from config.database import Base
@@ -20,5 +20,8 @@ class SearchRun(Base):
     jobs_matched: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     new_jobs: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     error_detail: Mapped[str | None] = mapped_column(Text)
+    # Per-source fetch outcome: {source: {"fetched": int, "error": str | None}} —
+    # distinguishes "source returned no matches" from "source call failed".
+    source_stats: Mapped[dict | None] = mapped_column(JSONB)
 
     saved_search: Mapped["SavedSearch"] = relationship("SavedSearch", back_populates="search_runs")

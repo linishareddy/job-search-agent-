@@ -34,8 +34,8 @@ class GreenhouseFetcher(BaseJobFetcher):
     async def fetch(self, search: SavedSearchResponse, expansion: dict) -> list[JobRaw]:
         # Get company slugs configured for Greenhouse in this search
         slugs = [
-            c["slug"] for c in (search.company_slugs or [])
-            if c.get("source") == GREENHOUSE
+            c.slug for c in (search.company_slugs or [])
+            if c.source == GREENHOUSE
         ]
 
         if not slugs:
