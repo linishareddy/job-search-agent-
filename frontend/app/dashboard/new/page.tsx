@@ -7,11 +7,8 @@ import { Loader2, Search, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { searchesApi } from "@/lib/api";
 import { parseApiError } from "@/lib/types/api";
-import type { SavedSearchUpdate } from "@/lib/types/search";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { ResumeAttach } from "@/components/search/resume-attach";
 import { FilterChips } from "@/components/search/search-filters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,18 +22,14 @@ export default function NewSearchPage() {
   const router = useRouter();
   const [text, setText] = useState("");
   const [postedWithinDays, setPostedWithinDays] = useState<number>(0);
-  const [overrides, setOverrides] = useState<SavedSearchUpdate>({});
 
   const createMutation = useMutation({
-    mutationFn: () => {
-      const o: SavedSearchUpdate = { ...overrides };
-      if (postedWithinDays > 0) o.posted_within_days = postedWithinDays;
-      return searchesApi.createFromText({
+    mutationFn: () =>
+      searchesApi.createFromText({
         text,
-        overrides: Object.keys(o).length ? o : null,
+        overrides: postedWithinDays > 0 ? { posted_within_days: postedWithinDays } : null,
         run_immediately: true,
-      });
-    },
+      }),
     onSuccess: (res) => {
       if (res.data) {
         toast.success("Search created — pipeline started");
@@ -50,11 +43,7 @@ export default function NewSearchPage() {
 
   function handleResumeExtracted(extractedText: string) {
     const merged = text.trim() ? `${text.trim()}\n\n${extractedText}` : extractedText;
-    handleTextChange(merged);
-  }
-
-  function handleTextChange(value: string) {
-    setText(value.slice(0, MAX_CHARS));
+    setText(merged.slice(0, MAX_CHARS));
   }
 
   const charCount = text.length;
@@ -62,29 +51,32 @@ export default function NewSearchPage() {
   const canCreate = text.trim().length >= 10 && !createMutation.isPending && !isOverLimit;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
-      <div>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <div className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight">New search</h1>
-        <p className="text-muted-foreground">Describe the job you want — AI handles the rest</p>
+        <p className="text-sm text-muted-foreground">
+          Describe the role in plain English — AI picks title, location, and filters for you.
+        </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Search className="h-4 w-4" /> What are you looking for?
+      <Card className="border-border/80">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base font-medium">
+            <Search className="h-4 w-4 text-primary" />
+            What are you looking for?
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="overflow-hidden rounded-lg border border-input bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
+        <CardContent className="space-y-5">
+          <div className="overflow-hidden rounded-xl border border-input bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
             <Textarea
               placeholder={EXAMPLE}
               value={text}
-              onChange={(e) => handleTextChange(e.target.value)}
+              onChange={(e) => setText(e.target.value.slice(0, MAX_CHARS))}
               maxLength={MAX_CHARS}
-              className="min-h-[140px] resize-none border-0 bg-transparent text-base shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="min-h-[160px] resize-none border-0 bg-transparent px-4 py-4 text-base leading-relaxed shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             />
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-3 py-2">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1">
                 <ResumeAttach variant="inline" onExtracted={handleResumeExtracted} />
                 <Button
                   type="button"
@@ -96,66 +88,42 @@ export default function NewSearchPage() {
                   Use example
                 </Button>
               </div>
-              <span className={`text-xs ${isOverLimit ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+              <span
+                className={`text-xs tabular-nums ${isOverLimit ? "font-medium text-destructive" : "text-muted-foreground"}`}
+              >
                 {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
               </span>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Options</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <Label className="mb-2 block">Default time filter</Label>
+          <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Posted within</p>
+              <p className="text-xs text-muted-foreground">Default filter when viewing results</p>
+            </div>
             <FilterChips
               options={POSTED_WITHIN_OPTIONS.map((o) => ({ label: o.label, value: o.value }))}
               value={postedWithinDays}
               onChange={setPostedWithinDays}
-              aria-label="Default time filter"
+              aria-label="Posted within"
             />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <Label htmlFor="name">Override name</Label>
-              <Input
-                id="name"
-                placeholder="Search name"
-                value={overrides.name ?? ""}
-                onChange={(e) => setOverrides((o) => ({ ...o, name: e.target.value || undefined }))}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label htmlFor="location">Override location</Label>
-              <Input
-                id="location"
-                placeholder="United States"
-                value={overrides.location ?? ""}
-                onChange={(e) => setOverrides((o) => ({ ...o, location: e.target.value || undefined }))}
-                className="mt-1.5"
-              />
-            </div>
-          </div>
+
+          <Button
+            size="lg"
+            className="w-full gap-2"
+            disabled={!canCreate}
+            onClick={() => createMutation.mutate()}
+          >
+            {createMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Zap className="h-4 w-4" />
+            )}
+            Start hunting
+          </Button>
         </CardContent>
       </Card>
-
-      <Button
-        size="lg"
-        className="w-full gap-2 sm:w-auto"
-        disabled={!canCreate}
-        onClick={() => createMutation.mutate()}
-      >
-        {createMutation.isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Zap className="h-4 w-4" />
-        )}
-        Start hunting
-      </Button>
     </div>
   );
 }

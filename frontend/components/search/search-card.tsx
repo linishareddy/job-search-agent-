@@ -99,7 +99,7 @@ export function SearchCard({
         )}
         {search.posted_within_days && (
           <Badge className="h-6 bg-secondary px-2.5 text-secondary-foreground">
-            Last {search.posted_within_days}d
+            Last {search.posted_within_days === 1 ? "1 day" : `${search.posted_within_days} days`}
           </Badge>
         )}
       </div>
