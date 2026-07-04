@@ -17,9 +17,11 @@ class JobApplicationController:
         self._repo = JobApplicationRepository(session)
         self._job_repo = JobRepository(session)
 
-    async def list_applications(self) -> list[JobApplicationResponse]:
-        apps = await self._repo.get_all()
-        return [JobApplicationResponse.model_validate(a) for a in apps]
+    async def list_applications(
+        self, page: int = 1, page_size: int = 100
+    ) -> tuple[list[JobApplicationResponse], int]:
+        apps, total = await self._repo.get_all(page, page_size)
+        return [JobApplicationResponse.model_validate(a) for a in apps], total
 
     async def create(self, data: JobApplicationCreate) -> JobApplicationResponse:
         job = await self._job_repo.get_by_id(data.job_id)

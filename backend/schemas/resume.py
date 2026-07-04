@@ -33,3 +33,9 @@ class ResumeDetailResponse(ResumeResponse):
 class ExtractedResumeText(BaseModel):
     filename: str
     text: str
+
+
+class CoverLetterFromResumeRequest(BaseModel):
+    job_title: str
+    company_name: str
+    job_description: Optional[str] = None

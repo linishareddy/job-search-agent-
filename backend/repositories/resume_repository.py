@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.resume import Resume
@@ -22,11 +22,15 @@ class ResumeRepository:
         await self._session.flush()
         return resume
 
-    async def get_all(self) -> list[Resume]:
+    async def get_all(self, page: int = 1, page_size: int = 100) -> tuple[list[Resume], int]:
+        total = (await self._session.execute(select(func.count(Resume.id)))).scalar_one()
         result = await self._session.execute(
-            select(Resume).order_by(Resume.uploaded_at.desc())
+            select(Resume)
+            .order_by(Resume.uploaded_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
         )
-        return result.scalars().all()
+        return result.scalars().all(), total
 
     async def get_by_id(self, resume_id: uuid.UUID) -> Resume | None:
         result = await self._session.execute(

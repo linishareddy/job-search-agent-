@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from typing import Any
+from typing import Any, AsyncGenerator
 
 from groq import AsyncGroq
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -104,8 +104,11 @@ class GroqService:
                 "summary": None,
             }
 
-    async def generate_cover_letter(self, job: dict, resume_text: str) -> str:
-        """Generate a tailored cover letter (plain text) for a job + resume via Groq."""
+    async def generate_cover_letter_stream(self, job: dict, resume_text: str) -> AsyncGenerator[str, None]:
+        """Stream a tailored cover letter token-by-token — the one Groq call in this
+        app that returns genuine free-form prose rather than a JSON object, so it's
+        the one place token streaming is actually usable by the caller as it arrives
+        (the others need a complete, parseable JSON body, not partial tokens)."""
         from prompts.cover_letter import SYSTEM_PROMPT, USER_TEMPLATE
 
         user_msg = USER_TEMPLATE.format(
@@ -116,7 +119,20 @@ class GroqService:
             resume_text=resume_text[:12000],
         )
         try:
-            return await self._complete(_SMART_MODEL, SYSTEM_PROMPT, user_msg)
+            stream = await self._client.chat.completions.create(
+                model=_SMART_MODEL,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_msg},
+                ],
+                temperature=0.1,
+                max_tokens=4096,
+                stream=True,
+            )
+            async for chunk in stream:
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    yield delta
         except Exception as e:
             logger.error(f"Groq cover letter generation failed: {e}")
             raise GroqError(str(e)) from e

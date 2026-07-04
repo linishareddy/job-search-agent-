@@ -1,44 +1,31 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Loader2, Search, Sparkles, Zap } from "lucide-react";
+import { Loader2, Search, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { searchesApi } from "@/lib/api";
 import { parseApiError } from "@/lib/types/api";
-import type { ParsedSearchIntent, SavedSearchUpdate } from "@/lib/types/search";
+import type { SavedSearchUpdate } from "@/lib/types/search";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ParsedIntentPreview } from "@/components/search/parsed-intent-preview";
 import { ResumeAttach } from "@/components/search/resume-attach";
 import { FilterChips } from "@/components/search/search-filters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { POSTED_WITHIN_OPTIONS } from "@/lib/constants/filters";
 
 const EXAMPLE =
   "Remote senior software engineer in the US, full time, Python and backend, 150k+";
-
-const POSTED_OPTIONS = [
-  { label: "All time", value: 0 },
-  { label: "7 days", value: 7 },
-  { label: "14 days", value: 14 },
-  { label: "30 days", value: 30 },
-] as const;
 
 export default function NewSearchPage() {
   const MAX_CHARS = 5000;
   const router = useRouter();
   const [text, setText] = useState("");
-  const [parsed, setParsed] = useState<ParsedSearchIntent | null>(null);
-  const [parseError, setParseError] = useState<string | null>(null);
-  const [isParsing, setIsParsing] = useState(false);
   const [postedWithinDays, setPostedWithinDays] = useState<number>(0);
   const [overrides, setOverrides] = useState<SavedSearchUpdate>({});
-
-  const lastParsedTextRef = useRef<string>("");
-  const parseRequestIdRef = useRef(0);
 
   const createMutation = useMutation({
     mutationFn: () => {
@@ -61,52 +48,13 @@ export default function NewSearchPage() {
     onError: (err) => toast.error(parseApiError(err)),
   });
 
-  async function runParse(force = false) {
-    const trimmed = text.trim();
-    if (trimmed.length < 10) {
-      setParsed(null);
-      setParseError("Enter at least 10 characters before previewing");
-      return;
-    }
-    if (!force && trimmed === lastParsedTextRef.current && parsed) {
-      return;
-    }
-
-    const requestId = ++parseRequestIdRef.current;
-    setIsParsing(true);
-    setParseError(null);
-
-    try {
-      const res = await searchesApi.parseText(trimmed);
-      if (requestId !== parseRequestIdRef.current) return;
-      if (res.data) {
-        lastParsedTextRef.current = trimmed;
-        setParsed(res.data);
-      }
-    } catch (err) {
-      if (requestId !== parseRequestIdRef.current) return;
-      setParseError(parseApiError(err));
-      setParsed(null);
-    } finally {
-      if (requestId === parseRequestIdRef.current) {
-        setIsParsing(false);
-      }
-    }
-  }
-
   function handleResumeExtracted(extractedText: string) {
     const merged = text.trim() ? `${text.trim()}\n\n${extractedText}` : extractedText;
     handleTextChange(merged);
   }
 
   function handleTextChange(value: string) {
-    const capped = value.slice(0, MAX_CHARS);
-    setText(capped);
-    // Clear stale preview when user edits — no API call until they click Preview.
-    if (capped.trim() !== lastParsedTextRef.current) {
-      setParsed(null);
-      setParseError(null);
-    }
+    setText(value.slice(0, MAX_CHARS));
   }
 
   const charCount = text.length;
@@ -127,57 +75,34 @@ export default function NewSearchPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Textarea
-            placeholder={EXAMPLE}
-            value={text}
-            onChange={(e) => handleTextChange(e.target.value)}
-            maxLength={MAX_CHARS}
-            className="min-h-[140px] text-base"
-          />
-          <div className="flex justify-end">
-            <span className={`text-xs ${isOverLimit ? "text-destructive font-medium" : "text-muted-foreground"}`}>
-              {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()} characters
-            </span>
+          <div className="overflow-hidden rounded-lg border border-input bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
+            <Textarea
+              placeholder={EXAMPLE}
+              value={text}
+              onChange={(e) => handleTextChange(e.target.value)}
+              maxLength={MAX_CHARS}
+              className="min-h-[140px] resize-none border-0 bg-transparent text-base shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-3 py-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <ResumeAttach variant="inline" onExtracted={handleResumeExtracted} />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-muted-foreground"
+                  onClick={() => setText(EXAMPLE)}
+                >
+                  Use example
+                </Button>
+              </div>
+              <span className={`text-xs ${isOverLimit ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+                {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setText(EXAMPLE);
-                setParsed(null);
-                setParseError(null);
-                lastParsedTextRef.current = "";
-              }}
-            >
-              Use example
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="gap-2"
-              disabled={text.trim().length < 10 || isParsing}
-              onClick={() => void runParse(true)}
-            >
-              {isParsing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-              Preview with AI
-            </Button>
-            <ResumeAttach onExtracted={handleResumeExtracted} />
-            <span className="text-xs text-muted-foreground">
-              Preview is optional — one Groq call when you click
-            </span>
-          </div>
-          {parseError && <p className="text-sm text-destructive">{parseError}</p>}
         </CardContent>
       </Card>
-
-      {parsed && <ParsedIntentPreview parsed={parsed} />}
 
       <Card>
         <CardHeader>
@@ -187,9 +112,10 @@ export default function NewSearchPage() {
           <div>
             <Label className="mb-2 block">Default time filter</Label>
             <FilterChips
-              options={POSTED_OPTIONS.map((o) => ({ label: o.label, value: o.value }))}
+              options={POSTED_WITHIN_OPTIONS.map((o) => ({ label: o.label, value: o.value }))}
               value={postedWithinDays}
               onChange={setPostedWithinDays}
+              aria-label="Default time filter"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -197,7 +123,7 @@ export default function NewSearchPage() {
               <Label htmlFor="name">Override name</Label>
               <Input
                 id="name"
-                placeholder={parsed?.name ?? "Search name"}
+                placeholder="Search name"
                 value={overrides.name ?? ""}
                 onChange={(e) => setOverrides((o) => ({ ...o, name: e.target.value || undefined }))}
                 className="mt-1.5"
@@ -207,7 +133,7 @@ export default function NewSearchPage() {
               <Label htmlFor="location">Override location</Label>
               <Input
                 id="location"
-                placeholder={parsed?.location ?? "United States"}
+                placeholder="United States"
                 value={overrides.location ?? ""}
                 onChange={(e) => setOverrides((o) => ({ ...o, location: e.target.value || undefined }))}
                 className="mt-1.5"

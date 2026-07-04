@@ -57,3 +57,12 @@ class SavedSearchResponse(SavedSearchBase):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class BulkDeleteSearchesRequest(BaseModel):
+    ids: list[uuid.UUID] = Field(default_factory=list)
+    only_paused: bool = False
+
+
+class BulkDeleteSearchesResponse(BaseModel):
+    deleted: int

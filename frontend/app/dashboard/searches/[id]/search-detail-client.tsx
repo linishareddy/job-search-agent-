@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BarChart3,
   ChevronLeft,
@@ -20,15 +21,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { JobCard, JobCardSkeleton } from "@/components/jobs/job-card";
 import { FilterChips, PipelineProgress } from "@/components/search/search-filters";
+import { NativeSelect } from "@/components/ui/native-select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { labelEnum } from "@/lib/utils";
-
-const POSTED_FILTERS = [
-  { label: "All", value: -1 },
-  { label: "1d", value: 1 },
-  { label: "7d", value: 7 },
-  { label: "30d", value: 30 },
-  { label: "90d", value: 90 },
-] as const;
+import { POSTED_RESULT_FILTERS } from "@/lib/constants/filters";
 
 export default function SearchDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -39,9 +35,9 @@ export default function SearchDetailPage() {
   const [onlyNew, setOnlyNew] = useState(searchParams.get("only_new") === "true");
   const [postedDays, setPostedDays] = useState<number>(-1);
   const [page, setPage] = useState(1);
-  const [pipelineStep, setPipelineStep] = useState(0);
   const [isPolling, setIsPolling] = useState(searchParams.get("running") === "1");
   const [resumeId, setResumeId] = useState<string>("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const resumesQuery = useQuery({
     queryKey: ["resumes"],
@@ -77,12 +73,18 @@ export default function SearchDetailPage() {
     refetchInterval: isPolling ? 5000 : false,
   });
 
+  const runStatusQuery = useQuery({
+    queryKey: ["run-status", id],
+    queryFn: () => searchesApi.runStatus(id),
+    enabled: !!id && isPolling,
+    refetchInterval: isPolling ? 3000 : false,
+  });
+
   const runMutation = useMutation({
     mutationFn: () => searchesApi.run(id),
     onSuccess: () => {
       toast.success("Pipeline started");
       setIsPolling(true);
-      setPipelineStep(0);
     },
     onError: (err) => toast.error(parseApiError(err)),
   });
@@ -92,7 +94,10 @@ export default function SearchDetailPage() {
     onSuccess: () => {
       toast.success("Search deleted");
       queryClient.invalidateQueries({ queryKey: ["searches"] });
-      router.push("/dashboard");
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.removeQueries({ queryKey: ["search", id] });
+      queryClient.removeQueries({ queryKey: ["search-results", id] });
+      router.push("/dashboard/searches");
     },
     onError: (err) => toast.error(parseApiError(err)),
   });
@@ -106,24 +111,24 @@ export default function SearchDetailPage() {
     onError: (err) => toast.error(parseApiError(err)),
   });
 
+  // Real completion signal from the backend — not a client-side guess at timing.
   useEffect(() => {
-    if (!isPolling) return;
-    const stepTimer = setInterval(() => {
-      setPipelineStep((s) => Math.min(s + 1, 10));
-    }, 4000);
-    return () => clearInterval(stepTimer);
-  }, [isPolling]);
-
-  useEffect(() => {
-    if (!isPolling) return;
-    const total = resultsQuery.data?.total ?? 0;
-    if (total > 0 || pipelineStep >= 10) {
-      setIsPolling(false);
-      queryClient.invalidateQueries({ queryKey: ["search", id] });
+    const status = runStatusQuery.data?.data?.status;
+    if (!isPolling || !status || status === "running") return;
+    setIsPolling(false);
+    queryClient.invalidateQueries({ queryKey: ["search", id] });
+    queryClient.invalidateQueries({ queryKey: ["search-results", id] });
+    if (status === "failed") {
+      toast.error(runStatusQuery.data?.data?.error_detail || "Pipeline run failed");
     }
+  }, [isPolling, runStatusQuery.data, id, queryClient]);
+
+  // Safety net only — stops polling if the status endpoint itself never resolves.
+  useEffect(() => {
+    if (!isPolling) return;
     const timeout = setTimeout(() => setIsPolling(false), 180_000);
     return () => clearTimeout(timeout);
-  }, [isPolling, resultsQuery.data?.total, pipelineStep, id, queryClient]);
+  }, [isPolling]);
 
   const results = resultsQuery.data?.data ?? [];
   const total = resultsQuery.data?.total ?? 0;
@@ -142,9 +147,9 @@ export default function SearchDetailPage() {
     return (
       <div className="py-20 text-center">
         <p className="text-destructive">Search not found</p>
-        <Link href="/dashboard">
+        <Link href="/dashboard/searches">
           <Button variant="outline" className="mt-4">
-            Back to dashboard
+            Back to searches
           </Button>
         </Link>
       </div>
@@ -156,7 +161,7 @@ export default function SearchDetailPage() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
           <Link
-            href="/dashboard"
+            href="/dashboard/searches"
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" /> Back
@@ -195,7 +200,11 @@ export default function SearchDetailPage() {
           >
             {search.is_active ? "Pause" : "Resume"}
           </Button>
-          <Link href={`/dashboard/searches/${id}/analytics`}>
+          <Link
+            href={`/dashboard/searches/${id}/insights${
+              postedDays > 0 ? `?posted_days=${postedDays}` : ""
+            }`}
+          >
             <Button variant="outline" size="sm" className="gap-2">
               <BarChart3 className="h-4 w-4" /> Insights
             </Button>
@@ -209,46 +218,59 @@ export default function SearchDetailPage() {
             variant="destructive"
             size="sm"
             className="gap-2"
-            onClick={() => {
-              if (confirm("Delete this search and all its results?")) deleteMutation.mutate();
-            }}
+            aria-label="Delete search"
+            onClick={() => setConfirmDelete(true)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {isPolling && <PipelineProgress activeStep={pipelineStep} />}
+      <AnimatePresence>
+        {isPolling && (
+          <motion.div
+            key="pipeline-progress"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.35 }}
+          >
+            <PipelineProgress activeStep={runStatusQuery.data?.data?.current_stage_index ?? 0} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
-        <FilterChips
-          label="Show:"
-          options={[
-            { label: "All jobs", value: false },
-            { label: "New only", value: true },
-          ]}
-          value={onlyNew}
-          onChange={(v) => {
-            setOnlyNew(v);
-            setPage(1);
-          }}
-        />
-        <FilterChips
-          label="Posted:"
-          options={POSTED_FILTERS.map((f) => ({ label: f.label, value: f.value }))}
-          value={postedDays}
-          onChange={(v) => {
-            setPostedDays(v);
-            setPage(1);
-          }}
-        />
+      <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
+          <FilterChips
+            label="Show:"
+            options={[
+              { label: "All jobs", value: false },
+              { label: "New only", value: true },
+            ]}
+            value={onlyNew}
+            onChange={(v) => {
+              setOnlyNew(v);
+              setPage(1);
+            }}
+          />
+          <FilterChips
+            label="Posted:"
+            options={POSTED_RESULT_FILTERS.map((f) => ({ label: f.label, value: f.value }))}
+            value={postedDays}
+            onChange={(v) => {
+              setPostedDays(v);
+              setPage(1);
+            }}
+          />
+        </div>
         <Button
           variant="ghost"
           size="sm"
-          className="gap-2"
+          className="h-8 shrink-0 gap-2 self-start lg:self-auto"
           onClick={() => resultsQuery.refetch()}
         >
-          <RefreshCw className="h-4 w-4" /> Refresh
+          <RefreshCw className="h-3.5 w-3.5 shrink-0" /> Refresh
         </Button>
       </div>
 
@@ -259,13 +281,12 @@ export default function SearchDetailPage() {
         {resumes.length > 0 && (
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
             Match against resume:
-            <select
+            <NativeSelect
               value={resumeId}
               onChange={(e) => {
                 setResumeId(e.target.value);
                 setPage(1);
               }}
-              className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <option value="">None</option>
               {resumes.map((r) => (
@@ -273,7 +294,7 @@ export default function SearchDetailPage() {
                   {r.filename}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </label>
         )}
       </div>
@@ -340,6 +361,15 @@ export default function SearchDetailPage() {
           </Button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete this search and all its results?"
+        description="This removes the search, its runs, and all matched results. Jobs saved to your tracker are kept."
+        confirmLabel="Delete"
+        onConfirm={() => deleteMutation.mutate()}
+      />
     </div>
   );
 }

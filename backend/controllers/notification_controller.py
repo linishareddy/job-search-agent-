@@ -11,9 +11,11 @@ class NotificationController:
     def __init__(self, session: AsyncSession):
         self._repo = NotificationRepository(session)
 
-    async def list_notifications(self, unread_only: bool = False) -> list[NotificationResponse]:
-        notifications = await self._repo.get_all(unread_only)
-        return [NotificationResponse.model_validate(n) for n in notifications]
+    async def list_notifications(
+        self, unread_only: bool = False, page: int = 1, page_size: int = 50
+    ) -> tuple[list[NotificationResponse], int]:
+        notifications, total = await self._repo.get_all(unread_only, page, page_size)
+        return [NotificationResponse.model_validate(n) for n in notifications], total
 
     async def mark_read(self, notification_id: uuid.UUID) -> None:
         success = await self._repo.mark_read(notification_id)

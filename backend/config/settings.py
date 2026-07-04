@@ -6,10 +6,22 @@ class Settings(BaseSettings):
 
     # Database
     postgres_user: str = "jobsearch"
-    postgres_password: str = "jobsearch"
+    # No default: a guessable placeholder here would silently "work" against any
+    # Postgres that happens to share it, masking a missing .env value instead of
+    # failing loudly. Set POSTGRES_PASSWORD in .env.
+    postgres_password: str
     postgres_db: str = "jobsearch"
     postgres_host: str = "postgres"
     postgres_port: int = 5432
+
+    # Comma-separated list of allowed frontend origins for CORS. "*" is invalid
+    # together with allow_credentials=True (browsers reject it outright), so this
+    # must be a real, explicit allowlist.
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @property
     def database_url(self) -> str:

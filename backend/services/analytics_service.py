@@ -3,7 +3,7 @@
 Pure in-Python aggregation over the job rows already produced by the pipeline —
 fine at this scale (single-tenant, dozens of results per search).
 """
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from statistics import median
 
@@ -56,6 +56,34 @@ def _counter_buckets(items: list[str], limit: int | None = None) -> list[Bucket]
     return [Bucket(label=label, count=count) for label, count in ordered]
 
 
+def _skill_key(skill: str) -> str:
+    return " ".join(skill.strip().split()).lower()
+
+
+def _skill_buckets(jobs: list[Job], limit: int | None = None) -> list[Bucket]:
+    """Merge skills that differ only by casing/spacing (e.g. 'Software Development' vs 'Software development')."""
+    totals: Counter[str] = Counter()
+    labels: dict[str, Counter[str]] = defaultdict(Counter)
+
+    for job in jobs:
+        seen_in_job: set[str] = set()
+        for raw in job.skills or []:
+            if not raw or not raw.strip():
+                continue
+            key = _skill_key(raw)
+            if key in seen_in_job:
+                continue
+            seen_in_job.add(key)
+            totals[key] += 1
+            labels[key][" ".join(raw.strip().split())] += 1
+
+    ordered = totals.most_common(limit)
+    return [
+        Bucket(label=labels[key].most_common(1)[0][0], count=count)
+        for key, count in ordered
+    ]
+
+
 def _postings_over_time(jobs: list[Job]) -> list[Bucket]:
     """Group posted_at into ISO year-week buckets, chronological. Skips unknown dates."""
     week_counts: Counter[str] = Counter()
@@ -70,15 +98,16 @@ def _postings_over_time(jobs: list[Job]) -> list[Bucket]:
     return [Bucket(label=k, count=week_counts[k]) for k in sorted(week_counts)]
 
 
-def compute_analytics(jobs: list[Job]) -> SearchAnalytics:
-    all_skills: list[str] = []
-    for j in jobs:
-        all_skills.extend(j.skills or [])
+def median_salary(jobs: list[Job]) -> int | None:
+    salaries = [s for s in (_job_salary(j) for j in jobs) if s is not None]
+    return int(median(salaries)) if salaries else None
 
+
+def compute_analytics(jobs: list[Job]) -> SearchAnalytics:
     return SearchAnalytics(
         total_jobs=len(jobs),
         salary=_salary_stats(jobs),
-        top_skills=_counter_buckets(all_skills, _TOP_SKILLS_LIMIT),
+        top_skills=_skill_buckets(jobs, _TOP_SKILLS_LIMIT),
         by_source=_counter_buckets([j.source for j in jobs]),
         by_work_mode=_counter_buckets([j.work_mode or "unknown" for j in jobs]),
         postings_over_time=_postings_over_time(jobs),

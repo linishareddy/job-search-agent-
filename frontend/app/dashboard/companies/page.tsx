@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FilterChips } from "@/components/search/search-filters";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { sourceBadgeClass } from "@/lib/utils";
 
 const SOURCES = [
@@ -24,6 +25,7 @@ const SOURCES = [
 export default function CompaniesPage() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
   const [form, setForm] = useState<AtsCompanyCreate>({
     name: "",
     slug: "",
@@ -78,8 +80,9 @@ export default function CompaniesPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Company name</Label>
+              <Label htmlFor="company-name">Company name</Label>
               <Input
+                id="company-name"
                 className="mt-1.5"
                 placeholder="Stripe"
                 value={form.name}
@@ -94,8 +97,9 @@ export default function CompaniesPage() {
               />
             </div>
             <div>
-              <Label>Slug (URL identifier)</Label>
+              <Label htmlFor="company-slug">Slug (URL identifier)</Label>
               <Input
+                id="company-slug"
                 className="mt-1.5 font-mono text-sm"
                 placeholder="stripe"
                 value={form.slug}
@@ -108,6 +112,7 @@ export default function CompaniesPage() {
                 options={SOURCES}
                 value={form.source}
                 onChange={(v) => setForm((f) => ({ ...f, source: v }))}
+                aria-label="ATS source"
               />
             </div>
             <Button
@@ -156,9 +161,8 @@ export default function CompaniesPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => {
-                    if (confirm(`Remove ${c.name}?`)) deleteMutation.mutate(c.id);
-                  }}
+                  aria-label={`Remove ${c.name}`}
+                  onClick={() => setPendingDelete({ id: c.id, name: c.name })}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
@@ -167,6 +171,14 @@ export default function CompaniesPage() {
           </Card>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title={`Remove ${pendingDelete?.name}?`}
+        confirmLabel="Remove"
+        onConfirm={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+      />
     </div>
   );
 }

@@ -7,9 +7,8 @@ from repositories.job_repository import JobRepository
 from repositories.resume_repository import ResumeRepository
 from repositories.saved_search_repository import SavedSearchRepository
 from schemas.analytics import SearchAnalytics
-from schemas.job import CoverLetterResponse, JobSearchResultResponse
+from schemas.job import JobSearchResultResponse
 from services import analytics_service, resume_match_service
-from services.groq_service import GroqService
 
 
 class JobController:
@@ -59,28 +58,19 @@ class JobController:
 
         return responses, total
 
-    async def generate_cover_letter(
-        self, job_id: uuid.UUID, resume_id: uuid.UUID
-    ) -> CoverLetterResponse:
-        job = await self._repo.get_by_id(job_id)
-        if not job:
-            raise NotFoundError("Job", str(job_id))
-        resume = await self._resume_repo.get_by_id(resume_id)
-        if not resume:
-            raise NotFoundError("Resume", str(resume_id))
-
-        job_dict = {
-            "title": job.title,
-            "company_name": job.company_name,
-            "description_summary": job.description_summary,
-            "skills": job.skills,
-        }
-        cover_letter = await GroqService().generate_cover_letter(job_dict, resume.raw_text)
-        return CoverLetterResponse(cover_letter=cover_letter)
-
-    async def get_analytics(self, search_id: uuid.UUID) -> SearchAnalytics:
+    async def get_analytics(
+        self,
+        search_id: uuid.UUID,
+        posted_within_days: int | None = None,
+    ) -> SearchAnalytics:
         search = await self._search_repo.get_by_id(search_id)
         if not search:
             raise NotFoundError("SavedSearch", str(search_id))
-        jobs = await self._repo.get_all_jobs_for_search(search_id)
+        effective_posted_within_days = posted_within_days
+        if effective_posted_within_days is None:
+            effective_posted_within_days = search.posted_within_days
+        jobs = await self._repo.get_all_jobs_for_search(
+            search_id,
+            posted_within_days=effective_posted_within_days,
+        )
         return analytics_service.compute_analytics(jobs)

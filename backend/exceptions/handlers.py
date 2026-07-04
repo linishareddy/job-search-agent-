@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,23 @@ def register_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={"success": False, "message": exc.detail},
+        )
+
+    @app.exception_handler(RequestValidationError)
+    async def request_validation_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+        # Reshape FastAPI's native validation-error body (a raw `detail` list of
+        # loc/msg/type dicts) onto the same {success, message} envelope every other
+        # error on this API uses, instead of leaving two different 422 shapes.
+        errors = exc.errors()
+        first = errors[0] if errors else None
+        message = (
+            f"{'.'.join(str(p) for p in first['loc'] if p != 'body')}: {first['msg']}"
+            if first
+            else "Invalid request"
+        )
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={"success": False, "message": message},
         )
 
     @app.exception_handler(Exception)

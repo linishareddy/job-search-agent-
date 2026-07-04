@@ -11,6 +11,8 @@ export function NotificationBell() {
     queryKey: ["notifications", "unread"],
     queryFn: () => notificationsApi.list(true),
     refetchInterval: 30_000,
+    // Explicit: don't keep polling while the tab is hidden/unfocused.
+    refetchIntervalInBackground: false,
   });
 
   const unread = data?.data?.length ?? 0;

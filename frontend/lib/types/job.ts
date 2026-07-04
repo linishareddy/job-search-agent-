@@ -26,10 +26,6 @@ export interface JobMatchDetail {
   missing_skills: string[];
 }
 
-export interface CoverLetterResult {
-  cover_letter: string;
-}
-
 export interface JobSearchResult {
   id: string;
   job: Job;

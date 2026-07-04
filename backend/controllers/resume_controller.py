@@ -6,7 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from exceptions.handlers import NotFoundError
 from repositories.resume_repository import ResumeRepository
-from schemas.resume import ExtractedResumeText, ResumeDetailResponse, ResumeResponse
+from schemas.resume import (
+    CoverLetterFromResumeRequest,
+    ExtractedResumeText,
+    ResumeDetailResponse,
+    ResumeResponse,
+)
 from services.groq_service import GroqService
 from services.resume_parser_service import extract_text
 
@@ -45,9 +50,9 @@ class ResumeController:
         raw_text = extract_text(file.filename or "resume", file.content_type, data)
         return ExtractedResumeText(filename=file.filename or "resume", text=raw_text)
 
-    async def list_resumes(self) -> list[ResumeResponse]:
-        resumes = await self._repo.get_all()
-        return [ResumeResponse.model_validate(r) for r in resumes]
+    async def list_resumes(self, page: int = 1, page_size: int = 100) -> tuple[list[ResumeResponse], int]:
+        resumes, total = await self._repo.get_all(page, page_size)
+        return [ResumeResponse.model_validate(r) for r in resumes], total
 
     async def get_resume(self, resume_id: uuid.UUID) -> ResumeDetailResponse:
         resume = await self._repo.get_by_id(resume_id)
@@ -59,3 +64,20 @@ class ResumeController:
         deleted = await self._repo.delete(resume_id)
         if not deleted:
             raise NotFoundError("Resume", str(resume_id))
+
+    async def generate_cover_letter_stream(self, resume_id: uuid.UUID, data: CoverLetterFromResumeRequest):
+        """Validates the resume up front (so a 404 still arrives as a normal error
+        response) and returns the token generator for the route to stream — once
+        streaming starts the HTTP status is already committed, so anything that can
+        fail with a clean error code has to happen before this point."""
+        resume = await self._repo.get_by_id(resume_id)
+        if not resume:
+            raise NotFoundError("Resume", str(resume_id))
+
+        job_dict = {
+            "title": data.job_title,
+            "company_name": data.company_name,
+            "description_summary": data.job_description,
+            "skills": [],
+        }
+        return self._groq.generate_cover_letter_stream(job_dict, resume.raw_text)

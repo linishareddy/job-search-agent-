@@ -1,27 +1,26 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
-  Building2,
   FileText,
   KanbanSquare,
   LayoutDashboard,
-  Plus,
   Radar,
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { NotificationBell } from "@/components/layout/notification-bell";
+import { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer";
 import { useQuery } from "@tanstack/react-query";
 import { healthApi } from "@/lib/api";
 
 const NAV = [
-  { href: "/dashboard", label: "Searches", icon: LayoutDashboard },
-  { href: "/dashboard/new", label: "New Search", icon: Plus },
-  { href: "/dashboard/companies", label: "Companies", icon: Building2 },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/searches", label: "Searches", icon: Search },
   { href: "/dashboard/resume", label: "Resume", icon: FileText },
   { href: "/dashboard/tracker", label: "Tracker", icon: KanbanSquare },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
@@ -29,6 +28,8 @@ const NAV = [
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const { data: health } = useQuery({
     queryKey: ["health"],
@@ -38,10 +39,23 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const apiOk = health?.data?.status === "running" && health?.data?.database === "ok";
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const isShortcutKey = e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey);
+      if (!isShortcutKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target && ["INPUT", "TEXTAREA"].includes(target.tagName)) return;
+      e.preventDefault();
+      router.push("/dashboard/new");
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [router]);
+
   return (
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-64 flex-col border-r border-border bg-card/50 md:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-border px-6">
+        <Link href="/dashboard" className="flex h-16 items-center gap-2 border-b border-border px-6">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
             <Radar className="h-4 w-4 text-primary" />
           </div>
@@ -49,7 +63,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <p className="text-sm font-semibold">Job Radar</p>
             <p className="text-xs text-muted-foreground">AI search agent</p>
           </div>
-        </div>
+        </Link>
         <nav className="flex-1 space-y-1 p-4">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
@@ -80,9 +94,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b border-border px-4 md:px-8">
-          <div className="flex items-center gap-3 md:hidden">
-            <Radar className="h-5 w-5 text-primary" />
-            <span className="font-semibold">Job Radar</span>
+          <div className="flex items-center gap-2 md:hidden">
+            <MobileNavDrawer open={mobileNavOpen} onOpenChange={setMobileNavOpen} nav={NAV} />
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <Radar className="h-5 w-5 text-primary" />
+              <span className="font-semibold">Job Radar</span>
+            </Link>
           </div>
           <div className="hidden md:block">
             <p className="text-sm text-muted-foreground">Find roles across 6 job sources with AI matching</p>

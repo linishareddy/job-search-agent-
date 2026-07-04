@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
 
 class JobResponse(BaseModel):
@@ -27,14 +27,6 @@ class JobResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
-
-
-class CoverLetterRequest(BaseModel):
-    resume_id: uuid.UUID
-
-
-class CoverLetterResponse(BaseModel):
-    cover_letter: str
 
 
 class JobMatchDetail(BaseModel):

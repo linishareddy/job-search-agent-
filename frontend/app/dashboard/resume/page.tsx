@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileText, Loader2, Trash2 } from "lucide-react";
+import { FileText, Loader2, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { resumesApi } from "@/lib/api";
 import { parseApiError } from "@/lib/types/api";
@@ -10,6 +11,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResumeUpload } from "@/components/resume/resume-upload";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { CoverLetterDialog } from "@/components/resume/cover-letter-dialog";
 
 function formatSize(bytes: number): string {
   return `${(bytes / 1024).toFixed(0)} KB`;
@@ -23,6 +26,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default function ResumePage() {
   const queryClient = useQueryClient();
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; filename: string } | null>(null);
+  const [coverLetterFor, setCoverLetterFor] = useState<{ id: string; filename: string } | null>(null);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["resumes"],
@@ -93,11 +98,19 @@ export default function ResumePage() {
                     {STATUS_LABEL[r.parse_status] ?? r.parse_status}
                   </Badge>
                   <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => setCoverLetterFor({ id: r.id, filename: r.filename })}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Cover letter
+                  </Button>
+                  <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => {
-                      if (confirm(`Remove ${r.filename}?`)) deleteMutation.mutate(r.id);
-                    }}
+                    aria-label={`Remove ${r.filename}`}
+                    onClick={() => setPendingDelete({ id: r.id, filename: r.filename })}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -144,6 +157,21 @@ export default function ResumePage() {
           </Card>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title={`Remove ${pendingDelete?.filename}?`}
+        confirmLabel="Remove"
+        onConfirm={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+      />
+
+      <CoverLetterDialog
+        open={!!coverLetterFor}
+        onOpenChange={(open) => !open && setCoverLetterFor(null)}
+        resumeId={coverLetterFor?.id ?? ""}
+        resumeFilename={coverLetterFor?.filename ?? ""}
+      />
     </div>
   );
 }

@@ -34,34 +34,49 @@ class PipelineOrchestrator:
         self._run_repo = SearchRunRepository(session)
         self._notif_repo = NotificationRepository(session)
 
-    async def run(self, search_id: str) -> uuid.UUID:
-        """Execute the full 11-step pipeline for one saved search.
+    async def create_run(self, search_id: str):
+        """Validate the search and create its SearchRun row, committing immediately
+        so the run (and each stage update during _execute) is visible to other DB
+        connections — e.g. a browser polling for progress — as soon as it happens,
+        rather than only once the whole pipeline finishes.
 
-        Returns the search_run.id for status polling.
+        Returns (search, run) or (None, None) if the search doesn't exist / is paused.
         """
         sid = uuid.UUID(search_id)
-
-        # Load search
         search = await self._search_repo.get_by_id(sid)
         if not search or not search.is_active:
             logger.warning(f"Search {search_id} not found or inactive — skipping")
-            return sid
-
-        # Create run record
+            return None, None
         run = await self._run_repo.create(sid)
-        logger.info(f"[Run {run.id}] Starting pipeline for search '{search.name}'")
+        await self._session.commit()
+        return search, run
 
+    async def run(self, search_id: str) -> uuid.UUID:
+        """Create the run and execute the full 11-step pipeline synchronously in
+        the caller's session. Used by the scheduler, which already manages its own
+        per-search session and commits — not used for API-triggered runs, which
+        background the actual execution (see run_in_background below) so the HTTP
+        request isn't held open for the pipeline's full duration.
+        """
+        search, run = await self.create_run(search_id)
+        if not search:
+            return uuid.UUID(search_id)
+        await self.execute_safely(search, run)
+        return run.id
+
+    async def execute_safely(self, search, run) -> None:
+        logger.info(f"[Run {run.id}] Starting pipeline for search '{search.name}'")
         try:
             await self._execute(search, run)
         except Exception as e:
             logger.error(f"[Run {run.id}] Pipeline failed: {e}", exc_info=True)
             await self._run_repo.fail(run.id, str(e))
-
-        return run.id
+            await self._session.commit()
 
     async def _execute(self, search, run) -> None:
         # ── Step 1: Field expansion (Groq, cached 24h) ──────────────────────────
         expansion = await self._get_expansion(search)
+        await self._run_repo.update_stage(run.id, 1)
 
         # ── Step 2: Parallel fetch from all 6 sources ───────────────────────────
         from schemas.saved_search import CompanySlug, SavedSearchResponse
@@ -81,9 +96,11 @@ class PipelineOrchestrator:
         raw_jobs, source_stats = await fetcher_service.fetch_all_sources(search_schema, expansion)
         jobs_fetched = len(raw_jobs)
         logger.info(f"[Run {run.id}] Step 2: {jobs_fetched} raw jobs fetched")
+        await self._run_repo.update_stage(run.id, 2)
 
         # ── Step 3: Normalize all to JobRaw schema ───────────────────────────────
         normalized = normalizer_service.normalize(raw_jobs)
+        await self._run_repo.update_stage(run.id, 3)
 
         # ── Step 4: Negative keyword pre-filter ─────────────────────────────────
         filtered = normalizer_service.apply_negative_filter(
@@ -95,9 +112,12 @@ class PipelineOrchestrator:
             await self._search_repo.update_last_run(search.id)
             return
 
+        await self._run_repo.update_stage(run.id, 4)
+
         # ── Step 5: Fingerprint dedup — skip jobs already in DB ─────────────────
         candidate_fps = [compute_fingerprint(job.company_name, job.title) for job in filtered]
         existing_fps = await self._job_repo.get_existing_fingerprints(candidate_fps)
+        await self._run_repo.update_stage(run.id, 5)
 
         # ── Steps 6+7: Embed + vector dedup ────────────────────────────────────
         deduped = dedup_in_memory(filtered, existing_fps)
@@ -107,6 +127,11 @@ class PipelineOrchestrator:
             await self._search_repo.update_last_run(search.id)
             return
 
+        # Steps 6+7 are one in-memory pass, so the stage index jumps straight to 7
+        # ("Pre-score") rather than pausing at 6 ("Dedup semantic") — there's no
+        # real checkpoint between them to report honestly.
+        await self._run_repo.update_stage(run.id, 7)
+
         # ── Step 8: BM25 + cosine pre-score → top 30 ────────────────────────────
         top_jobs = pre_score_and_rank(
             deduped,
@@ -114,6 +139,7 @@ class PipelineOrchestrator:
             job_title=search.job_title,
             field_domain=search.field_domain,
         )
+        await self._run_repo.update_stage(run.id, 8)
 
         # ── Step 9: Groq batch enrichment (top 30 only) ─────────────────────────
         enriched = await enrich_batch(
@@ -122,6 +148,7 @@ class PipelineOrchestrator:
             field_domain=search.field_domain,
             experience_level=search.experience_level or "any",
         )
+        await self._run_repo.update_stage(run.id, 9)
 
         # ── Step 10: Upsert job records + search results ─────────────────────────
         previous_job_ids = await self._job_repo.get_previous_job_ids(search.id)
@@ -144,6 +171,8 @@ class PipelineOrchestrator:
                 gaps=enriched_job.gaps,
                 is_new=is_new,
             )
+
+        await self._run_repo.update_stage(run.id, 10)
 
         # ── Step 11: Notification if new high-scoring jobs found ─────────────────
         high_score_new = [
@@ -186,3 +215,30 @@ class PipelineOrchestrator:
         await self._search_repo.cache_field_expansion(search.id, expansion)
         await self._session.refresh(search)
         return expansion
+
+
+async def run_in_background(search_id: str, run_id: uuid.UUID) -> None:
+    """Executes an already-created run on its own fresh session.
+
+    API-triggered runs (POST /searches/{id}/run and /searches/from-text with
+    run_immediately) schedule this via FastAPI's BackgroundTasks after creating
+    the run row, instead of awaiting the pipeline inline — otherwise the request
+    (and the frontend's progress polling, which only starts once that request
+    resolves) would be blocked for the pipeline's full 1-5 minute duration.
+    """
+    from config.database import AsyncSessionLocal
+
+    async with AsyncSessionLocal() as session:
+        search_repo = SavedSearchRepository(session)
+        run_repo = SearchRunRepository(session)
+        search = await search_repo.get_by_id(uuid.UUID(search_id))
+        run = await run_repo.get_latest_any(uuid.UUID(search_id))
+        if not search or not run or run.id != run_id:
+            logger.error(f"Background run {run_id}: search or run row not found")
+            return
+        orchestrator = PipelineOrchestrator(session)
+        await orchestrator.execute_safely(search, run)
+        # Safety net: unlike SearchRunRepository's writes, update_last_run() (and
+        # anything else _execute touches) only flushes — there's no get_db/scheduler
+        # caller here to commit it, so this session must do it itself.
+        await session.commit()

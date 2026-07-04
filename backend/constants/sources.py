@@ -5,6 +5,23 @@ GREENHOUSE = "greenhouse"
 LEVER = "lever"
 ASHBY = "ashby"
 
+# Mirrors frontend/components/search/search-filters.tsx's STEPS array — keep both in
+# sync. Index written to search_run.current_stage_index by the orchestrator so the
+# frontend can show real progress instead of a client-side timer.
+PIPELINE_STAGE_LABELS = [
+    "Expand field",
+    "Fetch sources",
+    "Normalize",
+    "Filter noise",
+    "Dedup exact",
+    "Embed jobs",
+    "Dedup semantic",
+    "Pre-score",
+    "AI enrich",
+    "Save results",
+    "Notify",
+]
+
 BREADTH_SOURCES = [ADZUNA, JOOBLE, REMOTIVE]
 DEPTH_SOURCES = [GREENHOUSE, LEVER, ASHBY]
 ALL_SOURCES = BREADTH_SOURCES + DEPTH_SOURCES

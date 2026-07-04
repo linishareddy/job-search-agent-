@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.database import get_db
@@ -12,10 +12,14 @@ router = APIRouter(prefix="/companies")
 
 
 @router.get("")
-async def list_companies(db: AsyncSession = Depends(get_db)):
+async def list_companies(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=100, ge=1, le=200),
+    db: AsyncSession = Depends(get_db),
+):
     ctrl = CompanyController(db)
-    companies = await ctrl.list_companies()
-    return ok(data=[c.model_dump() for c in companies], total=len(companies))
+    companies, total = await ctrl.list_companies(page, page_size)
+    return ok(data=[c.model_dump() for c in companies], total=total, page=page, page_size=page_size)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

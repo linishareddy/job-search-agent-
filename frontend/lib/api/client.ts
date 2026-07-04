@@ -63,6 +63,25 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<ApiRespo
   });
 }
 
+/** For the one endpoint (cover-letter generation) that streams plain-text tokens
+ * instead of the usual JSON envelope — everything else should use apiPost. */
+export async function apiPostStream(path: string, body: unknown): Promise<ReadableStream<Uint8Array>> {
+  const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    throw await parseError(res);
+  }
+  if (!res.body) {
+    throw new ApiError("No response body", res.status);
+  }
+  return res.body;
+}
+
 export async function apiPostForm<T>(path: string, formData: FormData): Promise<ApiResponse<T>> {
   const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
   const res = await fetch(url, { method: "POST", body: formData });

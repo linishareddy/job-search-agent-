@@ -14,6 +14,10 @@ class SearchRun(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     search_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("saved_search.id", ondelete="CASCADE"), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="running")  # running|completed|failed
+    # Index into PIPELINE_STAGE_LABELS (constants/sources.py) — written by the
+    # orchestrator after each real step so the frontend can show true progress
+    # instead of a timer guessing at it.
+    current_stage_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     jobs_fetched: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

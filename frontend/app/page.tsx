@@ -54,7 +54,7 @@ export default function LandingPage() {
 
         <div className="mt-20 grid gap-6 md:grid-cols-3">
           {[
-            { title: "Type one sentence", desc: "No forms. Groq parses title, domain, salary, and work mode." },
+            { title: "Type one sentence", desc: "No forms. AI parses title, domain, salary, and work mode." },
             { title: "6 sources at once", desc: "Job boards plus Greenhouse, Lever, and Ashby company pages." },
             { title: "Explained matches", desc: "Every job gets a relevance score, match reason, and gaps." },
           ].map((f) => (

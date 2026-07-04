@@ -7,11 +7,17 @@ import { toast } from "sonner";
 import { resumesApi } from "@/lib/api";
 import { parseApiError } from "@/lib/types/api";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const ACCEPTED = ".pdf,.docx,.txt";
 
-export function ResumeAttach({ onExtracted }: { onExtracted: (text: string) => void }) {
+export function ResumeAttach({
+  onExtracted,
+  variant = "default",
+}: {
+  onExtracted: (text: string) => void;
+  variant?: "default" | "inline";
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [attachedName, setAttachedName] = useState<string | null>(null);
 
@@ -21,7 +27,7 @@ export function ResumeAttach({ onExtracted }: { onExtracted: (text: string) => v
       if (res.data) {
         onExtracted(res.data.text);
         setAttachedName(file.name);
-        toast.success("Resume text added below your description");
+        toast.success("Resume text added to your description");
       }
     },
     onError: (err) => toast.error(parseApiError(err)),
@@ -33,8 +39,10 @@ export function ResumeAttach({ onExtracted }: { onExtracted: (text: string) => v
     if (inputRef.current) inputRef.current.value = "";
   }
 
+  const inline = variant === "inline";
+
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn("flex items-center gap-2", inline && "gap-1.5")}>
       <input
         ref={inputRef}
         type="file"
@@ -44,10 +52,12 @@ export function ResumeAttach({ onExtracted }: { onExtracted: (text: string) => v
       />
       <Button
         type="button"
-        variant="outline"
-        size="sm"
-        className="gap-2"
+        variant={inline ? "ghost" : "outline"}
+        size={inline ? "icon" : "sm"}
+        className={cn(inline && "h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground")}
         disabled={extractMutation.isPending}
+        aria-label={attachedName ? "Replace resume" : "Attach resume"}
+        title={attachedName ? `Attached: ${attachedName}` : "Attach resume (optional)"}
         onClick={() => inputRef.current?.click()}
       >
         {extractMutation.isPending ? (
@@ -55,15 +65,30 @@ export function ResumeAttach({ onExtracted }: { onExtracted: (text: string) => v
         ) : (
           <Paperclip className="h-4 w-4" />
         )}
-        {attachedName ? "Replace resume" : "Attach resume (optional)"}
       </Button>
+      {!inline && (
+        <span className="text-sm text-muted-foreground">
+          {attachedName ? "Replace resume" : "Attach resume (optional)"}
+        </span>
+      )}
       {attachedName && (
-        <Badge className="gap-1 bg-secondary text-secondary-foreground">
-          {attachedName}
-          <button type="button" onClick={() => setAttachedName(null)} aria-label="Clear attachment indicator">
+        <span
+          className={cn(
+            "inline-flex max-w-[10rem] items-center gap-1 truncate rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground",
+            inline && "max-w-[8rem]"
+          )}
+          title={attachedName}
+        >
+          <span className="truncate">{attachedName}</span>
+          <button
+            type="button"
+            className="shrink-0"
+            onClick={() => setAttachedName(null)}
+            aria-label="Clear attachment indicator"
+          >
             <X className="h-3 w-3" />
           </button>
-        </Badge>
+        </span>
       )}
     </div>
   );

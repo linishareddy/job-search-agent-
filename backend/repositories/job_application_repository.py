@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -13,13 +13,16 @@ class JobApplicationRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def get_all(self) -> list[JobApplication]:
+    async def get_all(self, page: int = 1, page_size: int = 100) -> tuple[list[JobApplication], int]:
+        total = (await self._session.execute(select(func.count(JobApplication.id)))).scalar_one()
         result = await self._session.execute(
             select(JobApplication)
             .options(selectinload(JobApplication.job))
             .order_by(JobApplication.updated_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
         )
-        return result.scalars().all()
+        return result.scalars().all(), total
 
     async def get_by_id(self, application_id: uuid.UUID) -> JobApplication | None:
         result = await self._session.execute(
@@ -74,3 +77,9 @@ class JobApplicationRepository:
         await self._session.delete(app)
         await self._session.flush()
         return True
+
+    async def count_by_status(self) -> dict[str, int]:
+        result = await self._session.execute(
+            select(JobApplication.status, func.count(JobApplication.id)).group_by(JobApplication.status)
+        )
+        return {row[0]: row[1] for row in result.all()}

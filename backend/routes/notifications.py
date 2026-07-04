@@ -13,11 +13,13 @@ router = APIRouter(prefix="/notifications")
 @router.get("")
 async def list_notifications(
     unread_only: bool = Query(default=False),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = NotificationController(db)
-    notifications = await ctrl.list_notifications(unread_only)
-    return ok(data=[n.model_dump() for n in notifications], total=len(notifications))
+    notifications, total = await ctrl.list_notifications(unread_only, page, page_size)
+    return ok(data=[n.model_dump() for n in notifications], total=total, page=page, page_size=page_size)
 
 
 @router.patch("/{notification_id}/read", status_code=status.HTTP_204_NO_CONTENT)

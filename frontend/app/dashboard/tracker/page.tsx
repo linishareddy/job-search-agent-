@@ -1,14 +1,32 @@
 "use client";
 
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, KanbanSquare, Trash2 } from "lucide-react";
+import {
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
+import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import { ExternalLink, GripVertical, KanbanSquare, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { applicationsApi } from "@/lib/api";
 import { parseApiError } from "@/lib/types/api";
 import type { ApplicationStatus, JobApplication } from "@/lib/types/application";
+import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NativeSelect } from "@/components/ui/native-select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 const COLUMNS: { status: ApplicationStatus; label: string }[] = [
   { status: "saved", label: "Saved" },
@@ -26,59 +44,79 @@ const COLUMN_ACCENT: Record<ApplicationStatus, string> = {
   rejected: "text-destructive",
 };
 
-function ApplicationCard({ app }: { app: JobApplication }) {
+function ApplicationCard({
+  app,
+  onStatusChange,
+  onRequestDelete,
+  dragging,
+}: {
+  app: JobApplication;
+  onStatusChange: (status: ApplicationStatus) => void;
+  onRequestDelete: () => void;
+  dragging?: boolean;
+}) {
   const queryClient = useQueryClient();
-
-  const updateMutation = useMutation({
-    mutationFn: (data: { status?: ApplicationStatus; notes?: string }) =>
-      applicationsApi.update(app.id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["applications"] }),
-    onError: (err) => toast.error(parseApiError(err)),
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: app.id,
+    data: { status: app.status },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: () => applicationsApi.delete(app.id),
+  const notesMutation = useMutation({
+    mutationFn: (notes: string) => applicationsApi.update(app.id, { notes }),
     onSuccess: () => {
-      toast.success("Removed from tracker");
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+      toast.success("Note saved");
     },
     onError: (err) => toast.error(parseApiError(err)),
   });
 
   return (
-    <Card>
+    <Card
+      ref={setNodeRef}
+      style={{ transform: CSS.Translate.toString(transform) }}
+      className={cn("touch-none", (isDragging || dragging) && "opacity-40")}
+    >
       <CardContent className="space-y-2 p-3">
         <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium leading-snug">{app.job.title}</p>
+          <div className="flex items-start gap-1.5">
+            <button
+              {...attributes}
+              {...listeners}
+              aria-label={`Drag to move ${app.job.title}`}
+              className="mt-0.5 shrink-0 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
+            <p className="text-sm font-medium leading-snug">{app.job.title}</p>
+          </div>
           <button
-            onClick={() => {
-              if (confirm(`Remove ${app.job.title} from tracker?`)) deleteMutation.mutate();
-            }}
-            aria-label="Remove"
-            className="text-muted-foreground hover:text-destructive"
+            onClick={onRequestDelete}
+            aria-label={`Remove ${app.job.title}`}
+            className="shrink-0 text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
         <p className="text-xs text-muted-foreground">{app.job.company_name}</p>
 
-        <select
+        <NativeSelect
           value={app.status}
-          onChange={(e) => updateMutation.mutate({ status: e.target.value as ApplicationStatus })}
-          className="w-full rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          onChange={(e) => onStatusChange(e.target.value as ApplicationStatus)}
+          className="w-full text-xs"
+          aria-label={`Status for ${app.job.title}`}
         >
           {COLUMNS.map((c) => (
             <option key={c.status} value={c.status}>
               {c.label}
             </option>
           ))}
-        </select>
+        </NativeSelect>
 
         <textarea
           defaultValue={app.notes ?? ""}
           placeholder="Notes…"
           onBlur={(e) => {
-            if (e.target.value !== (app.notes ?? "")) updateMutation.mutate({ notes: e.target.value });
+            if (e.target.value !== (app.notes ?? "")) notesMutation.mutate(e.target.value);
           }}
           className="h-14 w-full resize-none rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
@@ -96,7 +134,43 @@ function ApplicationCard({ app }: { app: JobApplication }) {
   );
 }
 
+function Column({
+  status,
+  label,
+  count,
+  isDropTarget,
+  children,
+}: {
+  status: ApplicationStatus;
+  label: string;
+  count: number;
+  isDropTarget: boolean;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: status });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "space-y-3 rounded-xl p-2 transition-colors",
+        isOver && isDropTarget ? "bg-primary/5 ring-2 ring-primary/40" : "ring-2 ring-transparent"
+      )}
+    >
+      <div className="flex items-center justify-between px-1">
+        <h2 className={`text-sm font-semibold ${COLUMN_ACCENT[status]}`}>{label}</h2>
+        <span className="text-xs text-muted-foreground">{count}</span>
+      </div>
+      <div className="space-y-2">{children}</div>
+    </div>
+  );
+}
+
 export default function TrackerPage() {
+  const queryClient = useQueryClient();
+  const [activeApp, setActiveApp] = useState<JobApplication | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<JobApplication | null>(null);
+
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["applications"],
     queryFn: () => applicationsApi.list(),
@@ -105,12 +179,51 @@ export default function TrackerPage() {
   const applications = data?.data ?? [];
   const byStatus = (status: ApplicationStatus) => applications.filter((a) => a.status === status);
 
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: ApplicationStatus }) =>
+      applicationsApi.update(id, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["applications"] }),
+    onError: (err) => toast.error(parseApiError(err)),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => applicationsApi.delete(id),
+    onSuccess: () => {
+      toast.success("Removed from tracker");
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+    },
+    onError: (err) => toast.error(parseApiError(err)),
+  });
+
+  // Keyboard sensor keeps the board operable without a pointer; the per-card
+  // native <select> (kept alongside drag) is the fully-accessible fallback.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  function handleDragStart(event: DragStartEvent) {
+    const app = applications.find((a) => a.id === event.active.id);
+    setActiveApp(app ?? null);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    setActiveApp(null);
+    if (!over) return;
+    const newStatus = over.id as ApplicationStatus;
+    const app = applications.find((a) => a.id === active.id);
+    if (app && app.status !== newStatus) {
+      statusMutation.mutate({ id: app.id, status: newStatus });
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Application tracker</h1>
         <p className="text-muted-foreground">
-          Track jobs from Saved through Offer. Add jobs with &quot;Save to tracker&quot; on any result.
+          Drag a card between columns, or use its status menu. Add jobs with &quot;Save to tracker&quot; on any result.
         </p>
       </div>
 
@@ -133,25 +246,61 @@ export default function TrackerPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {COLUMNS.map((col) => (
-          <div key={col.status} className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className={`text-sm font-semibold ${COLUMN_ACCENT[col.status]}`}>{col.label}</h2>
-              <span className="text-xs text-muted-foreground">{byStatus(col.status).length}</span>
-            </div>
-            {isLoading ? (
-              <Skeleton className="h-24 w-full" />
-            ) : (
-              <div className="space-y-2">
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {COLUMNS.map((col) => (
+            <Skeleton key={col.status} className="h-24 w-full" />
+          ))}
+        </div>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {COLUMNS.map((col) => (
+              <Column
+                key={col.status}
+                status={col.status}
+                label={col.label}
+                count={byStatus(col.status).length}
+                isDropTarget={!!activeApp && activeApp.status !== col.status}
+              >
                 {byStatus(col.status).map((app) => (
-                  <ApplicationCard key={app.id} app={app} />
+                  <ApplicationCard
+                    key={app.id}
+                    app={app}
+                    dragging={activeApp?.id === app.id}
+                    onStatusChange={(status) => statusMutation.mutate({ id: app.id, status })}
+                    onRequestDelete={() => setPendingDelete(app)}
+                  />
                 ))}
-              </div>
-            )}
+              </Column>
+            ))}
           </div>
-        ))}
-      </div>
+
+          <DragOverlay>
+            {activeApp && (
+              <Card className="rotate-2 shadow-glow">
+                <CardContent className="space-y-1 p-3">
+                  <p className="text-sm font-medium leading-snug">{activeApp.job.title}</p>
+                  <p className="text-xs text-muted-foreground">{activeApp.job.company_name}</p>
+                </CardContent>
+              </Card>
+            )}
+          </DragOverlay>
+        </DndContext>
+      )}
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title={`Remove ${pendingDelete?.job.title} from tracker?`}
+        confirmLabel="Remove"
+        onConfirm={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+      />
     </div>
   );
 }

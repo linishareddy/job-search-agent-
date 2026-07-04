@@ -89,3 +89,19 @@ export interface CreateFromTextPayload {
 export interface CreateFromTextResult extends SavedSearch {
   run_id?: string;
 }
+
+export interface RunStatus {
+  run_id: string;
+  status: "running" | "completed" | "failed";
+  current_stage_index: number;
+  current_stage_label: string;
+  total_stages: number;
+  jobs_fetched: number;
+  jobs_matched: number;
+  new_jobs: number;
+  error_detail?: string | null;
+}
+
+export interface BulkDeleteSearchesResult {
+  deleted: number;
+}

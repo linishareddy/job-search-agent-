@@ -11,9 +11,9 @@ class CompanyController:
     def __init__(self, session: AsyncSession):
         self._repo = AtsCompanyRepository(session)
 
-    async def list_companies(self) -> list[AtsCompanyResponse]:
-        companies = await self._repo.get_all_active()
-        return [AtsCompanyResponse.model_validate(c) for c in companies]
+    async def list_companies(self, page: int = 1, page_size: int = 100) -> tuple[list[AtsCompanyResponse], int]:
+        companies, total = await self._repo.get_all_active_paginated(page, page_size)
+        return [AtsCompanyResponse.model_validate(c) for c in companies], total
 
     async def add_company(self, data: AtsCompanyCreate) -> AtsCompanyResponse:
         company = await self._repo.create(data)

@@ -14,24 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FilterChips } from "@/components/search/search-filters";
-
-const WORK_MODES = ["any", "remote", "hybrid", "onsite"].map((v) => ({
-  label: v.charAt(0).toUpperCase() + v.slice(1),
-  value: v,
-}));
-
-const LEVELS = ["any", "entry", "mid", "senior", "lead"].map((v) => ({
-  label: v.charAt(0).toUpperCase() + v.slice(1),
-  value: v,
-}));
-
-const POSTED = [
-  { label: "No filter", value: 0 },
-  { label: "7 days", value: 7 },
-  { label: "14 days", value: 14 },
-  { label: "30 days", value: 30 },
-];
+import { WORK_MODE_OPTIONS, EXPERIENCE_LEVEL_OPTIONS, POSTED_WITHIN_OPTIONS } from "@/lib/constants/filters";
 
 export default function EditSearchPage() {
   const { id } = useParams<{ id: string }>();
@@ -76,7 +61,22 @@ export default function EditSearchPage() {
   });
 
   if (isLoading || !search) {
-    return <div className="h-64 animate-pulse rounded-xl bg-muted" />;
+    return (
+      <div className="mx-auto max-w-2xl space-y-6">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-8 w-48" />
+        <Card>
+          <CardContent className="space-y-4 pt-6">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="space-y-1.5">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const postedVal = form.posted_within_days ?? 0;
@@ -97,32 +97,36 @@ export default function EditSearchPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label>Name</Label>
+            <Label htmlFor="edit-name">Name</Label>
             <Input
+              id="edit-name"
               className="mt-1.5"
               value={form.name ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             />
           </div>
           <div>
-            <Label>Job title</Label>
+            <Label htmlFor="edit-job-title">Job title</Label>
             <Input
+              id="edit-job-title"
               className="mt-1.5"
               value={form.job_title ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, job_title: e.target.value }))}
             />
           </div>
           <div>
-            <Label>Field / domain</Label>
+            <Label htmlFor="edit-field-domain">Field / domain</Label>
             <Textarea
+              id="edit-field-domain"
               className="mt-1.5"
               value={form.field_domain ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, field_domain: e.target.value }))}
             />
           </div>
           <div>
-            <Label>Location</Label>
+            <Label htmlFor="edit-location">Location</Label>
             <Input
+              id="edit-location"
               className="mt-1.5"
               value={form.location ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
@@ -131,23 +135,26 @@ export default function EditSearchPage() {
           <div>
             <Label className="mb-2 block">Work mode</Label>
             <FilterChips
-              options={WORK_MODES}
+              options={WORK_MODE_OPTIONS}
               value={form.work_mode ?? "any"}
               onChange={(v) => setForm((f) => ({ ...f, work_mode: v }))}
+              aria-label="Work mode"
             />
           </div>
           <div>
             <Label className="mb-2 block">Experience level</Label>
             <FilterChips
-              options={LEVELS}
+              options={EXPERIENCE_LEVEL_OPTIONS}
               value={form.experience_level ?? "any"}
               onChange={(v) => setForm((f) => ({ ...f, experience_level: v }))}
+              aria-label="Experience level"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Salary min</Label>
+              <Label htmlFor="edit-salary-min">Salary min</Label>
               <Input
+                id="edit-salary-min"
                 type="number"
                 className="mt-1.5"
                 value={form.salary_min ?? ""}
@@ -160,8 +167,9 @@ export default function EditSearchPage() {
               />
             </div>
             <div>
-              <Label>Salary max</Label>
+              <Label htmlFor="edit-salary-max">Salary max</Label>
               <Input
+                id="edit-salary-max"
                 type="number"
                 className="mt-1.5"
                 value={form.salary_max ?? ""}
@@ -177,7 +185,7 @@ export default function EditSearchPage() {
           <div>
             <Label className="mb-2 block">Default posted within</Label>
             <FilterChips
-              options={POSTED}
+              options={POSTED_WITHIN_OPTIONS.map((o) => ({ label: o.label, value: o.value }))}
               value={postedVal}
               onChange={(v) =>
                 setForm((f) => ({
@@ -185,11 +193,13 @@ export default function EditSearchPage() {
                   posted_within_days: v > 0 ? v : undefined,
                 }))
               }
+              aria-label="Default posted within"
             />
           </div>
           <div>
-            <Label>Poll interval (minutes)</Label>
+            <Label htmlFor="edit-poll-interval">Poll interval (minutes)</Label>
             <Input
+              id="edit-poll-interval"
               type="number"
               min={30}
               max={1440}

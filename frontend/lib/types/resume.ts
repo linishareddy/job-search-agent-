@@ -25,3 +25,9 @@ export interface ExtractedResumeText {
   filename: string;
   text: string;
 }
+
+export interface CoverLetterFromResumePayload {
+  job_title: string;
+  company_name: string;
+  job_description?: string;
+}

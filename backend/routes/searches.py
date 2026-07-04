@@ -1,12 +1,13 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.database import get_db
 from controllers.search_controller import SearchController
+from core.rate_limit import GROQ_ENDPOINT_LIMIT, limiter
 from core.response import ok
-from schemas.saved_search import SavedSearchCreate, SavedSearchUpdate
+from schemas.saved_search import BulkDeleteSearchesRequest, SavedSearchCreate, SavedSearchUpdate
 from schemas.search_intent import CreateSearchFromTextRequest, ParseSearchTextRequest
 
 router = APIRouter(prefix="/searches")
@@ -14,11 +15,13 @@ router = APIRouter(prefix="/searches")
 
 @router.get("")
 async def list_searches(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=100, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    searches = await ctrl.list_searches()
-    return ok(data=[s.model_dump() for s in searches], total=len(searches))
+    searches, total = await ctrl.list_searches(page, page_size)
+    return ok(data=[s.model_dump() for s in searches], total=total, page=page, page_size=page_size)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -32,7 +35,9 @@ async def create_search(
 
 
 @router.post("/parse-text")
+@limiter.limit(GROQ_ENDPOINT_LIMIT)
 async def parse_search_text(
+    request: Request,
     data: ParseSearchTextRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -42,16 +47,33 @@ async def parse_search_text(
 
 
 @router.post("/from-text", status_code=status.HTTP_201_CREATED)
+@limiter.limit(GROQ_ENDPOINT_LIMIT)
 async def create_search_from_text(
+    request: Request,
     data: CreateSearchFromTextRequest,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    search, run_id = await ctrl.create_from_text(data.text, data.overrides, data.run_immediately)
+    search, run_id = await ctrl.create_from_text(
+        data.text, data.overrides, data.run_immediately, background_tasks
+    )
     result = search.model_dump()
     if run_id:
         result["run_id"] = str(run_id)
     return ok(data=result, message="Pipeline started" if run_id else None)
+
+
+@router.post("/bulk-delete")
+async def bulk_delete_searches(
+    data: BulkDeleteSearchesRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    if not data.only_paused and not data.ids:
+        raise HTTPException(status_code=400, detail="Provide ids or set only_paused=true")
+    ctrl = SearchController(db)
+    result = await ctrl.bulk_delete_searches(data)
+    return ok(data=result.model_dump())
 
 
 @router.get("/{search_id}")
@@ -64,7 +86,7 @@ async def get_search(
     return ok(data=search.model_dump())
 
 
-@router.put("/{search_id}")
+@router.patch("/{search_id}")
 async def update_search(
     search_id: uuid.UUID,
     data: SavedSearchUpdate,
@@ -85,13 +107,26 @@ async def delete_search(
 
 
 @router.post("/{search_id}/run", status_code=status.HTTP_202_ACCEPTED)
+@limiter.limit(GROQ_ENDPOINT_LIMIT)
 async def trigger_run(
+    request: Request,
+    search_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    ctrl = SearchController(db)
+    run_id = await ctrl.trigger_run(search_id, background_tasks)
+    return ok(data={"run_id": str(run_id)}, message="Pipeline started")
+
+
+@router.get("/{search_id}/run-status")
+async def get_run_status(
     search_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    run_id = await ctrl.trigger_run(search_id)
-    return ok(data={"run_id": str(run_id)}, message="Pipeline started")
+    run_status = await ctrl.get_run_status(search_id)
+    return ok(data=run_status.model_dump())
 
 
 @router.get("/{search_id}/results")
@@ -135,9 +170,10 @@ async def get_results(
 @router.get("/{search_id}/analytics")
 async def get_analytics(
     search_id: uuid.UUID,
+    posted_within_days: int | None = Query(default=None, ge=1),
     db: AsyncSession = Depends(get_db),
 ):
     from controllers.job_controller import JobController
     ctrl = JobController(db)
-    analytics = await ctrl.get_analytics(search_id)
+    analytics = await ctrl.get_analytics(search_id, posted_within_days=posted_within_days)
     return ok(data=analytics.model_dump())

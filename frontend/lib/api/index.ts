@@ -1,13 +1,14 @@
-import { apiDelete, apiGet, apiPatch, apiPost, apiPostForm, apiPut } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPostForm, apiPostStream } from "@/lib/api/client";
 import type { AtsCompany, AtsCompanyCreate, HealthStatus, Notification, SourceHealthMap } from "@/lib/types/misc";
-import type { CoverLetterResult, JobSearchResult, SearchResultsParams } from "@/lib/types/job";
+import type { JobSearchResult, SearchResultsParams } from "@/lib/types/job";
 import type { ApplicationStatus, JobApplication } from "@/lib/types/application";
-import type { SearchAnalytics } from "@/lib/types/analytics";
-import type { ExtractedResumeText, Resume, ResumeDetail } from "@/lib/types/resume";
+import type { GlobalAnalytics, SearchAnalytics } from "@/lib/types/analytics";
+import type { CoverLetterFromResumePayload, ExtractedResumeText, Resume, ResumeDetail } from "@/lib/types/resume";
 import type {
   CreateFromTextPayload,
   CreateFromTextResult,
   ParsedSearchIntent,
+  RunStatus,
   SavedSearch,
   SavedSearchCreate,
   SavedSearchUpdate,
@@ -17,13 +18,19 @@ export const searchesApi = {
   list: () => apiGet<SavedSearch[]>("/searches"),
   get: (id: string) => apiGet<SavedSearch>(`/searches/${id}`),
   create: (data: SavedSearchCreate) => apiPost<SavedSearch>("/searches", data),
-  update: (id: string, data: SavedSearchUpdate) => apiPut<SavedSearch>(`/searches/${id}`, data),
+  update: (id: string, data: SavedSearchUpdate) => apiPatch<SavedSearch>(`/searches/${id}`, data),
   delete: (id: string) => apiDelete(`/searches/${id}`),
+  bulkDelete: (payload: { ids?: string[]; only_paused?: boolean }) =>
+    apiPost<{ deleted: number }>("/searches/bulk-delete", payload),
   parseText: (text: string) => apiPost<ParsedSearchIntent>("/searches/parse-text", { text }),
   createFromText: (payload: CreateFromTextPayload) =>
     apiPost<CreateFromTextResult>("/searches/from-text", payload),
   run: (id: string) => apiPost<{ run_id: string }>(`/searches/${id}/run`),
-  analytics: (id: string) => apiGet<SearchAnalytics>(`/searches/${id}/analytics`),
+  runStatus: (id: string) => apiGet<RunStatus>(`/searches/${id}/run-status`),
+  analytics: (id: string, postedWithinDays?: number) =>
+    apiGet<SearchAnalytics>(`/searches/${id}/analytics`, {
+      posted_within_days: postedWithinDays,
+    }),
   results: (id: string, params?: SearchResultsParams) =>
     apiGet<JobSearchResult[]>(`/searches/${id}/results`, {
       page: params?.page ?? 1,
@@ -34,9 +41,11 @@ export const searchesApi = {
     }),
 };
 
-export const jobsApi = {
-  coverLetter: (jobId: string, resumeId: string) =>
-    apiPost<CoverLetterResult>(`/jobs/${jobId}/cover-letter`, { resume_id: resumeId }),
+export const analyticsApi = {
+  overview: (activeOnly = false) =>
+    apiGet<GlobalAnalytics>("/analytics/overview", {
+      active_only: activeOnly ? "true" : undefined,
+    }),
 };
 
 export const applicationsApi = {
@@ -74,6 +83,8 @@ export const resumesApi = {
     formData.append("file", file);
     return apiPostForm<ExtractedResumeText>("/resumes/extract-text", formData);
   },
+  coverLetterStream: (resumeId: string, payload: CoverLetterFromResumePayload) =>
+    apiPostStream(`/resumes/${resumeId}/cover-letter`, payload),
 };
 
 export const healthApi = {

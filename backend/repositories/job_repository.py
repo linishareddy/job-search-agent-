@@ -1,13 +1,15 @@
 import uuid
 from datetime import datetime, timezone, timedelta
 
-from sqlalchemy import or_, select, update, func
+from sqlalchemy import delete, or_, select, update, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from models.job import Job
+from models.job_application import JobApplication
 from models.job_search_result import JobSearchResult
+from models.saved_search import SavedSearch
 from services.pipeline.enrichment_service import EnrichedJob
 
 
@@ -111,9 +113,13 @@ class JobRepository:
         )
         await self._session.execute(stmt)
 
-    async def get_all_jobs_for_search(self, search_id: uuid.UUID) -> list[Job]:
+    async def get_all_jobs_for_search(
+        self,
+        search_id: uuid.UUID,
+        posted_within_days: int | None = None,
+    ) -> list[Job]:
         """All (non-dismissed) jobs for a search, unpaginated — for analytics aggregation."""
-        result = await self._session.execute(
+        stmt = (
             select(Job)
             .join(JobSearchResult, JobSearchResult.job_id == Job.id)
             .where(
@@ -121,7 +127,68 @@ class JobRepository:
                 JobSearchResult.is_dismissed.is_(False),
             )
         )
+        if posted_within_days is not None:
+            cutoff = datetime.now(timezone.utc) - timedelta(days=posted_within_days)
+            stmt = stmt.where(or_(Job.posted_at.is_(None), Job.posted_at >= cutoff))
+        result = await self._session.execute(stmt)
         return result.scalars().all()
+
+    async def get_all_unique_jobs(self, active_only: bool = False) -> list[Job]:
+        """Distinct jobs linked to any non-dismissed search result (global analytics)."""
+        stmt = (
+            select(Job)
+            .join(JobSearchResult, JobSearchResult.job_id == Job.id)
+            .where(JobSearchResult.is_dismissed.is_(False))
+        )
+        if active_only:
+            stmt = stmt.join(SavedSearch, SavedSearch.id == JobSearchResult.search_id).where(
+                SavedSearch.is_active.is_(True)
+            )
+        stmt = stmt.distinct()
+        result = await self._session.execute(stmt)
+        return result.scalars().all()
+
+    async def count_matches(self, active_only: bool = False) -> int:
+        stmt = select(func.count(JobSearchResult.id)).where(JobSearchResult.is_dismissed.is_(False))
+        if active_only:
+            stmt = stmt.join(SavedSearch, SavedSearch.id == JobSearchResult.search_id).where(
+                SavedSearch.is_active.is_(True)
+            )
+        return (await self._session.execute(stmt)).scalar_one()
+
+    async def count_new_matches_since(self, days: float, active_only: bool = False) -> int:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        stmt = select(func.count(JobSearchResult.id)).where(
+            JobSearchResult.is_dismissed.is_(False),
+            JobSearchResult.created_at >= cutoff,
+        )
+        if active_only:
+            stmt = stmt.join(SavedSearch, SavedSearch.id == JobSearchResult.search_id).where(
+                SavedSearch.is_active.is_(True)
+            )
+        return (await self._session.execute(stmt)).scalar_one()
+
+    async def get_search_summaries(self) -> list[tuple[uuid.UUID, str, int, int]]:
+        """Per-search job and new counts: (search_id, name, job_count, new_count)."""
+        result = await self._session.execute(
+            select(
+                SavedSearch.id,
+                SavedSearch.name,
+                func.count(JobSearchResult.id)
+                .filter(JobSearchResult.is_dismissed.is_(False))
+                .label("job_count"),
+                func.count(JobSearchResult.id)
+                .filter(
+                    JobSearchResult.is_dismissed.is_(False),
+                    JobSearchResult.is_new.is_(True),
+                )
+                .label("new_count"),
+            )
+            .outerjoin(JobSearchResult, JobSearchResult.search_id == SavedSearch.id)
+            .group_by(SavedSearch.id, SavedSearch.name)
+            .order_by(SavedSearch.created_at.desc())
+        )
+        return [(row[0], row[1], row[2] or 0, row[3] or 0) for row in result.all()]
 
     async def get_previous_job_ids(self, search_id: uuid.UUID) -> set[uuid.UUID]:
         """Return job IDs from the last completed run for a search (for is_new detection)."""
@@ -170,3 +237,26 @@ class JobRepository:
 
         result = await self._session.execute(query)
         return result.scalars().all(), total
+
+    async def delete_orphans(self, candidate_job_ids: set[uuid.UUID]) -> int:
+        """Delete jobs no longer linked to any search and not saved in the tracker."""
+        if not candidate_job_ids:
+            return 0
+
+        linked = await self._session.execute(
+            select(JobSearchResult.job_id).where(JobSearchResult.job_id.in_(candidate_job_ids))
+        )
+        linked_ids = {row[0] for row in linked.all()}
+
+        tracked = await self._session.execute(
+            select(JobApplication.job_id).where(JobApplication.job_id.in_(candidate_job_ids))
+        )
+        tracked_ids = {row[0] for row in tracked.all()}
+
+        orphan_ids = candidate_job_ids - linked_ids - tracked_ids
+        if not orphan_ids:
+            return 0
+
+        result = await self._session.execute(delete(Job).where(Job.id.in_(orphan_ids)))
+        await self._session.flush()
+        return result.rowcount or 0
