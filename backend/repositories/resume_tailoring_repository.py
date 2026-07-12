@@ -27,25 +27,36 @@ class ResumeTailoringRepository:
         match_score: float,
         suggestions: dict,
         tailored_text: str,
+        tailored_sections: dict | None = None,
+        docx_path: str | None = None,
+        template_id: str = "classic",
     ) -> ResumeTailoring:
+        values = {
+            "id": uuid.uuid4(),
+            "user_id": user_id,
+            "resume_id": resume_id,
+            "job_id": job_id,
+            "match_score": match_score,
+            "suggestions": suggestions,
+            "tailored_text": tailored_text,
+            "tailored_sections": tailored_sections,
+            "docx_path": docx_path,
+            "template_id": template_id,
+        }
+        update_set = {
+            "match_score": match_score,
+            "suggestions": suggestions,
+            "tailored_text": tailored_text,
+            "tailored_sections": tailored_sections,
+            "docx_path": docx_path,
+            "template_id": template_id,
+        }
         stmt = (
             insert(ResumeTailoring)
-            .values(
-                id=uuid.uuid4(),
-                user_id=user_id,
-                resume_id=resume_id,
-                job_id=job_id,
-                match_score=match_score,
-                suggestions=suggestions,
-                tailored_text=tailored_text,
-            )
+            .values(**values)
             .on_conflict_do_update(
                 constraint="uq_resume_job_tailoring",
-                set_={
-                    "match_score": match_score,
-                    "suggestions": suggestions,
-                    "tailored_text": tailored_text,
-                },
+                set_=update_set,
             )
             .returning(ResumeTailoring)
         )

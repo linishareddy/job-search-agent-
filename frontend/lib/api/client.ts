@@ -127,3 +127,19 @@ export async function apiPatch<T>(path: string, body?: unknown): Promise<ApiResp
 export async function apiDelete(path: string): Promise<void> {
   await apiRequest(path, { method: "DELETE" });
 }
+
+/** Download a binary file (e.g. tailored resume DOCX) with auth headers. */
+export async function apiDownload(path: string, filename: string): Promise<void> {
+  const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  const res = await fetch(url, { headers: authHeaders() });
+  if (!res.ok) {
+    throw await parseError(res);
+  }
+  const blob = await res.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
+}

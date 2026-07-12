@@ -70,6 +70,17 @@ async def lifespan(app: FastAPI):
         await conn.execute(text("ALTER TABLE job_application ADD COLUMN IF NOT EXISTS cover_letter TEXT"))
         await conn.execute(text("ALTER TABLE job_application ADD COLUMN IF NOT EXISTS tailored_resume TEXT"))
 
+        # Mirrors alembic/versions/010_resume_sections_tailoring_docx.py
+        await conn.execute(text("ALTER TABLE resume ADD COLUMN IF NOT EXISTS file_kind VARCHAR(16)"))
+        await conn.execute(text("ALTER TABLE resume ADD COLUMN IF NOT EXISTS storage_path VARCHAR(512)"))
+        await conn.execute(text("ALTER TABLE resume ADD COLUMN IF NOT EXISTS parsed_sections JSONB"))
+        await conn.execute(text("ALTER TABLE resume_tailoring ADD COLUMN IF NOT EXISTS tailored_sections JSONB"))
+        await conn.execute(text("ALTER TABLE resume_tailoring ADD COLUMN IF NOT EXISTS docx_path VARCHAR(512)"))
+        await conn.execute(
+            text("ALTER TABLE resume_tailoring ADD COLUMN IF NOT EXISTS template_id VARCHAR(64) DEFAULT 'classic'")
+        )
+        await conn.execute(text("ALTER TABLE job_application ADD COLUMN IF NOT EXISTS tailored_docx_path VARCHAR(512)"))
+
         # job_application used to be unique on job_id alone (one tracker card per job,
         # globally). Multi-user ownership needs unique(user_id, job_id) instead so two
         # users can each track the same job independently.

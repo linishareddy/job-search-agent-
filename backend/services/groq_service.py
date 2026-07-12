@@ -87,41 +87,71 @@ class GroqService:
             }
 
     async def parse_resume(self, text: str) -> dict[str, Any]:
-        """Call Groq to extract structured profile data (skills, titles, experience) from resume text."""
+        """Call Groq to extract structured profile data and full resume sections."""
         from prompts.resume_parser import SYSTEM_PROMPT, USER_TEMPLATE
 
         user_msg = USER_TEMPLATE.format(text=text[:12000])
         try:
             raw = await self._complete(_FAST_MODEL, SYSTEM_PROMPT, user_msg)
-            return json.loads(raw)
+            parsed = json.loads(raw)
+            # Shallow parsed_data for backward compatibility with search/match flows
+            shallow = {
+                "skills": parsed.get("skills", []),
+                "job_titles": parsed.get("job_titles", []),
+                "experience_level": parsed.get("experience_level"),
+                "years_experience": parsed.get("years_experience"),
+                "summary": parsed.get("summary"),
+            }
+            return {"parsed_data": shallow, "parsed_sections": parsed}
         except (json.JSONDecodeError, Exception) as e:
             logger.error(f"Groq resume parse failed: {e}")
-            return {
+            empty_sections = {
+                "contact": {"name": "", "email": "", "phone": "", "location": "", "linkedin": "", "github": "", "website": ""},
+                "summary": "",
                 "skills": [],
+                "experience": [],
+                "education": [],
+                "certifications": [],
                 "job_titles": [],
                 "experience_level": None,
                 "years_experience": None,
-                "summary": None,
+            }
+            return {
+                "parsed_data": {
+                    "skills": [],
+                    "job_titles": [],
+                    "experience_level": None,
+                    "years_experience": None,
+                    "summary": None,
+                },
+                "parsed_sections": empty_sections,
             }
 
-    async def tailor_resume(self, job: dict, resume_text: str) -> dict[str, Any]:
-        """Call Groq to score a resume against a job and produce both structured
-        suggestions and a full tailored resume draft. Uses the smart model — this
-        is a nuanced rewriting task, not simple field extraction."""
+    async def tailor_resume(self, job: dict, resume_sections: dict, resume_text: str = "") -> dict[str, Any]:
+        """Call Groq to score a resume against a job and produce tailored sections."""
         from prompts.resume_tailor import SYSTEM_PROMPT, USER_TEMPLATE
+        import json as _json
 
+        sections_str = _json.dumps(resume_sections, indent=2)[:12000]
         user_msg = USER_TEMPLATE.format(
             job_title=job.get("title", ""),
             company_name=job.get("company_name", ""),
             description=(job.get("description_summary") or job.get("description_raw") or "")[:3000],
             skills=", ".join(job.get("skills") or []) or "(not specified)",
-            resume_text=resume_text[:12000],
+            resume_sections=sections_str,
         )
         try:
             raw = await self._complete(_SMART_MODEL, SYSTEM_PROMPT, user_msg)
-            return json.loads(raw)
+            result = json.loads(raw)
+            # Backward compat: derive plain text from sections if model omits it
+            if not result.get("tailored_resume") and result.get("tailored_sections"):
+                from services.resume_render_service import sections_to_plain_text
+                result["tailored_resume"] = sections_to_plain_text(result["tailored_sections"])
+            return result
         except (json.JSONDecodeError, Exception) as e:
             logger.error(f"Groq resume tailoring failed: {e}")
+            from services.resume_render_service import sections_to_plain_text
+            fallback_sections = resume_sections or {}
             return {
                 "match_score": 0,
                 "matched_keywords": [],
@@ -129,7 +159,8 @@ class GroqService:
                 "suggestions": [],
                 "summary_rewrite": None,
                 "gaps": ["Automatic tailoring failed — please try again."],
-                "tailored_resume": resume_text,
+                "tailored_sections": fallback_sections,
+                "tailored_resume": sections_to_plain_text(fallback_sections) if fallback_sections else resume_text,
             }
 
     async def generate_cover_letter(self, job: dict, resume_text: str) -> str:

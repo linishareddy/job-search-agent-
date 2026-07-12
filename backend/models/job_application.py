@@ -30,6 +30,8 @@ class JobApplication(Base):
     match_score: Mapped[float | None] = mapped_column(Float)
     cover_letter: Mapped[str | None] = mapped_column(Text)
     tailored_resume: Mapped[str | None] = mapped_column(Text)
+    # Relative path to generated tailored DOCX under backend/storage/
+    tailored_docx_path: Mapped[str | None] = mapped_column(String(512))
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost, apiPostForm, apiPostStream } from "@/lib/api/client";
+import { apiDelete, apiDownload, apiGet, apiPatch, apiPost, apiPostForm, apiPostStream } from "@/lib/api/client";
 import type { AtsCompany, AtsCompanyCreate, HealthStatus, Notification, SourceHealthMap } from "@/lib/types/misc";
 import type { JobSearchResult, SearchResultsParams } from "@/lib/types/job";
 import type { ApplicationStatus, JobApplication } from "@/lib/types/application";
@@ -68,6 +68,8 @@ export const applicationsApi = {
   update: (id: string, data: { status?: ApplicationStatus; notes?: string }) =>
     apiPatch<JobApplication>(`/applications/${id}`, data),
   delete: (id: string) => apiDelete(`/applications/${id}`),
+  downloadTailoredResume: (applicationId: string) =>
+    apiDownload(`/applications/${applicationId}/tailored-resume/download`, "tailored-resume.docx"),
 };
 
 export const companiesApi = {
@@ -103,6 +105,8 @@ export const resumesApi = {
     apiGet<ResumeTailoring>(`/resumes/${resumeId}/tailor/${jobId}`),
   tailorResume: (resumeId: string, jobId: string) =>
     apiPost<ResumeTailoring>(`/resumes/${resumeId}/tailor/${jobId}`),
+  downloadTailored: (resumeId: string, jobId: string) =>
+    apiDownload(`/resumes/${resumeId}/tailor/${jobId}/download?format=docx`, "tailored-resume.docx"),
 };
 
 export const healthApi = {

@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.database import get_db
@@ -57,3 +58,20 @@ async def delete_application(
 ):
     ctrl = JobApplicationController(db)
     await ctrl.delete(user, application_id)
+
+
+@router.get("/{application_id}/tailored-resume/download")
+async def download_tailored_resume(
+    application_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    from io import BytesIO
+
+    ctrl = JobApplicationController(db)
+    content, filename = await ctrl.download_tailored_docx(user, application_id)
+    return StreamingResponse(
+        BytesIO(content),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

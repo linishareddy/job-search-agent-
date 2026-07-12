@@ -18,6 +18,7 @@ export interface JobApplication {
   match_score?: number | null;
   cover_letter?: string | null;
   tailored_resume?: string | null;
+  tailored_docx_available?: boolean;
   created_at: string;
   updated_at: string;
 }

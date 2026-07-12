@@ -13,12 +13,17 @@ from models.user import User
 from repositories.job_repository import JobRepository
 from repositories.resume_repository import ResumeRepository
 from repositories.resume_tailoring_repository import ResumeTailoringRepository
-from schemas.resume_tailoring import ResumeTailoringResponse
+from schemas.resume_tailoring import ResumeTailoringResponse, TailoredResumeSections
 from services.groq_service import GroqService
+from services.resume_render_service import render_classic_docx, sections_to_plain_text
+from services.resume_storage_service import save_tailored_docx
 
 
 def _to_response(row: ResumeTailoring) -> ResumeTailoringResponse:
     payload = row.suggestions or {}
+    tailored_sections = None
+    if row.tailored_sections:
+        tailored_sections = TailoredResumeSections.model_validate(row.tailored_sections)
     return ResumeTailoringResponse(
         id=row.id,
         resume_id=row.resume_id,
@@ -30,6 +35,9 @@ def _to_response(row: ResumeTailoring) -> ResumeTailoringResponse:
         summary_rewrite=payload.get("summary_rewrite"),
         gaps=payload.get("gaps", []),
         tailored_resume=row.tailored_text,
+        tailored_sections=tailored_sections,
+        docx_available=bool(row.docx_path),
+        template_id=row.template_id or "classic",
         created_at=row.created_at,
     )
 
@@ -67,7 +75,12 @@ class ResumeTailorService:
             "description_raw": job.description_raw,
             "skills": job.skills,
         }
-        result = await self._groq.tailor_resume(job_dict, resume.raw_text)
+        resume_sections = resume.parsed_sections or {}
+        if not resume_sections:
+            # Legacy resumes uploaded before structured parsing — pass raw text context
+            resume_sections = {"summary": resume.raw_text[:12000], "skills": [], "experience": [], "education": [], "certifications": [], "contact": {}}
+
+        result = await self._groq.tailor_resume(job_dict, resume_sections, resume.raw_text)
 
         suggestions_payload = {
             "matched_keywords": result.get("matched_keywords", []),
@@ -76,7 +89,11 @@ class ResumeTailorService:
             "summary_rewrite": result.get("summary_rewrite"),
             "gaps": result.get("gaps", []),
         }
-        tailored_text = result.get("tailored_resume") or resume.raw_text
+        tailored_sections = result.get("tailored_sections") or resume_sections
+        tailored_text = result.get("tailored_resume") or sections_to_plain_text(tailored_sections)
+
+        docx_bytes = render_classic_docx(tailored_sections)
+        docx_path = save_tailored_docx(resume_id, job_id, docx_bytes)
 
         row = await self._tailoring_repo.upsert(
             user_id=user.id,
@@ -85,5 +102,19 @@ class ResumeTailorService:
             match_score=float(result.get("match_score") or 0),
             suggestions=suggestions_payload,
             tailored_text=tailored_text,
+            tailored_sections=tailored_sections,
+            docx_path=docx_path,
+            template_id="classic",
         )
         return _to_response(row)
+
+    async def get_docx_path(
+        self, user: User, resume_id: uuid.UUID, job_id: uuid.UUID
+    ) -> str:
+        resume = await self._resume_repo.get_by_id(resume_id, user_id=user.id)
+        if not resume:
+            raise NotFoundError("Resume", str(resume_id))
+        row = await self._tailoring_repo.get(resume_id, job_id)
+        if not row or not row.docx_path:
+            raise NotFoundError("ResumeTailoring", f"{resume_id}/{job_id}")
+        return row.docx_path

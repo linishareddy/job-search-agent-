@@ -41,3 +41,15 @@ class JobApplicationController:
         deleted = await self._repo.delete(application_id, user_id=user.id)
         if not deleted:
             raise NotFoundError("JobApplication", str(application_id))
+
+    async def download_tailored_docx(self, user: User, application_id: uuid.UUID) -> tuple[bytes, str]:
+        from services.resume_storage_service import resolve_storage_path
+
+        app = await self._repo.get_by_id(application_id, user_id=user.id)
+        if not app or not app.tailored_docx_path:
+            raise NotFoundError("JobApplication", str(application_id))
+        path = resolve_storage_path(app.tailored_docx_path)
+        if not path.exists():
+            raise NotFoundError("JobApplication", str(application_id))
+        filename = f"tailored-resume-{app.job.title.replace(' ', '-')}.docx"
+        return path.read_bytes(), filename

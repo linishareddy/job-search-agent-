@@ -82,6 +82,7 @@ class JobApplicationRepository:
         match_score: float,
         cover_letter: str,
         tailored_resume: str,
+        tailored_docx_path: str | None = None,
     ) -> JobApplication:
         """Used by the auto-apply scheduler — always creates a fresh 'ready_to_apply'
         card; callers must already have filtered out jobs the user is tracking via
@@ -94,6 +95,7 @@ class JobApplicationRepository:
             match_score=match_score,
             cover_letter=cover_letter,
             tailored_resume=tailored_resume,
+            tailored_docx_path=tailored_docx_path,
         )
         self._session.add(app)
         await self._session.flush()

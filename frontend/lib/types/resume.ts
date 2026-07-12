@@ -1,3 +1,5 @@
+import type { TailoredResumeSections } from "@/lib/types/resume-sections";
+
 export interface ParsedResumeData {
   skills: string[];
   job_titles: string[];
@@ -50,5 +52,8 @@ export interface ResumeTailoring {
   summary_rewrite: string | null;
   gaps: string[];
   tailored_resume: string;
+  tailored_sections: TailoredResumeSections | null;
+  docx_available: boolean;
+  template_id: string;
   created_at: string;
 }

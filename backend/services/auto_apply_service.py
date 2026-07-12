@@ -59,12 +59,20 @@ class AutoApplyService:
                 }
                 cover_letter = await self._groq.generate_cover_letter(job_dict, resume.raw_text)
 
+                tailored_docx_path = None
+                if tailoring.docx_available:
+                    try:
+                        tailored_docx_path = await self._tailor_service.get_docx_path(user, resume.id, job.id)
+                    except Exception:
+                        tailored_docx_path = None
+
                 await self._app_repo.create_auto_prepared(
                     user_id=user.id,
                     job_id=job.id,
                     match_score=tailoring.match_score / 100.0,
                     cover_letter=cover_letter,
                     tailored_resume=tailoring.tailored_resume,
+                    tailored_docx_path=tailored_docx_path,
                 )
                 prepared.append({
                     "title": job.title,

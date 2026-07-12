@@ -38,3 +38,6 @@ Thumbs.db
 frontend/.next/
 frontend/out/
 frontend/node_modules/
+
+# Uploaded resume files and generated DOCX artifacts
+backend/storage/

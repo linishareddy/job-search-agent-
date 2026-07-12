@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, X } from "lucide-react";
+import { Check, Copy, Download, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
+import { applicationsApi } from "@/lib/api";
+import { parseApiError } from "@/lib/types/api";
 import type { JobApplication } from "@/lib/types/application";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,12 +20,26 @@ export function AutoApplyDetailsDialog({
   app: JobApplication | null;
 }) {
   const [copiedField, setCopiedField] = useState<"cover_letter" | "tailored_resume" | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   async function copy(field: "cover_letter" | "tailored_resume", text: string) {
     await navigator.clipboard.writeText(text);
     setCopiedField(field);
     toast.success("Copied");
     setTimeout(() => setCopiedField(null), 2000);
+  }
+
+  async function downloadDocx() {
+    if (!app) return;
+    setDownloading(true);
+    try {
+      await applicationsApi.downloadTailoredResume(app.id);
+      toast.success("Resume downloaded");
+    } catch (err) {
+      toast.error(parseApiError(err));
+    } finally {
+      setDownloading(false);
+    }
   }
 
   if (!app) return null;
@@ -52,15 +68,29 @@ export function AutoApplyDetailsDialog({
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <p className="text-sm font-medium">Tailored resume</p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => copy("tailored_resume", app.tailored_resume as string)}
-                >
-                  {copiedField === "tailored_resume" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  Copy
-                </Button>
+                <div className="flex items-center gap-2">
+                  {app.tailored_docx_available && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-2"
+                      disabled={downloading}
+                      onClick={downloadDocx}
+                    >
+                      {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                      Download DOCX
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => copy("tailored_resume", app.tailored_resume as string)}
+                  >
+                    {copiedField === "tailored_resume" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    Copy
+                  </Button>
+                </div>
               </div>
               <div className="h-48 w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm leading-relaxed text-foreground">
                 {app.tailored_resume}

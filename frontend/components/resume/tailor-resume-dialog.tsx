@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Copy, Loader2, Sparkles, X } from "lucide-react";
+import { Check, Copy, Download, Loader2, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { resumesApi } from "@/lib/api";
 import { ApiError, parseApiError } from "@/lib/types/api";
+import { ResumePreview } from "@/components/resume/resume-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogClose, DialogTitle } from "@/components/ui/dialog";
+
+type Tab = "preview" | "suggestions" | "plain";
 
 export function TailorResumeDialog({
   open,
@@ -29,6 +32,8 @@ export function TailorResumeDialog({
 }) {
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
+  const [tab, setTab] = useState<Tab>("preview");
+  const [downloading, setDownloading] = useState(false);
 
   const tailoringQuery = useQuery({
     queryKey: ["resume-tailoring", resumeId, jobId],
@@ -37,8 +42,6 @@ export function TailorResumeDialog({
     retry: false,
   });
 
-  // A 404 here just means "not generated yet" — the empty state below handles
-  // it, so it's not surfaced as an error toast like a real fetch failure would be.
   const notGenerated = tailoringQuery.error instanceof ApiError && tailoringQuery.error.status === 404;
   const tailoring = tailoringQuery.data?.data ?? null;
 
@@ -46,6 +49,7 @@ export function TailorResumeDialog({
     mutationFn: () => resumesApi.tailorResume(resumeId, jobId),
     onSuccess: (res) => {
       queryClient.setQueryData(["resume-tailoring", resumeId, jobId], res);
+      setTab("preview");
     },
     onError: (err) => toast.error(parseApiError(err)),
   });
@@ -56,6 +60,18 @@ export function TailorResumeDialog({
     setCopied(true);
     toast.success("Tailored resume copied");
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function downloadDocx() {
+    setDownloading(true);
+    try {
+      await resumesApi.downloadTailored(resumeId, jobId);
+      toast.success("Resume downloaded");
+    } catch (err) {
+      toast.error(parseApiError(err));
+    } finally {
+      setDownloading(false);
+    }
   }
 
   const isBusy = tailorMutation.isPending;
@@ -99,11 +115,11 @@ export function TailorResumeDialog({
 
           {tailoring && (
             <>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <Badge className="h-7 bg-primary/15 px-3 text-sm text-primary">
                   Match score: {Math.round(tailoring.match_score)}%
                 </Badge>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     size="sm"
                     variant="outline"
@@ -114,9 +130,21 @@ export function TailorResumeDialog({
                     {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                     Regenerate
                   </Button>
+                  {tailoring.docx_available && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-2"
+                      disabled={downloading}
+                      onClick={downloadDocx}
+                    >
+                      {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                      Download DOCX
+                    </Button>
+                  )}
                   <Button size="sm" variant="outline" className="gap-2" onClick={copy}>
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    {copied ? "Copied" : "Copy resume"}
+                    {copied ? "Copied" : "Copy text"}
                   </Button>
                 </div>
               </div>
@@ -146,38 +174,66 @@ export function TailorResumeDialog({
                 </div>
               )}
 
-              {tailoring.suggestions.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Suggestions</p>
-                  {tailoring.suggestions.map((s, i) => (
-                    <div key={i} className="space-y-1 rounded-lg border border-border p-3 text-sm">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        {s.section}
-                      </p>
-                      <p className="text-foreground">{s.suggested}</p>
-                      {s.reason && <p className="text-xs text-muted-foreground">{s.reason}</p>}
-                    </div>
-                  ))}
+              <div className="flex gap-1 rounded-lg border border-border bg-muted/30 p-1">
+                {(["preview", "suggestions", "plain"] as Tab[]).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTab(t)}
+                    className={`flex-1 rounded-md px-3 py-1.5 text-sm capitalize transition-colors ${
+                      tab === t ? "bg-background font-medium shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {t === "plain" ? "Plain text" : t}
+                  </button>
+                ))}
+              </div>
+
+              {tab === "preview" && tailoring.tailored_sections && (
+                <div className="max-h-[28rem] overflow-y-auto">
+                  <ResumePreview sections={tailoring.tailored_sections} />
                 </div>
               )}
 
-              {tailoring.gaps.length > 0 && (
-                <div className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
-                  <p className="font-medium text-warning">Gaps</p>
-                  <ul className="mt-1 list-inside list-disc text-muted-foreground">
-                    {tailoring.gaps.map((g, i) => (
-                      <li key={i}>{g}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <div>
-                <p className="mb-1.5 text-sm font-medium">Tailored resume</p>
+              {tab === "preview" && !tailoring.tailored_sections && (
                 <div className="h-64 w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm leading-relaxed text-foreground">
                   {tailoring.tailored_resume}
                 </div>
-              </div>
+              )}
+
+              {tab === "suggestions" && (
+                <div className="space-y-3">
+                  {tailoring.suggestions.length > 0 ? (
+                    tailoring.suggestions.map((s, i) => (
+                      <div key={i} className="space-y-1 rounded-lg border border-border p-3 text-sm">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          {s.section}
+                        </p>
+                        <p className="text-foreground">{s.suggested}</p>
+                        {s.reason && <p className="text-xs text-muted-foreground">{s.reason}</p>}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No section suggestions for this tailoring.</p>
+                  )}
+
+                  {tailoring.gaps.length > 0 && (
+                    <div className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
+                      <p className="font-medium text-warning">Gaps</p>
+                      <ul className="mt-1 list-inside list-disc text-muted-foreground">
+                        {tailoring.gaps.map((g, i) => (
+                          <li key={i}>{g}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {tab === "plain" && (
+                <div className="h-64 w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm leading-relaxed text-foreground">
+                  {tailoring.tailored_resume}
+                </div>
+              )}
             </>
           )}
         </div>

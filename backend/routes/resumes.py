@@ -114,3 +114,22 @@ async def tailor_resume(
     ctrl = ResumeController(db)
     result = await ctrl.tailor_resume(user, resume_id, job_id)
     return ok(data=result.model_dump())
+
+
+@router.get("/{resume_id}/tailor/{job_id}/download")
+async def download_tailored_resume(
+    resume_id: uuid.UUID,
+    job_id: uuid.UUID,
+    format: str = Query(default="docx", pattern="^docx$"),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Download the generated tailored resume as a DOCX file."""
+    ctrl = ResumeController(db)
+    content, filename = await ctrl.download_tailored_docx(user, resume_id, job_id)
+    from io import BytesIO
+    return StreamingResponse(
+        BytesIO(content),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

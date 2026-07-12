@@ -1,6 +1,10 @@
 ADZUNA = "adzuna"
 JOOBLE = "jooble"
 REMOTIVE = "remotive"
+REMOTEOK = "remoteok"
+ARBEITNOW = "arbeitnow"
+LINKEDIN = "linkedin"
+INDEED = "indeed"
 GREENHOUSE = "greenhouse"
 LEVER = "lever"
 ASHBY = "ashby"
@@ -22,7 +26,15 @@ PIPELINE_STAGE_LABELS = [
     "Notify",
 ]
 
-BREADTH_SOURCES = [ADZUNA, JOOBLE, REMOTIVE]
+BREADTH_SOURCES = [
+    ADZUNA,
+    JOOBLE,
+    REMOTIVE,
+    REMOTEOK,
+    ARBEITNOW,
+    LINKEDIN,
+    INDEED,
+]
 DEPTH_SOURCES = [GREENHOUSE, LEVER, ASHBY]
 ALL_SOURCES = BREADTH_SOURCES + DEPTH_SOURCES
 
@@ -31,6 +43,10 @@ SOURCE_RESULT_CAPS = {
     ADZUNA: 50,
     JOOBLE: 100,
     REMOTIVE: 100,
+    REMOTEOK: 80,
+    ARBEITNOW: 80,
+    LINKEDIN: 30,
+    INDEED: 30,
     GREENHOUSE: 500,  # spread across all tracked companies
     LEVER: 500,
     ASHBY: 500,

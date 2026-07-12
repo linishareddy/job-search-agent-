@@ -4,6 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from schemas.resume_sections import TailoredResumeSections
+
 
 class TailoringSuggestion(BaseModel):
     section: str
@@ -23,4 +25,7 @@ class ResumeTailoringResponse(BaseModel):
     summary_rewrite: Optional[str] = None
     gaps: list[str] = []
     tailored_resume: str
+    tailored_sections: Optional[TailoredResumeSections] = None
+    docx_available: bool = False
+    template_id: str = "classic"
     created_at: datetime

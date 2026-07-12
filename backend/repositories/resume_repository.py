@@ -11,7 +11,14 @@ class ResumeRepository:
         self._session = session
 
     async def create(
-        self, user_id: uuid.UUID, filename: str, content_type: str, file_size: int, raw_text: str
+        self,
+        user_id: uuid.UUID,
+        filename: str,
+        content_type: str,
+        file_size: int,
+        raw_text: str,
+        file_kind: str | None = None,
+        storage_path: str | None = None,
     ) -> Resume:
         resume = Resume(
             user_id=user_id,
@@ -19,6 +26,8 @@ class ResumeRepository:
             content_type=content_type,
             file_size=file_size,
             raw_text=raw_text,
+            file_kind=file_kind,
+            storage_path=storage_path,
             parse_status="pending",
         )
         self._session.add(resume)
@@ -47,11 +56,26 @@ class ResumeRepository:
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def update_parsed_data(self, resume_id: uuid.UUID, parsed_data: dict, status: str) -> None:
+    async def update_storage_path(self, resume_id: uuid.UUID, storage_path: str) -> None:
+        resume = await self.get_by_id(resume_id)
+        if not resume:
+            return
+        resume.storage_path = storage_path
+        await self._session.flush()
+
+    async def update_parsed_data(
+        self,
+        resume_id: uuid.UUID,
+        parsed_data: dict,
+        status: str,
+        parsed_sections: dict | None = None,
+    ) -> None:
         resume = await self.get_by_id(resume_id)
         if not resume:
             return
         resume.parsed_data = parsed_data
+        if parsed_sections is not None:
+            resume.parsed_sections = parsed_sections
         resume.parse_status = status
         await self._session.flush()
 

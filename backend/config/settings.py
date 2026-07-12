@@ -73,5 +73,16 @@ class Settings(BaseSettings):
     # Auto-apply
     auto_apply_interval_minutes: int = 15
 
+    # JobSpy — LinkedIn + Indeed only
+    jobspy_default_location: str = "United States"
+    jobspy_us_only: bool = True
+    jobspy_country_indeed: str = "USA"
+    jobspy_proxies: str = ""
+
+    @property
+    def jobspy_proxy_list(self) -> list[str] | None:
+        proxies = [p.strip() for p in self.jobspy_proxies.split(",") if p.strip()]
+        return proxies if proxies else None
+
 
 settings = Settings()

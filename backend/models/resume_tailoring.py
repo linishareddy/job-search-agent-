@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Text, UniqueConstraint, func
+from sqlalchemy import DateTime, Float, ForeignKey, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -26,5 +26,10 @@ class ResumeTailoring(Base):
     # {"matched_keywords": [...], "missing_keywords": [...], "suggestions": [...], "summary_rewrite": "...", "gaps": [...]}
     suggestions: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     tailored_text: Mapped[str] = mapped_column(Text, nullable=False)
+    # Structured tailored resume sections used for preview + DOCX rendering
+    tailored_sections: Mapped[dict | None] = mapped_column(JSONB)
+    # Relative path under backend/storage/, e.g. tailored/{resume_id}/{job_id}/tailored.docx
+    docx_path: Mapped[str | None] = mapped_column(String(512))
+    template_id: Mapped[str] = mapped_column(String(64), nullable=False, default="classic")
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
