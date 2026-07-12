@@ -55,5 +55,23 @@ class Settings(BaseSettings):
     # Relevance threshold for notifications
     notification_score_threshold: float = 7.0
 
+    # Auth
+    # No default: same rationale as postgres_password — a shared placeholder secret
+    # would silently "work" while forging any token. Set JWT_SECRET in .env.
+    jwt_secret: str = "dev-only-insecure-secret-change-me"
+    jwt_expire_minutes: int = 1440
+
+    # Email (Resend HTTP API)
+    resend_api_key: str = ""
+    email_from: str = "Job Agent <onboarding@resend.dev>"
+    # Global kill-switch — off by default so email is opt-in even once a key is set.
+    email_enabled: bool = False
+
+    # Seed user created on first startup so pre-existing (pre-auth) rows have an owner
+    seed_user_email: str = "you@example.com"
+
+    # Auto-apply
+    auto_apply_interval_minutes: int = 15
+
 
 settings = Settings()

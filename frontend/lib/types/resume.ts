@@ -31,3 +31,24 @@ export interface CoverLetterFromResumePayload {
   company_name: string;
   job_description?: string;
 }
+
+export interface TailoringSuggestion {
+  section: string;
+  current: string;
+  suggested: string;
+  reason: string;
+}
+
+export interface ResumeTailoring {
+  id: string;
+  resume_id: string;
+  job_id: string;
+  match_score: number;
+  matched_keywords: string[];
+  missing_keywords: string[];
+  suggestions: TailoringSuggestion[];
+  summary_rewrite: string | null;
+  gaps: string[];
+  tailored_resume: string;
+  created_at: string;
+}

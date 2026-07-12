@@ -133,42 +133,52 @@ class JobRepository:
         result = await self._session.execute(stmt)
         return result.scalars().all()
 
-    async def get_all_unique_jobs(self, active_only: bool = False) -> list[Job]:
+    async def get_all_unique_jobs(self, user_id: uuid.UUID, active_only: bool = False) -> list[Job]:
         """Distinct jobs linked to any non-dismissed search result (global analytics)."""
         stmt = (
             select(Job)
             .join(JobSearchResult, JobSearchResult.job_id == Job.id)
-            .where(JobSearchResult.is_dismissed.is_(False))
+            .join(SavedSearch, SavedSearch.id == JobSearchResult.search_id)
+            .where(
+                SavedSearch.user_id == user_id,
+                JobSearchResult.is_dismissed.is_(False)
+            )
         )
         if active_only:
-            stmt = stmt.join(SavedSearch, SavedSearch.id == JobSearchResult.search_id).where(
-                SavedSearch.is_active.is_(True)
-            )
+            stmt = stmt.where(SavedSearch.is_active.is_(True))
         stmt = stmt.distinct()
         result = await self._session.execute(stmt)
         return result.scalars().all()
 
-    async def count_matches(self, active_only: bool = False) -> int:
-        stmt = select(func.count(JobSearchResult.id)).where(JobSearchResult.is_dismissed.is_(False))
-        if active_only:
-            stmt = stmt.join(SavedSearch, SavedSearch.id == JobSearchResult.search_id).where(
-                SavedSearch.is_active.is_(True)
+    async def count_matches(self, user_id: uuid.UUID, active_only: bool = False) -> int:
+        stmt = (
+            select(func.count(JobSearchResult.id))
+            .join(SavedSearch, SavedSearch.id == JobSearchResult.search_id)
+            .where(
+                SavedSearch.user_id == user_id,
+                JobSearchResult.is_dismissed.is_(False)
             )
-        return (await self._session.execute(stmt)).scalar_one()
-
-    async def count_new_matches_since(self, days: float, active_only: bool = False) -> int:
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        stmt = select(func.count(JobSearchResult.id)).where(
-            JobSearchResult.is_dismissed.is_(False),
-            JobSearchResult.created_at >= cutoff,
         )
         if active_only:
-            stmt = stmt.join(SavedSearch, SavedSearch.id == JobSearchResult.search_id).where(
-                SavedSearch.is_active.is_(True)
-            )
+            stmt = stmt.where(SavedSearch.is_active.is_(True))
         return (await self._session.execute(stmt)).scalar_one()
 
-    async def get_search_summaries(self) -> list[tuple[uuid.UUID, str, int, int]]:
+    async def count_new_matches_since(self, days: float, user_id: uuid.UUID, active_only: bool = False) -> int:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        stmt = (
+            select(func.count(JobSearchResult.id))
+            .join(SavedSearch, SavedSearch.id == JobSearchResult.search_id)
+            .where(
+                SavedSearch.user_id == user_id,
+                JobSearchResult.is_dismissed.is_(False),
+                JobSearchResult.created_at >= cutoff,
+            )
+        )
+        if active_only:
+            stmt = stmt.where(SavedSearch.is_active.is_(True))
+        return (await self._session.execute(stmt)).scalar_one()
+
+    async def get_search_summaries(self, user_id: uuid.UUID) -> list[tuple[uuid.UUID, str, int, int]]:
         """Per-search job and new counts: (search_id, name, job_count, new_count)."""
         result = await self._session.execute(
             select(
@@ -185,6 +195,7 @@ class JobRepository:
                 .label("new_count"),
             )
             .outerjoin(JobSearchResult, JobSearchResult.search_id == SavedSearch.id)
+            .where(SavedSearch.user_id == user_id)
             .group_by(SavedSearch.id, SavedSearch.name)
             .order_by(SavedSearch.created_at.desc())
         )
@@ -237,6 +248,44 @@ class JobRepository:
 
         result = await self._session.execute(query)
         return result.scalars().all(), total
+
+    async def get_auto_apply_candidates(
+        self,
+        user_id: uuid.UUID,
+        min_score: float,
+        exclude_job_ids: set[uuid.UUID],
+        limit: int,
+    ) -> list[Job]:
+        """Highest-scoring, not-yet-tracked jobs across this user's active searches —
+        the candidate pool the auto-apply scheduler tailors resumes/cover letters for.
+        """
+        stmt = (
+            select(Job)
+            .join(JobSearchResult, JobSearchResult.job_id == Job.id)
+            .join(SavedSearch, SavedSearch.id == JobSearchResult.search_id)
+            .where(
+                SavedSearch.user_id == user_id,
+                SavedSearch.is_active.is_(True),
+                JobSearchResult.is_dismissed.is_(False),
+                JobSearchResult.relevance_score >= min_score,
+            )
+            .order_by(JobSearchResult.relevance_score.desc())
+        )
+        if exclude_job_ids:
+            stmt = stmt.where(Job.id.notin_(exclude_job_ids))
+
+        result = await self._session.execute(stmt)
+        jobs = result.scalars().all()
+
+        seen: set[uuid.UUID] = set()
+        unique_jobs: list[Job] = []
+        for job in jobs:
+            if job.id not in seen:
+                seen.add(job.id)
+                unique_jobs.append(job)
+            if len(unique_jobs) >= limit:
+                break
+        return unique_jobs
 
     async def delete_orphans(self, candidate_job_ids: set[uuid.UUID]) -> int:
         """Delete jobs no longer linked to any search and not saved in the tracker."""

@@ -11,6 +11,8 @@ from repositories.job_repository import JobRepository
 from repositories.notification_repository import NotificationRepository
 from repositories.saved_search_repository import SavedSearchRepository
 from repositories.search_run_repository import SearchRunRepository
+from repositories.user_repository import UserRepository
+from services import email_service, email_templates
 from services.pipeline import fetcher_service, normalizer_service
 from services.pipeline.dedup_service import dedup_in_memory
 from services.pipeline.enrichment_service import enrich_batch
@@ -33,6 +35,7 @@ class PipelineOrchestrator:
         self._job_repo = JobRepository(session)
         self._run_repo = SearchRunRepository(session)
         self._notif_repo = NotificationRepository(session)
+        self._user_repo = UserRepository(session)
 
     async def create_run(self, search_id: str):
         """Validate the search and create its SearchRun row, committing immediately
@@ -153,12 +156,21 @@ class PipelineOrchestrator:
         # ── Step 10: Upsert job records + search results ─────────────────────────
         previous_job_ids = await self._job_repo.get_previous_job_ids(search.id)
         new_count = 0
+        new_high_score_jobs: list[dict] = []
 
         for enriched_job in enriched:
             db_job = await self._job_repo.upsert_job(enriched_job)
             is_new = db_job.id not in previous_job_ids
             if is_new:
                 new_count += 1
+                if enriched_job.relevance_score >= (NOTIFICATION_SCORE_THRESHOLD / 10.0):
+                    new_high_score_jobs.append({
+                        "title": enriched_job.title,
+                        "company_name": enriched_job.company_name,
+                        "location": enriched_job.location,
+                        "apply_url": enriched_job.apply_url,
+                        "relevance_score": enriched_job.relevance_score,
+                    })
 
             await self._job_repo.upsert_search_result(
                 job_id=db_job.id,
@@ -175,17 +187,14 @@ class PipelineOrchestrator:
         await self._run_repo.update_stage(run.id, 10)
 
         # ── Step 11: Notification if new high-scoring jobs found ─────────────────
-        high_score_new = [
-            j for j in enriched
-            if j.relevance_score >= (NOTIFICATION_SCORE_THRESHOLD / 10.0)
-        ]
-        if high_score_new and new_count > 0:
+        if new_high_score_jobs and new_count > 0:
             await self._notif_repo.create(
                 search_id=search.id,
                 run_id=run.id,
-                message=f"'{search.name}': {new_count} new job(s) found, {len(high_score_new)} high-relevance",
+                message=f"'{search.name}': {new_count} new job(s) found, {len(new_high_score_jobs)} high-relevance",
                 new_job_count=new_count,
             )
+            await self._send_new_jobs_email(search, new_high_score_jobs)
 
         # ── Finalize ─────────────────────────────────────────────────────────────
         await self._run_repo.complete(run.id, jobs_fetched, len(enriched), new_count, source_stats=source_stats)
@@ -194,6 +203,21 @@ class PipelineOrchestrator:
         logger.info(
             f"[Run {run.id}] Completed: {jobs_fetched} fetched → "
             f"{len(enriched)} matched → {new_count} new"
+        )
+
+    async def _send_new_jobs_email(self, search, jobs: list[dict]) -> None:
+        """Best-effort digest email — searches created before the multi-user
+        migration have no owner, and users can turn email off individually."""
+        if not search.user_id:
+            return
+        user = await self._user_repo.get_by_id(search.user_id)
+        if not user or not user.email_enabled:
+            return
+        html = email_templates.new_jobs_digest(search.name, jobs)
+        await email_service.send_email(
+            to=user.email,
+            subject=f"{len(jobs)} new job match(es) for '{search.name}'",
+            html=html,
         )
 
     async def _get_expansion(self, search) -> dict:

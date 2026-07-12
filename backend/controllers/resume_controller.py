@@ -5,6 +5,7 @@ from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from exceptions.handlers import NotFoundError
+from models.user import User
 from repositories.resume_repository import ResumeRepository
 from schemas.resume import (
     CoverLetterFromResumeRequest,
@@ -12,8 +13,10 @@ from schemas.resume import (
     ResumeDetailResponse,
     ResumeResponse,
 )
+from schemas.resume_tailoring import ResumeTailoringResponse
 from services.groq_service import GroqService
 from services.resume_parser_service import extract_text
+from services.resume_tailor_service import ResumeTailorService
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +25,14 @@ class ResumeController:
     def __init__(self, session: AsyncSession):
         self._repo = ResumeRepository(session)
         self._groq = GroqService()
+        self._tailor_service = ResumeTailorService(session)
 
-    async def upload(self, file: UploadFile) -> ResumeResponse:
+    async def upload(self, user: User, file: UploadFile) -> ResumeResponse:
         data = await file.read()
         raw_text = extract_text(file.filename or "resume", file.content_type, data)
 
         resume = await self._repo.create(
+            user_id=user.id,
             filename=file.filename or "resume",
             content_type=file.content_type or "application/octet-stream",
             file_size=len(data),
@@ -50,27 +55,27 @@ class ResumeController:
         raw_text = extract_text(file.filename or "resume", file.content_type, data)
         return ExtractedResumeText(filename=file.filename or "resume", text=raw_text)
 
-    async def list_resumes(self, page: int = 1, page_size: int = 100) -> tuple[list[ResumeResponse], int]:
-        resumes, total = await self._repo.get_all(page, page_size)
+    async def list_resumes(self, user: User, page: int = 1, page_size: int = 100) -> tuple[list[ResumeResponse], int]:
+        resumes, total = await self._repo.get_all(user.id, page, page_size)
         return [ResumeResponse.model_validate(r) for r in resumes], total
 
-    async def get_resume(self, resume_id: uuid.UUID) -> ResumeDetailResponse:
-        resume = await self._repo.get_by_id(resume_id)
+    async def get_resume(self, user: User, resume_id: uuid.UUID) -> ResumeDetailResponse:
+        resume = await self._repo.get_by_id(resume_id, user_id=user.id)
         if not resume:
             raise NotFoundError("Resume", str(resume_id))
         return ResumeDetailResponse.model_validate(resume)
 
-    async def delete_resume(self, resume_id: uuid.UUID) -> None:
-        deleted = await self._repo.delete(resume_id)
+    async def delete_resume(self, user: User, resume_id: uuid.UUID) -> None:
+        deleted = await self._repo.delete(resume_id, user_id=user.id)
         if not deleted:
             raise NotFoundError("Resume", str(resume_id))
 
-    async def generate_cover_letter_stream(self, resume_id: uuid.UUID, data: CoverLetterFromResumeRequest):
+    async def generate_cover_letter_stream(self, user: User, resume_id: uuid.UUID, data: CoverLetterFromResumeRequest):
         """Validates the resume up front (so a 404 still arrives as a normal error
         response) and returns the token generator for the route to stream — once
         streaming starts the HTTP status is already committed, so anything that can
         fail with a clean error code has to happen before this point."""
-        resume = await self._repo.get_by_id(resume_id)
+        resume = await self._repo.get_by_id(resume_id, user_id=user.id)
         if not resume:
             raise NotFoundError("Resume", str(resume_id))
 
@@ -81,3 +86,16 @@ class ResumeController:
             "skills": [],
         }
         return self._groq.generate_cover_letter_stream(job_dict, resume.raw_text)
+
+    async def get_tailoring(
+        self, user: User, resume_id: uuid.UUID, job_id: uuid.UUID
+    ) -> ResumeTailoringResponse:
+        cached = await self._tailor_service.get_cached(user, resume_id, job_id)
+        if not cached:
+            raise NotFoundError("ResumeTailoring", f"{resume_id}/{job_id}")
+        return cached
+
+    async def tailor_resume(
+        self, user: User, resume_id: uuid.UUID, job_id: uuid.UUID
+    ) -> ResumeTailoringResponse:
+        return await self._tailor_service.tailor(user, resume_id, job_id)

@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { MotionConfig } from "framer-motion";
 import { useState, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/lib/auth-context";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -26,8 +27,10 @@ export function Providers({ children }: { children: ReactNode }) {
         {/* reducedMotion="user" makes every framer-motion animation in the app
             respect the OS-level prefers-reduced-motion setting automatically. */}
         <MotionConfig reducedMotion="user">
-          {children}
-          <Toaster richColors position="top-right" closeButton />
+          <AuthProvider>
+            {children}
+            <Toaster richColors position="top-right" closeButton />
+          </AuthProvider>
         </MotionConfig>
       </ThemeProvider>
     </QueryClientProvider>

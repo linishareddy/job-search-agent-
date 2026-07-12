@@ -8,8 +8,10 @@ import {
   FileText,
   KanbanSquare,
   LayoutDashboard,
+  LogOut,
   Radar,
   Search,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -17,12 +19,14 @@ import { NotificationBell } from "@/components/layout/notification-bell";
 import { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer";
 import { useQuery } from "@tanstack/react-query";
 import { healthApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/searches", label: "Searches", icon: Search },
   { href: "/dashboard/resume", label: "Resume", icon: FileText },
   { href: "/dashboard/tracker", label: "Tracker", icon: KanbanSquare },
+  { href: "/dashboard/auto-apply", label: "Auto-apply", icon: Zap },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
 ];
 
@@ -30,6 +34,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  function handleLogout() {
+    logout();
+    router.push("/login");
+  }
 
   const { data: health } = useQuery({
     queryKey: ["health"],
@@ -84,11 +94,25 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <div className="border-t border-border p-4">
+        <div className="space-y-3 border-t border-border p-4">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className={cn("h-2 w-2 rounded-full", apiOk ? "bg-success" : "bg-destructive")} />
             API {apiOk ? "connected" : "offline"}
           </div>
+          {user && (
+            <div className="flex items-center justify-between gap-2">
+              <p className="truncate text-xs text-muted-foreground" title={user.email}>
+                {user.email}
+              </p>
+              <button
+                onClick={handleLogout}
+                aria-label="Log out"
+                className="shrink-0 text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 

@@ -3,7 +3,13 @@ import type { AtsCompany, AtsCompanyCreate, HealthStatus, Notification, SourceHe
 import type { JobSearchResult, SearchResultsParams } from "@/lib/types/job";
 import type { ApplicationStatus, JobApplication } from "@/lib/types/application";
 import type { GlobalAnalytics, SearchAnalytics } from "@/lib/types/analytics";
-import type { CoverLetterFromResumePayload, ExtractedResumeText, Resume, ResumeDetail } from "@/lib/types/resume";
+import type {
+  CoverLetterFromResumePayload,
+  ExtractedResumeText,
+  Resume,
+  ResumeDetail,
+  ResumeTailoring,
+} from "@/lib/types/resume";
 import type {
   CreateFromTextPayload,
   CreateFromTextResult,
@@ -13,6 +19,14 @@ import type {
   SavedSearchCreate,
   SavedSearchUpdate,
 } from "@/lib/types/search";
+import type {
+  LoginPayload,
+  RegisterPayload,
+  TokenResponse,
+  User,
+  UserPreferencesUpdate,
+} from "@/lib/types/auth";
+import type { AutoApplyPreparedJob } from "@/lib/types/autoApply";
 
 export const searchesApi = {
   list: () => apiGet<SavedSearch[]>("/searches"),
@@ -85,9 +99,24 @@ export const resumesApi = {
   },
   coverLetterStream: (resumeId: string, payload: CoverLetterFromResumePayload) =>
     apiPostStream(`/resumes/${resumeId}/cover-letter`, payload),
+  getTailoring: (resumeId: string, jobId: string) =>
+    apiGet<ResumeTailoring>(`/resumes/${resumeId}/tailor/${jobId}`),
+  tailorResume: (resumeId: string, jobId: string) =>
+    apiPost<ResumeTailoring>(`/resumes/${resumeId}/tailor/${jobId}`),
 };
 
 export const healthApi = {
   check: () => apiGet<HealthStatus>("/health"),
   sources: () => apiGet<SourceHealthMap>("/health/sources"),
+};
+
+export const authApi = {
+  register: (data: RegisterPayload) => apiPost<TokenResponse>("/auth/register", data),
+  login: (data: LoginPayload) => apiPost<TokenResponse>("/auth/login", data),
+  me: () => apiGet<User>("/auth/me"),
+  updateMe: (data: UserPreferencesUpdate) => apiPatch<User>("/auth/me", data),
+};
+
+export const autoApplyApi = {
+  run: () => apiPost<AutoApplyPreparedJob[]>("/auto-apply/run"),
 };

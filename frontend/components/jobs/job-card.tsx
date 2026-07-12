@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
-import { BookmarkPlus, ExternalLink, Loader2, MapPin } from "lucide-react";
+import { BookmarkPlus, ExternalLink, Loader2, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import type { JobSearchResult } from "@/lib/types/job";
 import { parseApiError } from "@/lib/types/api";
@@ -10,6 +11,7 @@ import { applicationsApi } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { TailorResumeDialog } from "@/components/resume/tailor-resume-dialog";
 import {
   cn,
   formatRelativeDate,
@@ -18,8 +20,21 @@ import {
   sourceBadgeClass,
 } from "@/lib/utils";
 
-export function JobCard({ result, index = 0 }: { result: JobSearchResult; index?: number }) {
+export function JobCard({
+  result,
+  index = 0,
+  resumeId,
+  resumeFilename,
+}: {
+  result: JobSearchResult;
+  index?: number;
+  /** Currently selected resume (from the "Match against resume" picker on the
+   * results page) — when set, offers a "Tailor resume" action for this job. */
+  resumeId?: string;
+  resumeFilename?: string;
+}) {
   const { job } = result;
+  const [tailorOpen, setTailorOpen] = useState(false);
 
   const saveMutation = useMutation({
     mutationFn: () => applicationsApi.create(job.id),
@@ -85,6 +100,17 @@ export function JobCard({ result, index = 0 }: { result: JobSearchResult; index?
                   )}
                 </Button>
               </div>
+              {resumeId && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-full gap-1.5 text-xs"
+                  onClick={() => setTailorOpen(true)}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Tailor resume
+                </Button>
+              )}
             </div>
           </div>
 
@@ -169,6 +195,18 @@ export function JobCard({ result, index = 0 }: { result: JobSearchResult; index?
           </div>
         </CardContent>
       </Card>
+
+      {resumeId && (
+        <TailorResumeDialog
+          open={tailorOpen}
+          onOpenChange={setTailorOpen}
+          resumeId={resumeId}
+          resumeFilename={resumeFilename ?? "resume"}
+          jobId={job.id}
+          jobTitle={job.title}
+          companyName={job.company_name}
+        />
+      )}
     </motion.div>
   );
 }

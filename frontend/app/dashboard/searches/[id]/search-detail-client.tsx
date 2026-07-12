@@ -334,7 +334,13 @@ export default function SearchDetailPage() {
 
       <div className="space-y-4">
         {results.map((result, i) => (
-          <JobCard key={result.id} result={result} index={i} />
+          <JobCard
+            key={result.id}
+            result={result}
+            index={i}
+            resumeId={resumeId || undefined}
+            resumeFilename={resumes.find((r) => r.id === resumeId)?.filename}
+          />
         ))}
       </div>
 

@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.database import get_db
 from controllers.search_controller import SearchController
+from core.auth import get_current_user
 from core.rate_limit import GROQ_ENDPOINT_LIMIT, limiter
 from core.response import ok
+from models.user import User
 from schemas.saved_search import BulkDeleteSearchesRequest, SavedSearchCreate, SavedSearchUpdate
 from schemas.search_intent import CreateSearchFromTextRequest, ParseSearchTextRequest
 
@@ -17,20 +19,22 @@ router = APIRouter(prefix="/searches")
 async def list_searches(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=100, ge=1, le=200),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    searches, total = await ctrl.list_searches(page, page_size)
+    searches, total = await ctrl.list_searches(user, page, page_size)
     return ok(data=[s.model_dump() for s in searches], total=total, page=page, page_size=page_size)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_search(
     data: SavedSearchCreate,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    search = await ctrl.create_search(data)
+    search = await ctrl.create_search(user, data)
     return ok(data=search.model_dump())
 
 
@@ -39,6 +43,7 @@ async def create_search(
 async def parse_search_text(
     request: Request,
     data: ParseSearchTextRequest,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
@@ -52,11 +57,12 @@ async def create_search_from_text(
     request: Request,
     data: CreateSearchFromTextRequest,
     background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
     search, run_id = await ctrl.create_from_text(
-        data.text, data.overrides, data.run_immediately, background_tasks
+        user, data.text, data.overrides, data.run_immediately, background_tasks
     )
     result = search.model_dump()
     if run_id:
@@ -67,22 +73,24 @@ async def create_search_from_text(
 @router.post("/bulk-delete")
 async def bulk_delete_searches(
     data: BulkDeleteSearchesRequest,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     if not data.only_paused and not data.ids:
         raise HTTPException(status_code=400, detail="Provide ids or set only_paused=true")
     ctrl = SearchController(db)
-    result = await ctrl.bulk_delete_searches(data)
+    result = await ctrl.bulk_delete_searches(user, data)
     return ok(data=result.model_dump())
 
 
 @router.get("/{search_id}")
 async def get_search(
     search_id: uuid.UUID,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    search = await ctrl.get_search(search_id)
+    search = await ctrl.get_search(user, search_id)
     return ok(data=search.model_dump())
 
 
@@ -90,20 +98,22 @@ async def get_search(
 async def update_search(
     search_id: uuid.UUID,
     data: SavedSearchUpdate,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    search = await ctrl.update_search(search_id, data)
+    search = await ctrl.update_search(user, search_id, data)
     return ok(data=search.model_dump())
 
 
 @router.delete("/{search_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_search(
     search_id: uuid.UUID,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    await ctrl.delete_search(search_id)
+    await ctrl.delete_search(user, search_id)
 
 
 @router.post("/{search_id}/run", status_code=status.HTTP_202_ACCEPTED)
@@ -112,20 +122,22 @@ async def trigger_run(
     request: Request,
     search_id: uuid.UUID,
     background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    run_id = await ctrl.trigger_run(search_id, background_tasks)
+    run_id = await ctrl.trigger_run(user, search_id, background_tasks)
     return ok(data={"run_id": str(run_id)}, message="Pipeline started")
 
 
 @router.get("/{search_id}/run-status")
 async def get_run_status(
     search_id: uuid.UUID,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     ctrl = SearchController(db)
-    run_status = await ctrl.get_run_status(search_id)
+    run_status = await ctrl.get_run_status(user, search_id)
     return ok(data=run_status.model_dump())
 
 
@@ -152,12 +164,13 @@ async def get_results(
             "'match' object (cosine similarity + matched/missing skills) per result."
         ),
     ),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     from controllers.job_controller import JobController
     ctrl = JobController(db)
     results, total = await ctrl.get_results(
-        search_id, page, page_size, only_new, posted_within_days, resume_id
+        user, search_id, page, page_size, only_new, posted_within_days, resume_id
     )
     return ok(
         data=[r.model_dump() for r in results],
@@ -171,9 +184,10 @@ async def get_results(
 async def get_analytics(
     search_id: uuid.UUID,
     posted_within_days: int | None = Query(default=None, ge=1),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     from controllers.job_controller import JobController
     ctrl = JobController(db)
-    analytics = await ctrl.get_analytics(search_id, posted_within_days=posted_within_days)
+    analytics = await ctrl.get_analytics(user, search_id, posted_within_days=posted_within_days)
     return ok(data=analytics.model_dump())

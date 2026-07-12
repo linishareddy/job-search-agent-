@@ -1,9 +1,15 @@
 import { ApiError, type ApiErrorBody, type ApiResponse } from "@/lib/types/api";
+import { clearToken, getToken } from "@/lib/auth-storage";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
 export function getApiBaseUrl(): string {
   return API_URL;
+}
+
+function authHeaders(): HeadersInit {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 async function parseError(res: Response): Promise<ApiError> {
@@ -17,6 +23,18 @@ async function parseError(res: Response): Promise<ApiError> {
     body?.message ??
     (typeof body?.detail === "string" ? body.detail : undefined) ??
     `Request failed (${res.status})`;
+
+  // A 401 means the stored token is missing/expired — drop it and bounce to
+  // login rather than let every caller special-case this status individually.
+  // Skip on the login/register routes themselves so a wrong-password attempt
+  // just surfaces as an error message instead of a redirect loop.
+  if (res.status === 401 && typeof window !== "undefined" && !res.url.includes("/auth/login") && !res.url.includes("/auth/register")) {
+    clearToken();
+    if (!window.location.pathname.startsWith("/login")) {
+      window.location.href = "/login";
+    }
+  }
+
   return new ApiError(message, res.status, body);
 }
 
@@ -27,6 +45,7 @@ export async function apiRequest<T>(
   const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
   const headers: HeadersInit = {
     "Content-Type": "application/json",
+    ...authHeaders(),
     ...(options.headers ?? {}),
   };
 
@@ -69,7 +88,7 @@ export async function apiPostStream(path: string, body: unknown): Promise<Readab
   const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(body),
   });
 
@@ -84,7 +103,8 @@ export async function apiPostStream(path: string, body: unknown): Promise<Readab
 
 export async function apiPostForm<T>(path: string, formData: FormData): Promise<ApiResponse<T>> {
   const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
-  const res = await fetch(url, { method: "POST", body: formData });
+  // No Content-Type here — the browser sets the multipart boundary itself.
+  const res = await fetch(url, { method: "POST", body: formData, headers: authHeaders() });
 
   if (!res.ok) {
     throw await parseError(res);

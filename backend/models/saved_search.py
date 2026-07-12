@@ -16,6 +16,8 @@ class SavedSearch(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # Nullable for the same backfill reason as Resume.user_id.
+    user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"))
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     job_title: Mapped[str] = mapped_column(String(256), nullable=False)
     field_domain: Mapped[str] = mapped_column(Text, nullable=False)

@@ -1,3 +1,4 @@
+import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,8 +12,9 @@ from config.database import engine, Base
 from config.logging import setup_logging
 from config.settings import settings
 from core.rate_limit import limiter
+from core.security import hash_password
 from exceptions.handlers import register_exception_handlers
-from routes import searches, companies, notifications, health, resumes, applications, analytics
+from routes import searches, companies, notifications, health, resumes, applications, analytics, auth, auto_apply
 
 
 @asynccontextmanager
@@ -48,6 +50,59 @@ async def lifespan(app: FastAPI):
         await conn.execute(
             text("CREATE INDEX IF NOT EXISTS idx_search_run_status ON search_run (status, started_at)")
         )
+        # Mirrors alembic/versions/009_multi_user_email_tailoring_autoapply.py — the
+        # `user` and `resume_tailoring` tables are brand new so create_all() above
+        # already created them; only columns added to pre-existing tables need the
+        # explicit ADD COLUMN IF NOT EXISTS treatment used throughout this block.
+        await conn.execute(
+            text('ALTER TABLE resume ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES "user"(id) ON DELETE CASCADE')
+        )
+        await conn.execute(
+            text('ALTER TABLE saved_search ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES "user"(id) ON DELETE CASCADE')
+        )
+        await conn.execute(
+            text('ALTER TABLE job_application ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES "user"(id) ON DELETE CASCADE')
+        )
+        await conn.execute(
+            text("ALTER TABLE job_application ADD COLUMN IF NOT EXISTS auto_prepared BOOLEAN NOT NULL DEFAULT false")
+        )
+        await conn.execute(text("ALTER TABLE job_application ADD COLUMN IF NOT EXISTS match_score FLOAT"))
+        await conn.execute(text("ALTER TABLE job_application ADD COLUMN IF NOT EXISTS cover_letter TEXT"))
+        await conn.execute(text("ALTER TABLE job_application ADD COLUMN IF NOT EXISTS tailored_resume TEXT"))
+
+        # job_application used to be unique on job_id alone (one tracker card per job,
+        # globally). Multi-user ownership needs unique(user_id, job_id) instead so two
+        # users can each track the same job independently.
+        await conn.execute(text("ALTER TABLE job_application DROP CONSTRAINT IF EXISTS job_application_job_id_key"))
+        await conn.execute(text("""
+            DO $$
+            BEGIN
+                ALTER TABLE job_application ADD CONSTRAINT uq_user_job_application UNIQUE (user_id, job_id);
+            EXCEPTION
+                WHEN duplicate_table THEN NULL;
+            END $$;
+        """))
+
+        # Seed a default user (unusable random password — nobody logs in as this
+        # account) so resumes/searches/applications created before auth existed have
+        # an owner, then backfill those pre-existing rows onto it.
+        # Explicit values for every NOT NULL column: the model's Python-side
+        # default=/False only apply via the ORM, not this raw SQL insert.
+        await conn.execute(
+            text('INSERT INTO "user" '
+                 '(id, email, hashed_password, is_active, email_enabled, '
+                 ' auto_apply_enabled, auto_apply_min_score, auto_apply_max_per_run) '
+                 'VALUES (gen_random_uuid(), :email, :hashed_password, true, true, '
+                 '        false, 0.7, 5) '
+                 'ON CONFLICT (email) DO NOTHING'),
+            {"email": settings.seed_user_email, "hashed_password": hash_password(uuid.uuid4().hex)},
+        )
+        for table in ("resume", "saved_search", "job_application"):
+            await conn.execute(
+                text(f'UPDATE {table} SET user_id = (SELECT id FROM "user" WHERE email = :email) '
+                     f'WHERE user_id IS NULL'),
+                {"email": settings.seed_user_email},
+            )
     yield
 
 
@@ -79,6 +134,8 @@ app.include_router(health.router, prefix="/api/v1", tags=["health"])
 app.include_router(resumes.router, prefix="/api/v1", tags=["resumes"])
 app.include_router(applications.router, prefix="/api/v1", tags=["applications"])
 app.include_router(analytics.router, prefix="/api/v1", tags=["analytics"])
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
+app.include_router(auto_apply.router, prefix="/api/v1", tags=["auto-apply"])
 
 
 if __name__ == "__main__":

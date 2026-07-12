@@ -1,0 +1,1266 @@
+id,site,job_url,job_url_direct,title,company,location,date_posted,job_type,salary_source,interval,min_amount,max_amount,currency,is_remote,job_level,job_function,listing_type,emails,description,company_industry,company_url,company_logo,company_url_direct,company_addresses,company_num_employees,company_revenue,company_description
+in-ff3d7c6f0fd79120,indeed,https://www.indeed.com/viewjob?jk=ff3d7c6f0fd79120,https://grnh.se/c18ojjvv1us,"Software Engineer, Unsecured Installments",Upstart,"Remote, US",2026-07-09,[],,,,,,True,,,,_accommodations@upstart.com,"**About Upstart**
+
+At Upstart, we're united by a mission that matters: to radically reduce the cost and complexity of borrowing for all Americans. Every day, we bring creativity, experimentation, and advanced AI to reshape access to credit, helping millions move forward financially with clarity and confidence.
+
+As the leading AI lending marketplace, we partner with banks and credit unions to expand access to affordable credit through technology that's both radically intelligent and deeply human. Our platform runs over one million predictions per borrower using more than 1,800 signals, powering smarter, fairer decisions for millions of customers. But the numbers only hint at the impact. Every idea, every voice, and every contribution moves us closer to a world where credit never stands between people and their financial progress.
+
+We're proudly digital-first, giving most Upstarters the flexibility to do their best work from wherever they thrive, alongside teammates across 80+ cities in the US and Canada. Digital-first doesn't mean distant. We're intentional about in-person connection through team onsites, planning sessions, and moments that spark creativity and trust. And whether you choose to work primarily from home or collaborate in-person from one of our offices in Columbus, Austin, the Bay Area, or New York City (opening Summer 2026), you'll have the support to work in the way that works best for you.
+
+If you're energized by tackling meaningful problems, excited to innovate with purpose, and motivated by work that truly matters, we'd love to hear from you.
+
+**The Team:**
+
+Unsecured Installments is one of Upstart's core lending products, helping borrowers access credit through a seamless, digitally native experience. The team owns critical parts of the borrower journey across offer generation, pricing, underwriting, funding, and borrower experience, while working closely with the broader lending platform that powers Upstart at scale. Recent work has focused on improving borrower flows, repricing and rate flexibility, partnership experiences, and the overall quality of the customer-facing experience.
+
+As a Software Engineer on the Unsecured Installments team, you'll build and improve the frontend and full-stack experiences that borrowers interact with directly. You'll work primarily in React and TypeScript to ship polished, reliable, high-performing borrower flows, while partnering with backend, product, and design to connect those experiences to the systems behind pricing, underwriting, and funding. This is a hands-on role where you'll own meaningful features end to end and grow your technical depth on a business-critical product.
+
+  
+
+**How you'll make an impact**
+
+* Build and maintain borrower-facing web experiences using React and TypeScript, translating designs and product requirements into clean, responsive, accessible interfaces.
+* Work across the stack to connect frontend experiences to backend services and APIs, contributing to full-stack features that span the borrower journey.
+* Partner closely with product managers, designers, and backend engineers to scope, build, and ship features that improve borrower flows and reduce friction.
+* Write well-tested, maintainable code and participate in code reviews, helping raise the quality and consistency of the team's frontend codebase.
+* Contribute to performance, reliability, and observability of the experiences you own, and help debug and resolve issues across environments.
+* Support experimentation and iterative improvements to borrower flows, using data and feedback to inform what gets built next.
+
+  
+
+**Minimum Qualifications**
+
+* Bachelor's degree in Computer Science, Engineering, or a related field (or equivalent practical experience) and 4-5+ years of professional software engineering experience.
+* Strong proficiency building web applications with React and TypeScript, including component design, state management, and consuming REST or GraphQL APIs.
+* Full-stack experience contributing to backend services and APIs in a language such as Python, Java, Kotlin, Ruby, or Node.js.
+* Solid fundamentals in writing tested, maintainable code and collaborating through code review in a team environment.
+* Ability to work effectively with product and design partners to deliver features from requirements through production.
+
+  
+
+**Preferred Qualifications**
+
+* Experience building consumer-facing products with attention to performance, accessibility, and user experience.
+* Familiarity with modern frontend tooling and testing frameworks (e.g., Jest, React Testing Library, Cypress) and CI/CD workflows.
+* Exposure to fintech, lending, payments, or other regulated financial products with complex user journeys.
+* Experience with experimentation, A/B testing, or feature-flagging in production environments.
+* Active use of AI tools in engineering workflows, with a thoughtful perspective on how AI is reshaping software development.
+* Passion for building products that expand access to credit and improve financial outcomes for consumers.
+
+  
+
+**Position location** This role is available in the following locations: Remote
+
+**Travel requirements** As a digital first company, the majority of your work can be accomplished remotely. The majority of our employees can live and work anywhere in the U.S but are encouraged to to still spend high quality time in-person collaborating via regular onsites. The in-person sessions' cadence varies depending on the team and role; most teams meet once or twice per quarter for 2-4 consecutive days at a time.
+
+  
+
+#LI-REMOTE
+
+#LI-Associate -> use for L3, L4
+
+**What you'll love**
+
+At Upstart, our benefits are designed to support your health, financial well-being, family, and personal growth. Here's what you can expect:
+
+* Competitive compensation, including base pay, bonus opportunities, and annual equity grants that vest quarterly
+* Retirement benefits to help you plan for the future, including a 401(k) or Group Retirement Savings Plan with a company match of $2 for every $1 contributed, up to $15,000 annually (USD in the US, CAD in Canada)
+* Employee Stock Purchase Plan (ESPP) with discounted stock purchase options for eligible employees (US only)
+* Comprehensive health coverage designed to support you and your family, including medical, dental, vision, and wellness resources for US and supplemental health coverage for Canada.
+* Health Savings Account contributions from Upstart for eligible plans (US only)
+* Income protection benefits, including life insurance and disability coverage for added financial security
+* Paid time off, sick leave, and company holidays, in line with local requirements
+* Paid family and parental leave to support caregiving and major life moments (duration varies by country)
+* Family-centered benefits to support fertility, parenthood, and caregiving needs
+* Employee Assistance Program (EAP) offering mental health support and life-centered resources
+* Financial wellness resources, including access to financial planning tools and a financial concierge service (US Only)
+* Annual wellness allowance to support your physical and emotional well-being and personal development, based on what matters most to you
+* Annual productivity allowance to invest in relevant tools and resources you need to do your best work, no matter where you work from
+* Connection and community through team events, all-company updates, and employee resource groups (ERGs)
+* Onsite perks, including catered lunches and fully stocked micro-kitchens when working from one of our offices in the Bay Area, Austin, Columbus, and New York City (opening Summer 2026!)
+
+For roles based in Canada, please note that we are not currently able to hire in Quebec.
+
+Upstart is a proud Equal Opportunity Employer. Just as we are dedicated to improving access to affordable credit for all, we are committed to inclusive and fair hiring practices.
+
+*If you require reasonable accommodation in completing an application, interviewing, completing any pre-employment testing, or otherwise participating in the employee selection process, please email candidate\_accommodations@upstart.com*
+
+https://www.upstart.com/candidate\_privacy\_policy",,https://www.indeed.com/cmp/Upstart,,, ,,,
+in-6f4b3078f40d422a,indeed,https://www.indeed.com/viewjob?jk=6f4b3078f40d422a,https://grnh.se/2ykgn0bc1us,"Senior Software Engineer, Unsecured Installments",Upstart,"Remote, US",2026-07-09,[],,,,,,True,,,,_accommodations@upstart.com,"**About Upstart**
+
+At Upstart, we're united by a mission that matters: to radically reduce the cost and complexity of borrowing for all Americans. Every day, we bring creativity, experimentation, and advanced AI to reshape access to credit, helping millions move forward financially with clarity and confidence.
+
+As the leading AI lending marketplace, we partner with banks and credit unions to expand access to affordable credit through technology that's both radically intelligent and deeply human. Our platform runs over one million predictions per borrower using more than 1,800 signals, powering smarter, fairer decisions for millions of customers. But the numbers only hint at the impact. Every idea, every voice, and every contribution moves us closer to a world where credit never stands between people and their financial progress.
+
+We're proudly digital-first, giving most Upstarters the flexibility to do their best work from wherever they thrive, alongside teammates across 80+ cities in the US and Canada. Digital-first doesn't mean distant. We're intentional about in-person connection through team onsites, planning sessions, and moments that spark creativity and trust. And whether you choose to work primarily from home or collaborate in-person from one of our offices in Columbus, Austin, the Bay Area, or New York City (opening Summer 2026), you'll have the support to work in the way that works best for you.
+
+If you're energized by tackling meaningful problems, excited to innovate with purpose, and motivated by work that truly matters, we'd love to hear from you.
+
+**The Team:**
+
+Unsecured Installments is one of Upstart's core lending products, helping borrowers access credit through a seamless, digitally native experience. The team owns critical parts of the borrower journey across offer generation, pricing, underwriting, funding, and borrower experience, while working closely with the broader lending platform that powers Upstart at scale. Recent work has focused on improving borrower flows, repricing and rate flexibility, partnership experiences, and the overall quality of the customer-facing experience.
+
+As a Senior Software Engineer on the Unsecured Installments team, you'll be a technical leader for the frontend and full-stack experiences that borrowers interact with directly. Working primarily in React and TypeScript, you'll own the delivery of large, multi-month projects, shape the architecture of the team's mobile-web and full-stack surfaces, and set a high bar for quality across the borrower experience. You'll partner closely with product, design, and backend engineers to turn ambiguous problems into durable, well-architected solutions, and you'll mentor other engineers along the way.
+
+  
+
+**How you'll make an impact**
+
+* Own the design and delivery of large, complex frontend and full-stack initiatives using React and TypeScript, from planning and sequencing through launch and long-term maintenance.
+* Set technical direction for the team's frontend architecture and full-stack patterns, owning a 3–6 month roadmap and proactively addressing systemic gaps that threaten team effectiveness.
+* Partner closely with product, design, and backend engineers to translate roadmap priorities and borrower needs into scalable, high-quality experiences.
+* Raise the bar for engineering excellence through strong component and API design, thoughtful state management, testing, observability, and operational rigor across borrower-facing surfaces.
+* Lead through ambiguity, breaking down loosely defined problems into clear, testable plans and using data to inform tradeoffs on scope, performance, and user experience.
+* Mentor and grow other engineers through code reviews, design reviews, and technical guidance, and serve as a trusted collaborator across the team.
+* Contribute to how the team uses AI in development workflows and product capabilities, with a pragmatic view of where it can create meaningful leverage.
+
+  
+
+**Minimum Qualifications**
+
+* Bachelor's degree in Computer Science, Engineering, or a related field (or equivalent practical experience) and 6+ years of professional software engineering experience.
+* Deep proficiency building complex web applications with React and TypeScript, including component architecture, state management, performance optimization, and consuming REST or GraphQL APIs.
+* Full-stack experience designing and building backend services and APIs in a language such as Python, Java, Kotlin, Ruby, or Node.js.
+* Track record of independently leading the design and delivery of large, business-critical frontend or full-stack projects in production.
+* Ability to work effectively in ambiguous environments where product requirements, constraints, and system boundaries evolve over time.
+* Strong communication and collaboration skills, with the ability to explain technical tradeoffs and align product, design, and engineering partners.
+
+  
+
+**Preferred Qualifications**
+
+* Experience serving as the frontend or full-stack technical lead for a product team or business-critical product surface.
+* Experience building consumer-facing products at scale with strong attention to performance, accessibility, and user experience.
+* Background in fintech, lending, payments, or other regulated financial products with complex user journeys and high quality expectations.
+* Experience with experimentation, A/B testing, or feature-flagging to drive iterative product improvements in production.
+* Familiarity with modern frontend tooling and testing frameworks (e.g., Jest, React Testing Library, Cypress) and CI/CD workflows.
+* Hands-on experience leveraging generative AI in product features or internal engineering workflows.
+* Passion for building products that expand access to credit and improve financial outcomes for consumers.
+
+  
+
+**Position location** This role is available in the following locations: Remote
+
+**Travel requirements** As a digital first company, the majority of your work can be accomplished remotely. The majority of our employees can live and work anywhere in the U.S but are encouraged to to still spend high quality time in-person collaborating via regular onsites. The in-person sessions' cadence varies depending on the team and role; most teams meet once or twice per quarter for 2-4 consecutive days at a time.
+
+  
+
+#LI-REMOTE
+
+#LI-MidSenior -> use for L5, L6
+
+**What you'll love**
+
+At Upstart, our benefits are designed to support your health, financial well-being, family, and personal growth. Here's what you can expect:
+
+* Competitive compensation, including base pay, bonus opportunities, and annual equity grants that vest quarterly
+* Retirement benefits to help you plan for the future, including a 401(k) or Group Retirement Savings Plan with a company match of $2 for every $1 contributed, up to $15,000 annually (USD in the US, CAD in Canada)
+* Employee Stock Purchase Plan (ESPP) with discounted stock purchase options for eligible employees (US only)
+* Comprehensive health coverage designed to support you and your family, including medical, dental, vision, and wellness resources for US and supplemental health coverage for Canada.
+* Health Savings Account contributions from Upstart for eligible plans (US only)
+* Income protection benefits, including life insurance and disability coverage for added financial security
+* Paid time off, sick leave, and company holidays, in line with local requirements
+* Paid family and parental leave to support caregiving and major life moments (duration varies by country)
+* Family-centered benefits to support fertility, parenthood, and caregiving needs
+* Employee Assistance Program (EAP) offering mental health support and life-centered resources
+* Financial wellness resources, including access to financial planning tools and a financial concierge service (US Only)
+* Annual wellness allowance to support your physical and emotional well-being and personal development, based on what matters most to you
+* Annual productivity allowance to invest in relevant tools and resources you need to do your best work, no matter where you work from
+* Connection and community through team events, all-company updates, and employee resource groups (ERGs)
+* Onsite perks, including catered lunches and fully stocked micro-kitchens when working from one of our offices in the Bay Area, Austin, Columbus, and New York City (opening Summer 2026!)
+
+For roles based in Canada, please note that we are not currently able to hire in Quebec.
+
+Upstart is a proud Equal Opportunity Employer. Just as we are dedicated to improving access to affordable credit for all, we are committed to inclusive and fair hiring practices.
+
+*If you require reasonable accommodation in completing an application, interviewing, completing any pre-employment testing, or otherwise participating in the employee selection process, please email candidate\_accommodations@upstart.com*
+
+https://www.upstart.com/candidate\_privacy\_policy",,https://www.indeed.com/cmp/Upstart,,, ,,,
+in-fd1d7eb703d4f1a6,indeed,https://www.indeed.com/viewjob?jk=fd1d7eb703d4f1a6,http://www.indeed.com/job/full-stack-developer-fd1d7eb703d4f1a6,Full Stack Developer,"First Vulcan, Inc","Remote, US",2026-07-09,[],description,CompensationInterval.HOURLY,25.0,50.0,USD,True,,,,[],"We are seeking a seasoned **Senior Full Stack Engineer** to join us on a contract basis. This is a role for an engineer who finds satisfaction in the ""art of the polish""—refining existing systems, strengthening security, and shipping reliable features within a live production environment.
+
+**The Focus:** Stability, refinement, and disciplined execution. **The Reality:** This is not a ""rebuild everything"" or greenfield project. We need someone who respects established architecture and focuses on incremental, high-impact improvements.
+
+Our Current Tech Stack
+
+We operate on a modern, streamlined stack. Proficiency in these specific tools is essential:
+
+* **Frontend:** React, Next.js (App Router)
+* **Backend:** Node.js, TypeScript
+* **Database:** PostgreSQL (via Supabase)
+* **Infrastructure:** Vercel
+
+Key Responsibilities
+
+* **Hardening Logic:** Strengthen backend processes, edge-case handling, and permission structures.
+* **Feature Delivery:** Implement new features accurately based on defined technical specifications.
+* **Performance Tuning:** Identify and resolve bottlenecks to improve overall system reliability.
+* **Pragmatic Refactoring:** Clean and optimize code incrementally without disrupting current workflows or over-engineering solutions.
+* **Execution:** Take ownership of the ""middle-to-end"" of the development lifecycle with minimal oversight.
+
+Requirements
+
+* **Experience:** 6–10+ years of professional production experience.
+* **System Stewardship:** A proven track record of maintaining and enhancing existing, complex systems rather than just building new ones.
+* **Security Mindset:** Deep understanding of authentication, authorization, and data integrity.
+* **Autonomy:** Highly self-directed; you thrive when given a goal and the trust to execute it.
+* **Verification:** Identity and professional references will be strictly verified.
+
+This Role is NOT a Fit if:
+
+* You are looking for a Co-founder or CTO position.
+* Your first instinct is to propose a total system redesign or ""tear it all down.""
+* You are early in your career and require active mentorship or hand-holding.
+* You prefer theoretical architecture over hands-on, disciplined shipping.
+
+How to Apply
+
+We value pragmatism, accountability, and steady progress. If that resonates with you, please provide:
+
+* **Resume**
+* **GitHub Link** (if available)
+* **Two Brief Descriptions** of recent production challenges you solved within an existing codebase.
+
+Pay: $25.00 - $50.00 per hour
+
+Work Location: Remote",,"https://www.indeed.com/cmp/First-Vulcan,-Inc-2",,http://firstvulcan.com/,,,,
+in-d2d60dea3646cd19,indeed,https://www.indeed.com/viewjob?jk=d2d60dea3646cd19,https://jobs.lever.co/lemnis/99ad0e0e-1f41-410d-bc52-2a1f4a63a077?lever-source=Indeed,Full Stack Software Engineer,LEMNIS,"Remote, US",2026-07-08,[],description,CompensationInterval.YEARLY,120000.0,140000.0,USD,True,,,,[],"**Full Stack Software Engineer**
+
+Full-Time (Primarily Remote)
+
+**Division:** **Mainstay**
+
+**Salary**: **$120,000 - $140,000**
+
+### ***Join our team at Mainstay - a division of Lemnis! Lemnis is a public charity dedicated to harnessing transformative change to expand learning for all. We are excited to announce a new opportunity for a*** ***Full Stack Software Engineer*** ***at Mainstay. We are committed to fostering a collaborative and inclusive work environment where every team member can thrive. If you are passionate about expanding learning for all, eager to make a meaningful impact, and ready to take on new challenges, we would love to hear from you. Apply now and be a part of our journey!***
+
+### **Position Summary**
+
+At Mainstay, we believe one conversation can spark a brighter future. Our Engagement Platform makes it easy for colleges and businesses to start and measure conversations that drive action at scale. From our rigorous research methods to our Behavioral Intelligence framework — everything we do is designed to help people take the next step toward achieving their goals.
+
+The engineering team is a group of talented full stack developers, data engineers, data analysts, and AI experts. Engineers collaborate closely with their counterparts in the product team and external stakeholders to build new functionality and enhance existing products to delight our partners and end users. The team is excited to continue tackling new challenges and leverage cutting edge technologies to solve impactful problems.
+
+### **Responsibilities:**
+
+* Strong proficiency across the stack, with production experience in a modern frontend framework (React preferred) and a backend language (Python/Django or Node/TypeScript)
+* Solid grasp of computer science fundamentals: data structures, algorithms, and system design
+* Experience writing automated tests and maintaining meaningful test coverage
+* Familiarity with software engineering best practices (git, CI/CD, code review, PRs)
+* Experience building and consuming APIs (REST or GraphQL)
+* Comfortable working with relational databases and writing efficient queries
+* Strong communication skills with an ability to collaborate cross-functionally
+* Flexibility, ownership, and a team player mentality
+
+**Ship full stack features end to end**
+
+* Rapidly prototype, develop, and ship server-side and user-facing code every single day
+* Work across a full stack codebase including a React frontend (TypeScript) and Python (Django) and Node (TypeScript) backend
+* Own features from product discovery through implementation, testing, and release
+
+**Write high-quality, maintainable code**
+
+* Write clean, well-tested code and the corresponding automated tests
+* Review peers' code and uphold engineering standards across the team
+* Refactor and improve existing systems as the product evolves
+
+**Keep what you ship stable**
+
+* You ensure code is reliable and stable once deployed
+* Monitor, debug, and resolve issues in production
+* Contribute to CI/CD pipelines and deployment practices
+* Collaborate across the team working with Engineering, Product, and Design through product discovery, implementation, and testing
+* Translate product requirements into technical solutions
+* Share knowledge and mentor through pairing and code review
+
+**Qualifications**
+
+* 5+ years of experience as a software engineer in an Agile environment
+
+**Preferred Qualifications**
+
+* You augment your capacity with AI or LLM-powered product and features
+* Use agentic coding tools (Claude Code, Cursor, Copilot, Codex, or similar) as a daily part of your workflow to plan, write, test, and refactor faster
+* Apply strong judgment to AI-generated code: you own correctness, security, and architecture, and you can spot when an agent is wrong or hallucinating
+* EdTech, higher education, or B2B SaaS background
+* Experience working on partner-facing or customer-facing products
+* Comfort with ambiguity and a bias toward shipping
+
+We may use artificial intelligence (AI) tools to support parts of the hiring process, such as reviewing applications, analyzing resumes, or assessing responses and identifying potential inconsistencies or verification signals in application materials based on available information. These tools assist our recruitment team but do not replace human judgment. Final hiring decisions are ultimately made by humans. If you would like more information about how your data is processed, please contact us.",,https://www.indeed.com/cmp/Lemnis,,,,,,
+in-3d0058648e8ec47e,indeed,https://www.indeed.com/viewjob?jk=3d0058648e8ec47e,https://nationalcreditcenter.applytojob.com/apply/fG06CU8Bg8/AI-Software-Engineer-II?source=INDE&~,AI Software Engineer II,,"Remote, US",2026-07-08,[],,,,,,False,,,,[],"**Who We Are:**  
+NCC is a leader in providing award-winning software, credit and compliance solutions, and cutting-edge data to the automotive industry for over 30 years. Our solutions help dealerships streamline their operations, enhance their finance and insurance (F&I) processes, and drive profitability. We are looking for individuals who thrive in a high-growth environment.  
+  
+**Overview:**  
+We're seeking an **AI Software Engineer II** to help build the next generation of AI-powered capabilities. In this role, you'll develop and deliver production-ready software that integrates large language models (LLMs), machine learning, and cloud-based AI services into customer-facing applications.  
+  
+You'll partner closely with Product and Engineering to rapidly prototype, build, and deploy intelligent features, applying strong software engineering fundamentals to deliver scalable, reliable, and maintainable solutions. This is an excellent opportunity for an engineer with 2–4 years of experience who enjoys solving real-world business problems with modern AI technologies.  
+  
+**What You’ll Do:**
+
+* Design, build, and deploy AI-powered features within our SaaS platform.
+* Integrate LLMs and cloud AI services into production applications.
+* Develop scalable backend services, REST APIs, and application integrations.
+* Build and maintain data pipelines that support AI workflows.
+* Contribute across the application stack, including backend services and frontend enhancements as needed.
+* Collaborate with Product Managers, UX Designers, and Software Engineers to deliver customer-centric solutions.
+* Rapidly prototype new AI capabilities and iterate on customer feedback.
+* Write clean, maintainable, well-tested code that follows software engineering best practices.
+* Optimize application performance, scalability, and reliability.
+* Participate in code reviews and contribute to architectural decisions.
+
+  
+**What You’ll Have:**  
+  
+**Required:**
+
+* Bachelor’s degree in Computer Science, Software Engineering, or a related technical field (or equivalent practical experience).
+* 2–4 years of professional software engineering experience.
+* Experience developing applications with Python, C#, Java, JavaScript, or similar object-oriented languages.
+* Experience with consuming or integrating LLMs and AI services via APIs.
+* Experience building RESTful APIs and backend application services.
+* Working knowledge of cloud platforms, including AWS, Azure, or Google Cloud.
+* Experience with Git and modern software development practices.
+* Understanding of databases and data modeling (SQL and/or NoSQL).
+* Strong analytical and problem-solving skills.
+* Excellent collaboration and communication skills.
+
+  
+**Preferred:**
+
+* Experience with Retrieval-Augmented Generation (RAG).
+* Experience using vector databases and embeddings.
+* Familiarity with AI orchestration frameworks such as LangChain or LlamaIndex.
+* Experience building data pipelines and AI workflows.
+* Experience deploying containerized applications with Docker and Kubernetes.
+* Exposure to CI/CD pipelines and DevOps practices.
+* Experience developing customer-facing SaaS applications.
+
+  
+**What Success Looks Like:**  
+Within your first year, you'll contribute production-ready AI features, collaborate effectively across engineering teams, help accelerate AI adoption across our platform, and continuously improve the quality, scalability, and reliability of our software solutions.  
+  
+**What We Offer:**
+
+* Competitive pay
+* Unrestricted PTO
+* Comprehensive benefits package, including health, dental, and vision insurance.
+* 401(k) plan with a company match.
+* Professional development opportunities and continuous training
+* A supportive, dynamic work environment with opportunities for growth and advancement.
+
+  
+We are an equal employment opportunity employer and a drug-free workplace.
+
+**Texting Privacy Policy and Information:**
+
+You may receive text messages regarding your application and potentially regarding interview scheduling.  
+No mobile information will be shared with third parties/affiliates for marketing/promotional purposes
+
+Message frequency will vary depending on the application process.
+
+Msg & data rates may apply.
+
+OPT out at any time by texting ""Stop"".
+
+fG06CU8Bg8",,,,,,,,
+in-0e9c54cc4792bb5e,indeed,https://www.indeed.com/viewjob?jk=0e9c54cc4792bb5e,https://grnh.se/jiafg9iu4us,Lead Product Designer,BILL,"Remote, US",2026-07-08,[],,,,,,True,,,,interviewaccommodations@hq.bill.com,"**Innovate with purpose**
+
+At BILL, we believe in empowering the businesses that drive our economy. By replacing outdated financial processes with innovative tools, we help businesses—from startups to established brands—make smarter decisions and gain control of their operations. And we don't stop there: we're creating the future of financial automation so businesses can spend more time on what matters.
+
+Working here means you become part of a vision-driven team that's ready to tackle challenges and build cutting-edge solutions. We value purpose, drive, and curiosity—and we thrive in a fast-paced, ever-changing environment. Whether in one of our offices in San Jose, CA, Draper, UT, or in a remote-eligible role, BILLders collaborate to deliver real impact for businesses that need more time in their busy weeks.
+
+BILL builds high performing teams and we seek to hire the best talent for every role. We're committed to building a workplace that fosters inclusion and diverse perspectives, valuing each person's unique skills and experiences. We'd love to hear from you—you might be just what we're looking for, whether in this role or another.
+
+✨ Let's give businesses more time for what matters.
+
+**Make your impact within a rapidly growing Fintech Company**
+
+Join BILL as a Lead Product Designer to help shape the financial tools that thousands of businesses and accounting professionals rely on every day. This role contributes to the end-to-end design of products across BILL's platform, helping create experiences that simplify financial operations and reduce complexity for our customers. You'll work at the intersection of financial workflows and user experience, partnering with product, engineering, and research to build software that genuinely improves how businesses manage and move money.
+
+In this role, you'll take ownership of complex, ambiguous design problems across key areas of the BILL product ecosystem, driving work from early discovery through polished production. You'll set a high bar for craft and systems thinking, bringing your perspective to product strategy conversations as well as hands-on design execution. Your work will reach hundreds of thousands of small businesses, accounting firms, and finance professionals, helping them operate more efficiently, move faster with confidence, and spend less time on manual financial tasks.
+
+**Responsibilities**
+
+* Own design strategy and execution for one or more product areas, leading work from discovery through delivery with a high degree of autonomy.
+* Drive cross-functional alignment by partnering closely with product managers, engineers, UX researchers, and technical partners to frame problems, validate solutions, and ship high-quality experiences.
+* Elevate the design quality bar across your area by establishing strong patterns, contributing to the design system, and leading critique conversations that push thinking forward.
+* Facilitate structured workshops and design reviews with stakeholders, translating complex workflows into clear, testable concepts.
+* Help shape AI-powered and automation-assisted experiences by designing thoughtful interaction models, human-in-the-loop workflows, and clear system behaviors that build user trust.
+* Use qualitative and quantitative signals, including usability sessions, analytics, customer feedback, and product outcomes, to continuously refine experiences post-launch.
+* Contribute to team culture and craft by mentoring junior and mid-level designers, sharing your process openly, and helping the broader design organization grow.
+* Represent the design perspective in product planning cycles, helping to shape roadmaps and scope trade-offs in partnership with senior leadership.
+
+**We'd love to chat if you have:**
+
+* 8 or more years of product design experience, with a portfolio that demonstrates systems thinking and the ability to navigate complex, data-driven workflows.
+* Deep experience owning large design scopes end-to-end, from problem framing and research synthesis through interaction design and handoff.
+* A track record of influencing product strategy, not just executing on it, including experience shaping roadmaps and contributing to product decisions.
+* Strong communication skills and the ability to present design rationale clearly to cross-functional partners and senior stakeholders.
+* Experience designing for B2B or fintech products, particularly ones involving financial data, multi-step workflows, or professional end-users.
+* Experience designing AI-powered product experiences, such as intelligent assistants, recommendations, automations, or decision-support tools.
+* Familiarity with emerging AI product design patterns, including prompt-driven interactions, feedback loops, confidence or uncertainty communication, and mechanisms for user control and oversight.
+* Comfort working in front-end code, prototyping environments, or AI-enabled workflows to accelerate design exploration and strengthen collaboration with engineering.
+
+**Visa Sponsorship:** Please note that this position is not eligible for visa sponsorship. Applicants must have authorization to work in the United States without requiring visa sponsorship now or in the future.
+
+**What's in it for you?**
+
+Redefining how businesses automate their work is a fast-paced, exciting, and fun environment. But we also have benefits and perks to ensure the magic isn't only experienced by our customers, but by our employees as well.
+
+Here is a preview of some of the amazing benefits here at BILL:
+
+* 100% paid employee health, dental, and vision plans (choose HMO, PPO, or HDHP)
+* HSA & FSA accounts
+* Life Insurance, Long & Short-term disability coverage
+* Employee Assistance Program (EAP)
+* 11+ Observed holidays and wellness days and flexible time off
+* Employee Stock Purchase Program with employee discounts
+* Wellness & Fitness initiatives
+* Employee recognition and referral programs
+* And much more
+
+Don't believe us? Check out our culture, benefits, and teams on our career site, LinkedIn Life, or YouTube pages.
+
+BILL is an Equal Opportunity Employer. We believe our best ideas come from the unique stories, perspectives, and experiences of our team members. We welcome people of all backgrounds, abilities, and identities to bring their authentic selves and contribute to our culture.
+
+We are committed to a transparent, inclusive hiring process that reflects our values. If you need accommodations at any stage, please contact interviewaccommodations@hq.bill.com. To ensure a fair evaluation, our Candidate Integrity Policy prohibits the use of unapproved external assistance, including generative AI, during live interviews or assessments. Doing so will result in a review and potential disqualification.
+
+Our Applicant Privacy Notice describes how BILL treats the personal information it receives from applicants.",,https://www.indeed.com/cmp/Bill-4650b035,,http://www.bill.com,"San Jose, California",,,
+in-93dea9e5e28fba6a,indeed,https://www.indeed.com/viewjob?jk=93dea9e5e28fba6a,https://www.benesys.com/careers/open-positions/?gnk=job&gni=8a7883a89efb878d019f41d74ec15f16&gns=Indeed+Free,"Software Engineer (Troy, MI)","BeneSys, Inc.","Remote, US",2026-07-08,[],,,,,,True,,,,[],"**Software Engineer (Troy, MI)**
+
+**Summary**
+
+We are seeking a Software Engineer to design, develop, and maintain business-critical web applications in a cloud-based environment. This role will contribute across the full technology stack, including back-end development using .NET, cloud-native solutions in Microsoft Azure, data solutions utilizing SQL Server, and front-end development technologies including React. The ideal candidate is a collaborative problem solver who can work independently on moderately complex projects while partnering with architects, senior engineers, product owners, and QA teams to deliver high-quality software solutions.
+
+**Applicants for this remote role will only be considered if they live in these locations: Arizona, California, Colorado, Washington DC, Iowa, Illinois, Indiana, Kentucky, Massachusetts, Maryland, Michigan, Missouri, Nevada, Ohio, Oregon, Pennsylvania, Texas, Utah, Washington, Wisconsin.**
+
+\*\*Please note – This is a regular full-time position. This is not a contracted (1099) role.
+
+**Key Responsibilities**
+
+* Design, develop, and maintain scalable web applications using .NET, SQL Server, Azure services, and modern web technologies.
+* Develop and maintain RESTful APIs, backend services, and business logic using .NET technologies.
+* Contribute to the development and enhancement of user interfaces using React and related front-end technologies.
+* Design, develop, and optimize queries, stored procedures, and data integration processes for SQL Server databases.
+* Participate in application architecture discussions and contribute to technical design decisions.
+* Implement secure coding practices and ensure compliance with organizational security standards.
+* Develop cloud-native solutions leveraging Azure services such as App Services, Functions, Storage, Service Bus, and Azure SQL.
+* Troubleshoot, diagnose, and resolve application defects and performance issues across the full technology stack.
+* Create and maintain technical documentation, including design specifications and operational procedures.
+* Participate in code reviews and contribute to continuous improvement of development standards and best practices.
+* Collaborate with DevOps teams to support CI/CD pipelines and deployment processes.
+* Work closely with product owners, business analysts, QA analysts, and stakeholders to understand requirements and deliver effective solutions.
+* Support production applications, including incident resolution and root cause analysis.
+* Regular and predictable attendance is an essential function of this job.
+
+**Required Qualifications**
+
+* Bachelor’s degree in Computer Science, Information Technology, Software Engineering, or equivalent professional experience.
+* 3–6 years of software development experience in full stack or backend application development.
+* Experience developing applications using C# and .NET.
+* Experience with React and modern JavaScript/TypeScript frameworks.
+* Strong knowledge of SQL Server database design, query optimization, and data modeling.
+* Experience working with Microsoft Azure cloud services.
+* Experience developing and consuming RESTful APIs.
+* Understanding of object-oriented design principles and software development best practices.
+* Experience with source control systems such as Git.
+* Strong problem-solving, analytical, and debugging skills.
+* Effective verbal and written communication skills.
+
+**Preferred Qualifications**
+
+* Experience with Azure DevOps and CI/CD pipelines.
+* Experience with container technologies such as Docker and Kubernetes.
+* Knowledge of microservices and distributed application architectures.
+* Familiarity with application monitoring and logging tools.
+* Experience working in Agile/Scrum development environments.
+* Knowledge of security best practices for cloud-based applications.
+
+**What Success Looks Like in This Role**
+
+* Delivers high-quality, maintainable code with minimal defects.
+* Completes assigned development work within agreed timelines.
+* Contributes effectively to team design discussions and code reviews.
+* Demonstrates ownership of application components and production support activities.
+* Continuously improves technical skills and contributes to process improvements.
+* Collaborates effectively with cross-functional teams to deliver business value.
+
+**Work Schedule** - Full time. Monday - Friday, 7:30am - 4:30 pm. Permanent Remote position (No in-office days).  
+  
+**Competitive Benefits and Compensation Package**
+
+* 12 paid holidays
+  + Paid Time Off (PTO)
+  + Pro-rated during first year of employment
+* 15 days of PTO provided in the next calendar year!
+* 3 days paid bereavement
+* Up to 20 days paid jury leave
+* Medical, dental, and vision insurance, with option for dependent coverage
+* Company-paid basic life, short-term disability, long-term disability, and AD&D insurance
+* 401k with employer match
+* Tuition reimbursement program
+* Career development opportunities
+* Referral bonus for all successful full-time referrals
+* Annual opportunities for increases
+
+**Pay -** The salary for this position is $125,000 per year. Actual salary is dependent on skills, experience, education, and other business factors.
+
+**Our Culture**  
+BeneSys wants to be a great service provider to the members we serve, and we recognize we can only do that if we are also a great employer with successful employees. In short, our success is driven by our employees' successes. We want to be a place where people want to work, feel proud of what they do and feel fulfilled both professionally and personally. We want to create a place where employees can find long-term growth and potential.  
+  
+Our culture focuses on three core values:
+
+* Collaboration: working together across 31 locations to achieve the best for the company and our clients
+* Dedication: striving to create an environment where all employees work toward a common goal while committing to providing the best customer service to our members and our colleagues
+* Integrity: doing what we say we will do. Upholding strong ethical and moral principles
+
+**ADA & EEO**
+
+**Reasonable accommodations will be made so that qualified individuals with disabilities are able to complete the application process and, if hired, fulfill the essential functions of their job.**",Insurance,"https://www.indeed.com/cmp/Benesys,-Inc.",https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/4c016c4159dfdfd1aab7e6e339cd9143,http://www.benesys.com/,"Troy, MI","501 to 1,000",$25M to $100M (USD),"Founded in 1979, we provide IT services and administers benefits for health and welfare funds, pension funds, annuity funds, SUB funds, and"
+in-9a960e3778231334,indeed,https://www.indeed.com/viewjob?jk=9a960e3778231334,http://www.indeed.com/job/full-stack-developer-9a960e3778231334,Full Stack Developer,Ideas2it technology pvt lmt,"Remote, US",2026-07-08,[],description,CompensationInterval.HOURLY,40.0,60.0,USD,True,,,,[],"The Company
+
+We are building a modern, API-first fintech platform. Our product spans client-facing applications,
+
+payment processing infrastructure, and a high-volume ACH and reconciliation engine operating in one
+
+of the most compliance-sensitive domains in US financial services. We are not guessing at product-
+
+market fit — we have deep domain expertise, enterprise clients going live, and a founding team that
+
+has done this before. We are lean, ambitious, and AI-native by design.
+
+The Role
+
+You are full stack engineer but you live on the backend. You care deeply about what happens when a
+
+payment fails, an API returns an unexpected response, or a queue backs up at 2am. You will
+
+own the backend services, payment workflows, and event-driven systems that sit at the core of
+
+our platform — and you will touch the frontend when the team needs it.
+
+This is a high-intensity role at an early-stage company. This role will ask more of you than a
+
+typical engineering job — systems need to stay up, deadlines are real, and the team is small.
+
+What You Will Build
+
+ Production backend services and REST APIs — versioned, contract-stable, and
+
+ hardened
+
+ Experienced in Node.js, Express.js, Hapi, NestJS, REST APIs, GraphQL, Microservices,
+
+WebSockets, Job scheduling
+
+ Frameworks & Libraries: React.js, Next.js, Express.js, Redux, Redux Toolkit, React Hook Form,
+
+TanStack Query, Jest, Playwright, Yup Resolver
+
+ ACH payment workflows end-to-end — debits, credits, retries, failure handling, virtual
+
+ account ledgering, and reconciliation
+
+ Event-driven architecture & services using AWS SQS and web-hooks for reliable asynchronous
+
+processing
+
+ PostgreSQL schemas that support complex financial workflows with integrity under failure
+
+ Experienced in cloud (AWS) & Dev-Ops
+
+ CI/CD contributions and test coverage that gives the team genuine confidence to ship
+
+ Internal React dashboards and operational tooling when needed
+
+ Design documentation, deployment run-books, and scalability notes that you write
+
+ because you are proud of the work — not because someone asked
+
+ You will occasionally work directly with customers to support integrations, troubleshoot live
+
+workflows, and demonstrate platform capabilities
+
+ representing the product outside the codebase
+
+What We Are Looking For
+
+Must Have
+
+ 6–7 years engineering experience with a strong backend focus
+
+ REST API, MicroServices archtecture & design
+
+ Node.js, Express.js, Hapi, NestJS, REST APIs, GraphQL, Microservices, WebSockets, Job
+
+scheduling
+
+ React.js, Next.js, Express.js, Redux, Redux Toolkit, React Hook Form, TanStack Query, Jest,
+
+Playwright, Yup Resolver
+
+ Solid PostgreSQL — schema design, query optimization, data integrity
+
+ AWS — Lambda, RDS, SQS, API Gateway, Secrets Manager
+
+ OpenAPI / Swagger documentation experience
+
+ Event-driven systems experience — queues, web-hooks, retry and failure logic
+
+ CI/CD pipeline experience and automated deployment workflows
+
+ You obsess over API design, documentation, deployment, scalability, and observability
+
+ Cross-functional communicator — comfortable working directly with Product, QA,
+
+ DevOps, and business stakeholders
+
+ Agile practitioner — sprint planning, backlog grooming, and code reviews are second nature
+
+ End-to-end owner — you do not hand off, you follow through to production
+
+ Must be currently authorized to work in the United States without sponsorship
+
+Strong Plus
+
+ ACH payment workflows and NACHA operating rules
+
+ Wire, debit card, and real-time payment rail experience beyond ACH
+
+ Experience with Java, Spring frameworks, or similar enterprise backend frameworks
+
+ Regulated fintech compliance — audit logging, idempotent, SOC 2
+
+ NestJS or similar structured Node.js frameworks
+
+ AI-assisted development tools — Claude, GitHub Copilot, Cursor
+
+ Team lead experience with mentoring junior team members
+
+This is not a fit for you if
+
+ You consider documentation someone else's job
+
+ You lose interest in a feature once it ships
+
+ You need a detailed spec before you start building
+
+Pay: $40.00 - $60.00 per hour
+
+Work Location: Remote",,https://www.indeed.com/cmp/Ideas2it-Technology-Pvt-LMT,,,,,,
+in-5a91cca4dfd98826,indeed,https://www.indeed.com/viewjob?jk=5a91cca4dfd98826,https://magnitudesoftware.wd1.myworkdayjobs.com/en-US/External/job/USA---Remote/Senior-UI-Engineer_REQ000922,Senior UI Engineer,Insight Software,"Remote, US",2026-07-08,[],,,,,,False,,,,[],"**About Us:**
+
+insightsoftware is a global provider of reporting, analytics, and performance management solutions that unlock the potential of business data and transform the way finance and data teams operate. We empower leaders from over 32,000 organizations to make timely and intelligent decisions. Our comprehensive solutions span Financial Planning and Analysis (FP&A), Controllership, and Data and Analytics. We deliver finance teams the insights required to navigate any economic climate and drive greater financial intelligence, while increasing productivity, visibility, accuracy, and compliance. Learn more at **insightsoftware.com.**
+
+**Job Description:**
+
+**Job Summary**
+
+insightsoftware is seeking a Senior UI Engineer to serve as the front-end technical foundation of the newly established UX team in the Certent Equity Management (CEM) product organization. Reporting to the UX Manager, Equity, this role is responsible for architecting and owning the CEM design system infrastructure including the branded component library, design token pipeline, Storybook documentation environment, and AI-assisted development toolchain while also serving as the primary front-end implementation partner to the UX and Product teams.
+
+The Senior UI Engineer brings deep expertise in Angular and React, component library architecture, design system engineering, and the tooling that bridges design and production code in modern SaaS product organizations. This is a role for an engineer who operates at the intersection of design and engineering: someone who cares deeply about UI quality, understands design intent, and builds the systems and workflows that allow designers, engineers, and AI agents to deliver consistent, accessible, on-brand experiences at speed.
+
+This role goes beyond implementing individual features. It requires establishing the technical infrastructure that governs how the entire CEM product organization produces front-end UI ( from token authoring and component publishing to AI-assisted prototyping and automated visual testing ) and serving as the engineering authority on front-end quality, consistency, and delivery velocity.
+
+**Key Responsibilities**
+
+*Design System Architecture & Ownership*
+
+* Architect and own the CEM design system including the branded component library, token architecture, theming system, accessibility standards, and component API conventions; establishing the technical foundation that governs front-end UI production across the platform
+
+* Evaluate and select the appropriate component library framework for CEM’s technology stack in partnership with Engineering leadership ensuring the chosen solution supports design token integration, accessibility compliance, and long-term maintainability at enterprise scale
+
+* Implement and maintain the design token pipeline from Figma token authoring (Tokens Studio) through Style Dictionary transformation to front-end theme consumption; ensuring design decisions made in Figma are reliably and automatically reflected in the production UI
+
+* Build, publish, and version the CEM component library as a shared, consumable package managing semantic versioning, changelog governance, and distribution so that multiple engineering teams can adopt and update the system with confidence
+
+* Define and enforce component API standards, prop and input conventions, and composition patterns that make the design system predictable to consume, easy to extend, and resistant to drift as engineering teams scale
+
+* Establish and maintain automated visual regression testing through Chromatic or comparable tooling, ensuring that design system changes are validated before reaching production and that regressions are caught at the component level
+
+*Storybook Environment Ownership*
+
+* Own the CEM Storybook environment as the shared design-development contract: configuring, maintaining , and evolving Storybook so it serves as the authoritative reference for component behavior, interaction states, accessibility compliance, and usage guidance
+
+* Implement and maintain design token and Figma addon integrations within Storybook, ensuring that the documentation environment accurately reflects current token values and provides designers with reliable feedback on how design decisions translate to rendered components
+
+* Establish Storybook contribution standards: defining story structure, documentation templates, accessibility annotation conventions, and review processes so that every component entering the system is documented to a consistent, high standard
+
+* Integrate Storybook into the CI/CD pipeline: automating build, deployment, and visual regression checks so that the design system documentation environment remains current and trustworthy without manual overhead
+
+*AI-Assisted Development Toolchain*
+
+* Architect and implement the Storybook MCP (Model Context Protocol) integration exposing the CEM component library, design token system, interaction patterns, and accessibility standards to AI coding agents so that AI-generated front-end code adheres to the CEM design system rather than producing generic or off-brand UI
+
+* Define and maintain the governance layer for AI-assisted development workflows, establishing human review gates, automated lint and accessibility checks, and component validation steps that ensure AI Builder output meets production quality standards before engineering commitment
+
+* Evaluate, recommend, and integrate AI development tooling (e.g., Cursor, GitHub Copilot, v0) into the CEM front-end development workflow : identifying opportunities to accelerate prototyping, component scaffolding, and feature implementation without sacrificing design system adherence or code quality
+
+* Partner with UX Designers to enable AI-assisted prototyping workflows providing designers with governed, system-aware tooling that allows rapid translation of well-defined requirements into production-ready component implementations
+
+* Continuously evaluate the AI toolchain as the ecosystem evolves ; proactively identifying new capabilities that would further accelerate CEM delivery and recommending adoption where the quality and governance bar can be met
+
+*Front-End Implementation*
+
+* Lead front-end implementation for high-complexity CEM features: translating UX design specifications into components that are performant, accessible, and fully aligned to design system standards
+
+* Serve as the front-end technical authority in cross-functional product squads: contributing to sprint planning, story refinement, and technical design reviews with a focus on front-end architecture, component reuse, and implementation feasibility
+
+* Collaborate directly with UX Designers during design handoff providing engineering input on component constraints, interaction complexity, and implementation tradeoffs early enough to prevent rework
+
+* Establish and maintain front-end code quality standards including linting configuration, accessibility testing, unit and integration test conventions, and PR review criteria for UI code across the CEM engineering organization
+
+* Participate in sprint reviews and QA walkthroughs evaluating delivered front-end experiences against design intent and flagging regressions or implementation gaps for resolution before release
+
+*Design-Engineering Collaboration*
+
+* Serve as the primary technical bridge between the UX team and Engineering: translating design system decisions into engineering-consumable standards and surfacing front-end constraints that should inform design direction before engineering commitment
+
+* Partner with the UX Manager and Lead UX Designer on design system roadmap planning providing engineering effort estimates, identifying technical dependencies, and sequencing infrastructure investments to support product delivery timelines
+
+* Contribute front-end engineering input to PRD development and UX discovery for high-complexity features helping Product and Design understand what is achievable within current architecture and what would require foundational investment
+
+*Engineering Practice & Enablement*
+
+* Establish front-end engineering documentation including component usage guides, token implementation references, AI toolchain onboarding materials, and contribution standards so that engineering teams across CEM can adopt and extend the design system without friction
+
+* Mentor engineers on design system consumption patterns, component library best practices, and front-end accessibility implementation; building organizational capability rather than creating dependency on a single engineer
+
+* Evaluate and recommend front-end toolchain investments including build tooling, testing frameworks, and bundling strategies that support the performance and maintainability requirements of the CEM platform at scale
+
+**Required Qualifications**
+
+*Experience*
+
+* 5+ years of front-end engineering experience, with progressive responsibility in enterprise SaaS product organizations
+
+* Demonstrated experience with both Angular and React in production environments including component architecture, state management, and performance optimization in each framework
+
+* Demonstrated experience architecting and owning a production design system including component library publishing, design token pipeline management, Storybook ownership, and engineering governance at scale
+
+* Proven experience implementing design token pipelines end-to-end (from design tool token authoring through Style Dictionary transformation to front-end theme consumption) with a clear understanding of how each layer interacts
+
+* Demonstrated experience enabling or governing AI-assisted front-end development workflows, including toolchain integration and quality review processes for AI-generated UI output
+
+* Strong collaboration skills with UX Designers and Product Managers; able to engage credibly in design reviews, contribute to discovery, and translate design intent into engineering standards without loss of fidelity
+
+*Technical Proficiency*
+
+* Expert-level Angular proficiency including module architecture, RxJS , Angular CDK, component composition patterns, and enterprise-scale application structure
+
+* Strong React proficiency including component composition patterns, hooks architecture, performance optimization, and scalable state management
+
+* Hands-on experience with enterprise component libraries including theming systems, component API extension patterns, and accessibility compliance
+
+* Hands-on experience with Tokens Studio and Style Dictionary including token schema design, multi-brand token architecture, and GitHub-based token sync workflows
+
+* Expert-level Storybook proficiency including addon configuration, story authoring, MDX documentation, Chromatic integration, and CI/CD pipeline deployment
+
+* Working knowledge of Model Context Protocol (MCP) and experience configuring or consuming MCP servers in AI-assisted development workflows
+
+* Strong command of web accessibility standards (WCAG 2.1 AA) and practical experience implementing accessible UI components with automated testing
+
+* Proficiency with modern front-end tooling including TypeScript, build tooling (Vite, Webpack, or Angular CLI), ESLint , Prettier, and CI/CD pipeline configuration
+
+* Experience with semantic versioning, package publishing, and changelog governance for shared component libraries
+
+*Education*
+
+* Bachelor’s degree in Computer Science , Software Engineering, or a related field required ; equivalent professional experience considered
+
+**Preferred Qualifications**
+
+* Experience building front-end infrastructure for financial services, ERP, or similarly complex enterprise SaaS platforms where UI density, data precision, and accessibility are non-negotiable requirements
+
+* Experience with Storybook MCP or comparable AI agent integrations that expose component libraries and design system knowledge to AI coding workflows
+
+* Experience with private package registry tooling (GitHub Packages, Verdaccio, or similar) for internal component library distribution
+
+* Familiarity with Figma component architecture and design token conventions sufficient to evaluate Figma library changes for front-end impact without designer translation
+
+* Experience with visual regression testing at scale including Chromatic snapshot management, baseline governance, and integration with PR review workflows
+
+* Experience contributing to or leading front-end architecture for a platform modernization or greenfield SaaS initiative
+
+* Familiarity with application instrumentation tooling (e.g., WalkMe , FullStory , Pendo ) and experience implementing or supporting analytics event tracking at the component level
+
+* Experience in a high-growth, fast-paced SaaS company where front-end infrastructure must scale alongside rapidly evolving product requirements
+
+The salary range in United States of America for this position is 111,000.00 to 139,000.00 USD Annual.
+
+Your specific offer within this range will be determined by your skills, experience, and qualifications. For non-sales roles, you may be eligible for a bonus. For sales roles, this range includes a commission target.
+
+We are committed to pay transparency and fair compensation practices. If you have questions about our compensation approach, please don't hesitate to ask during the interview process.
+
+**Additional Information**
+
+All your information will be kept confidential according to EEO guidelines.
+
+Learn more about our high-energy, high-performance global team: Work With Us
+
+insightsoftware About Us: Hear From Our Team
+
+Background checks are required for employment with insightsoftware, where permitted by country, state/province.
+
+At insightsoftware, we are committed to equal employment opportunity regardless of race, color, ethnicity, ancestry, religion, national origin, gender, sex, gender identity or expression, sexual orientation, age, citizenship, marital or parental status, disability, veteran status, or other class protected by applicable law. We are proud to be an equal opportunity workplace.",,https://www.indeed.com/cmp/Insight-Software,,,,,,
+in-88e29879d8018a5d,indeed,https://www.indeed.com/viewjob?jk=88e29879d8018a5d,http://www.indeed.com/job/founding-software-engineer-internships-possible-not-required-88e29879d8018a5d,Founding Software Engineer -Internships Possible not required,,"Remote, US",2026-07-08,[],,,,,,True,,,,David@aerolot.ai,"Founding Software Engineering / Intern (AI & Full Stack)
+
+**Location:** Remote  
+**Type:** Internship (Part-Time or Full-Time)  
+**Compensation:** Unpaid (Eligible for College Credit)  
+**Open Positions:** 2
+
+Any software engineer welcome to apply - doesn't have to be college student for internship but open to all.
+
+About Aerolot
+
+Aerolot is building the next-generation operating system for independent automotive dealerships.
+
+Today's dealerships rely on a collection of disconnected software—dealer management systems, CRMs, desking tools, spreadsheets, texting platforms, and paper processes. Aerolot brings everything together into one AI-native platform that manages inventory, sales, financing, compliance, messaging, and dealership operations.
+
+Our platform is already approximately **~75% complete** and preparing for pilot dealerships. This internship is an opportunity to work on a real production SaaS application that will be used by real customers—not classroom exercises or internal demo projects.
+
+The Opportunity
+
+We're looking for two ambitious software engineering interns who love building things.
+
+You'll work directly with the founder on shipping production software, building AI-powered features, improving quality, and helping launch a modern SaaS platform. You'll have meaningful ownership and the opportunity to contribute across the entire product.
+
+This is the kind of internship where you'll make decisions, solve real engineering problems, and see your work deployed—not spend your summer fixing documentation.
+
+What You'll Work On
+
+Depending on your strengths and interests, you'll contribute to areas such as:
+
+* Building new product features
+* AI-powered workflow automation
+* AI agent development and prompt engineering
+* Frontend and backend development
+* API integrations
+* Testing and quality assurance
+* Bug fixing and performance improvements
+* Production debugging
+* Automation tools for internal workflows
+* Improving developer tooling and engineering processes
+
+Our Technology Stack
+
+You'll gain experience working with modern technologies including:
+
+* Next.js 15
+* React
+* TypeScript
+* Neon PostgreSQL
+* Drizzle ORM
+* Clerk Authentication
+* Vercel
+* Cloudflare R2
+* Redis / Upstash
+* Stripe
+* Twilio
+* Telnyx
+* Resend
+* Sentry
+* Qdrant Vector Database
+* Voyage AI
+* Large Language Models and AI-powered application development
+
+You'll also be encouraged to use modern AI development tools to increase your productivity and learn current best practices for AI-assisted software engineering.
+
+Who We're Looking For
+
+We're less interested in your GPA than what you've actually built.
+
+Ideal candidates are:
+
+* Sophomore, Junior, Senior, or Graduate Computer Science students (or equivalent experience)
+* Passionate about software engineering and AI
+* Comfortable learning new technologies quickly
+* Curious, self-motivated, and eager to solve difficult problems
+* Excited about working in an early-stage startup
+
+Experience with our exact technology stack is a bonus, but not required.
+
+What We Value Most
+
+Show us things you've built.
+
+We'd much rather see:
+
+* Personal projects
+* Hackathon projects
+* Open-source contributions
+* AI applications
+* Startup projects
+* School software projects
+* GitHub repositories
+* Apps you've launched
+
+than simply a list of programming languages on a résumé.
+
+If you've built something you're proud of, we want to see it.
+
+What You'll Gain
+
+* Real startup engineering experience
+* Direct mentorship from the founder
+* Experience working on a production SaaS platform
+* Hands-on exposure to modern AI development
+* Full-stack software engineering experience
+* The opportunity to ship code used by real customers
+* A portfolio of meaningful work for future employers
+
+How to Apply
+
+Send us:
+
+* Your résumé - via indeed or @ David@aerolot.ai
+* GitHub profile (if available)
+* Links to projects you've built
+* A short note about why you're interested in Aerolot
+
+We're far more interested in builders than perfect résumés. If you've created something interesting, we'd love to see it.
+
+Work Location: Remote",,https://www.indeed.comNone,,,,,,
+in-5df322bc8a8d84e6,indeed,https://www.indeed.com/viewjob?jk=5df322bc8a8d84e6,https://ats.rippling.com/energycap-external-career-page/jobs/1de0463c-3448-4869-b662-321e7ea66da5?jobSite=Indeed,UX Designer,"EnergyCAP, Inc.","Remote, US",2026-07-08,[],description,CompensationInterval.YEARLY,85000.0,90000.0,USD,True,,,,HR@energycap.com,"EnergyCAP, LLC is an industry-leading and award-winning software company focused on energy and sustainability management. EnergyCAP is trusted by 10,000+ Energy and Sustainability professionals across the country to be their single source of truth for financial-grade, actionable data to better manage resources, reduce carbon, and drive savings. If you’re looking for a role that enables you to do what you do best while making the future more sustainable, this is the role for you!
+
+Our core values are: Accountability, Impact, Innovation, Integrity, and Teamwork.
+
+Build a more sustainable future with us! Visit www.EnergyCAP.com to learn more.
+
+**About the Role**
+
+We are hiring a UX Designer who sits at the intersection of design and engineering. The research and judgment that define strong UX work remain at the center of this role - what changes is the toolkit. Rather than producing static design files as the primary output, you will build functioning prototypes and, where appropriate, functioning front-end code, using AI-assisted development tools to move quickly from user insight to a testable, interactive result. The person who understands the user need is the same person putting it into a form that can be tested and refined.
+
+This role works closely with Technical Product Managers and engineers across one of our full-stack product teams, with real ownership over the end-to-end experience - from early research through to a working result that preserves design intent. If you are energized by complex, data-rich products and want your work to have a tangible impact on how organizations manage energy and sustainability, this is the role for you.
+
+**What You'll Do**
+
+* Conduct customer and internal user research - interviews, surveys, usability testing - and synthesize findings into a clear understanding of user needs, motivations, and friction points that directly inform product direction.
+* Validate that the product is delivering the outcomes customers actually want and carry that evidence into product decisions alongside Technical Product Managers and engineers.
+* Build functioning prototypes in code rather than static mockups, so that ideas can be tested in something close to the real experience - using AI-assisted development tools such as Claude Code to move from insight to a testable build quickly.
+* Produce functioning front-end code where it is the right path to a working result, with a clear handoff point where your output is reviewed by engineering before it reaches production.
+* Define interaction patterns, hierarchy, and visual design directly in the medium customers will use, and iterate based on what testing reveals - holding the standard for accessibility and quality throughout.
+* Collaborate with Technical Product Managers and engineers to align prototypes and builds with technical constraints, product goals, and business outcomes.
+* Contribute to key AI-powered product initiatives, including Bill Capture tooling that extracts and processes utility data, and the Watts AI agent experience.
+
+**What You'll Bring**
+
+We're looking for a designer who combines sharp visual craft and a researcher's mindset with the technical fluency to build what they design - someone who asks hard questions, advocates for users, and moves with purpose in a fast-changing environment.
+
+* 3+ years of UX design experience, with a portfolio that demonstrates both strong visual craft and a research-informed design process.
+* Hands-on comfort building in code, including front-end work, and demonstrates fluency with AI-assisted development tools for rapid prototyping and refinement.
+* Sound judgment about what to build and what to leave out - which matters more, not less, when AI tooling makes it easy to generate almost anything.
+* Working knowledge of accessibility standards and an eye for the difference between a prototype that merely functions and one that is sound enough to build on.
+* Experience working within complex, data-heavy product environments - fintech, energy, enterprise SaaS, or CRM experience is strongly preferred.
+* Outgoing and proactive: you ask questions early, surface issues quickly, and build trust across engineering, product, and business teams.
+* A healthy skeptic who challenges assumptions with evidence, balances assertiveness with flexibility, and holds a point of view without losing sight of user needs.
+* Genuinely empathetic - you care about the people you're designing for and bring that care into every research conversation and design decision.
+* Energized by fast pace and change; comfortable operating without a complete playbook and motivated by ambiguity.
+* Bachelor's degree preferred, ideally in design, HCI, or a related field; equivalent experience accepted. A design portfolio is required.
+
+**Why** **EnergyCAP?**
+
+At EnergyCAP, we're more than a software company — we're a team of innovators, problem-solvers, and sustainability advocates. We help organizations unlock actionable insights that drive efficiency and environmental impact. Here, your success directly contributes to a cleaner, smarter energy future.
+
+You'll thrive in a culture that values growth, creativity, and collaboration — with the freedom to take initiative, experiment with new ideas, and grow your career.
+
+**Pay Range:** $85,000 - $90,000 base salary with a 3% annual bonus.  
+*Pay is* *commensurate* *with experience, knowledge, skills, and abilities.*
+
+**Why** **You’ll** **Love Working Here**  
+At EnergyCAP, we invest in you—personally, professionally, and beyond. Here’s how we support your growth, balance, and well-being:
+
+**Health & Wellness**
+
+* 100% company-paid Health, Dental & Vision coverage for you, plus competitive cost-sharing for your family
+* Company-paid Life & LTD Insurance for peace of mind
+* Adoption Grants and paid leave to support your growing family
+* Wellness program offerings designed to strengthen your physical and mental health and overall well-being
+
+**Financial Security**
+
+* 401(k) with a 3% company match—helping you plan confidently for the future
+* Monthly Connectivity Stipend so you can work seamlessly from anywhere
+
+**Growth & Development**
+
+* Emergenetics Development Program to help you understand and leverage your strengths
+* Tuition Assistance to fuel your continued learning and career growth
+
+❤️ **Community & Balance**
+
+* Flexible Time Off so you can recharge and enjoy life outside of work
+* A remote-first workplace that offers balance and flexibility, with the option to connect in-person at our offices
+* Charitable contributions & matched giving to amplify your impact
+* Paid community service hours—because giving back matters
+
+At EnergyCAP, we don’t just offer benefits—we provide the tools, support, and flexibility you need to thrive in both work and life.
+
+EnergyCAP is an equal opportunity employer.
+
+*EnergyCAP is a proud equal opportunity employer, committed to hiring and developing individuals from diverse background and experiences. We value and consider applications for all qualified candidates without regard to actual or perceived race, color, religion, national origin, sex, gender, age, marital status, personal appearance, sexual orientation, gender identity or expression, family responsibilities, disability, medical condition, enrollment in college or vocational school, political affiliation, military or veteran status, citizenship status, genetic information, or any other basis protected by federal, state or local law.*
+
+*EnergyCAP will reasonably accommodate qualified individuals with disabilities in accordance with applicable law. If you are in need of an accommodation in order to submit your application, please email* *HR@energycap.com**.*
+
+Please click HERE to view the mandatory Federal Applicant Laws that apply to your employment rights*.*
+
+***Note******: We are currently not sponsoring VISAs.***",,"https://www.indeed.com/cmp/Energycap,-Inc.",,https://www.energycap.com,State College,11 to 50,$5M to $25M (USD),
+in-455751ee86cc598d,indeed,https://www.indeed.com/viewjob?jk=455751ee86cc598d,https://careers.srmtech.com/jobs/Careers/664168000021974833/Senior-Full-Stack-AI-Engineer?source=CareerSite,Senior Full Stack AI Engineer,SRM Technologies,"Remote, US",2026-07-08,[],,,,,,True,,,,[],"Job Information
+
+Date Opened
+
+07/08/2026
+
+Job Type
+
+Full time
+
+Remote Job
+
+Industry
+
+Technology
+
+Job Description
+
+This is a remote position.
+
+Job Description: Senior Full Stack AI Engineer (8+ YoE)
+
+Role: Senior Full Stack AI Engineer Experience: 8+ years in software engineering, including 3+ years of hands-on full stack product development
+
+Role Type: Professional IT Engineering Role
+
+Role Overview
+
+We are seeking a highly skilled and experienced Senior Full Stack AI Engineer to design, develop, and deliver scalable, secure, and intelligent software products. The ideal candidate will have strong expertise across frontend and backend technologies, hands-on experience in end-to-end product development, and practical exposure to AI-driven applications such as Retrieval-Augmented Generation (RAG), chatbots, Large Language Models (LLMs), and prompt engineering.
+
+This role requires a professional IT engineer who can work across the full software development lifecycle, collaborate with cross-functional teams, and build production ready AI-enabled solutions on modern cloud platforms such as AWS, Google Cloud Platform (GCP), and Microsoft Azure.
+
+Key Responsibilities • Design, develop, and maintain end-to-end web applications using modern frontend and backend technologies. • Build responsive, high-performance user interfaces using React JS and related JavaScript or TypeScript frameworks. • Develop scalable backend services, RESTful APIs, and microservices using Node.js, Django, FastAPI, Flask, or similar frameworks. • Own full product development lifecycle activities including requirements analysis, architecture design, implementation, testing, deployment, monitoring, and continuous improvement. • Integrate AI capabilities into enterprise applications using LLMs, RAG pipelines, chatbot frameworks, and prompt engineering techniques. • Design and implement AI-enabled workflows including document ingestion, embeddings, vector search, retrieval optimization, and response generation. • Collaborate with product managers, UX designers, AI/ML engineers, DevOps teams, and business stakeholders to deliver reliable and user-focused solutions. • Ensure application security, scalability, performance, maintainability, and reliability across frontend, backend, database, and AI components. • Deploy, manage, and optimize applications and AI services on cloud platforms such as AWS, Google Cloud Platform (GCP), and Microsoft Azure. • Write clean, modular, well-tested, and maintainable code following software engineering best practices. • Mentor junior engineers, participate in code reviews, and contribute to technical design discussions and architecture decisions.
+
+Required Qualifications • 8+ years of overall professional experience in software engineering or full stack application development. • Minimum 3+ years of hands-on experience in end-to-end software product development using frontend and backend technologies. • Strong frontend development experience with React JS, JavaScript, TypeScript, HTML, CSS, and modern UI development practices. • Strong backend development experience with Node.js and Python-based frameworks such as Django, FastAPI, and Flask. • Experience designing and consuming REST APIs, integrating third-party services, and developing secure backend systems. • Hands-on experience with databases such as PostgreSQL, MySQL, MongoDB, Redis, or similar SQL and NoSQL technologies. • Practical experience in building or integrating AI-powered solutions using LLMs, RAG, chatbots, and prompt engineering. • Good understanding of software architecture, system design, debugging, performance optimization, and production deployment. • Experience with Git, CI/CD pipelines, automated testing, containerization, and cloud-based deployment environments using AWS, Google Cloud Platform (GCP), or Microsoft Azure. • Experience with AI orchestration frameworks such as LangChain, LlamaIndex, LangGraph, or similar tools. • Experience working with vector databases such as Pinecone, Weaviate, Qdrant, pgvector, or similar technologies. • Hands-on experience with cloud services and deployment on AWS, Google Cloud Platform (GCP), and Microsoft Azure. • Exposure to model evaluation, AI safety, guardrails, hallucination reduction, and observability for AI applications. • Experience building enterprise-grade SaaS products, internal platforms, automation tools, or customer-facing AI products. • Strong documentation, communication, problem-solving, and stakeholder management skills.",,https://www.indeed.com/cmp/Srm-Technologies,https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/8347dba7475c7e80e262c498446e8231,http://www.srmtechusa.com,"Woburn, MA",11 to 50,less than $1M (USD),
+in-57ccda6dfedb467c,indeed,https://www.indeed.com/viewjob?jk=57ccda6dfedb467c,https://www.github.careers/jobs/5558/job?utm_source=indeed_integration&iis=Job%20Board&iisn=Indeed&indeed-apply-token=73a2d2b2a8d6d5c0a62696875eaebd669103652d3f0c2cd5445d3e66b1592b0f,Staff Software Engineer,GitHub,"Remote, US",2026-07-07,[],,,,,,True,,,,[],"About GitHub: GitHub is the world’s leading platform for agentic software development — powered by Copilot to build, scale, and deliver secure software. Over 180 million developers, including more than 90% of the Fortune 100 companies, use GitHub to collaborate, and more than 77,000 organisations have adopted GitHub Copilot.  
+Locations: In this role you can work from Remote, United States  
+Overview:
+
+As the global home for all developers, GitHub is the complete AI-powered developer platform to build, scale, and deliver secure software. With Codespaces, we’re building and operating instant-on, remote cloud development environments. In this model, engineers work in cloud development environments — tailored for a specific project — where the overhead of launching a task-specific workbench is effectively zero. Work on a bug, review a change, or just try something out, all booted from a clean baseline ready for your commits. Not only does this accelerate engineers day to day coding, but it is also used across GitHub.com to iterate on and validate Copilot-generated code.
+
+We are seeking a Staff Software Engineer to join this team and drive the continued evolution of Codespaces, shaping the future of cloud-based development for GitHub and its users. In this role, you will play a critical role in shaping and implementing the future of the Codespaces product. You will work directly with developers and customers to help define the future of cloud development environments across GitHub.com. You will work with a strong team of developers to design and build a platform that is secure, reliable and most of all fun to develop on. Note, this Staff position is not only one where you get to design solutions, but one where you will have the opportunity to ship large features as part of the job.
+
+Responsibilities:
+
+* Design, develop, test and ship high-quality technical solutions that scale across multiple GitHub services and become intimately familiar with the systems you build and take pride in writing maintainable code.
+* Provide technical leadership, mentorship, pairing opportunities, and code reviews to encourage the growth of others; support teams in producing extensible and maintainable code, ensuring integration with downstream dependencies and adherence to quality standards.
+* Own and advocate for the health and quality of the systems that the team builds, including participating in on-call for first responder rotations and live incidents.
+* Write architecture briefs and proposals and carry out code experiments.
+* Design and implement APIs to facilitate seamless integration between software components.
+* Utilize CI/CD tools to set up automated pipelines for continuous integration and delivery.
+* Collaborate with cross-functional teams and partner with stakeholders and lead discussions for technical solutions, including design and cost considerations.
+* Create and guide others in 1) developing clear testing plans to assure solution quality, reliability, and performance; 2) defining success metrics; and 3) integrating customer feedback for continuous improvement - all while ensuring system architecture meets security and compliance standards.
+* Maintain executional and operational excellence within and potentially across teams/organizations.
+* Apply debugging tools and telemetry to verify assumptions, proactively resolve issues, and optimize code performance and maintainability.
+* Drive and support technical roadmap that aligns with product goals, ensuring that engineering efforts are strategically prioritized and incorporating the adoption of new technologies and methodologies where applicable.
+* Participate in on-call rotations with your team.
+* Offer and receive feedback to grow yourself and the team.
+
+Qualifications:
+
+**Required Qualifications:**
+
+* 9+ years' experience in software engineering, computer science, or related technical discipline with proven experience maintaining and delivering production software coding in languages including, but not limited to, Go, Ruby, Rust, Python, JavaScript, C, C++, C#, Java,
+  + o OR associate’s degree in Computer Science, Electrical Engineering, Electronics Engineering, Math, Physics, Computer Engineering, Computer Science, or related field AND 8+ years' experience in software engineering, computer science, or related technical discipline with proven experience maintaining and delivering production software coding in languages including, but not limited to, Go, Ruby, Rust, Python, JavaScript, C, C++, C#, Java,
+  + o OR bachelor's degree in Computer Science or related field AND 7+ years' experience in software engineering, computer science, or related technical discipline with proven experience maintaining and delivering production software coding in languages including, but not limited to, Go, Ruby, Rust, Python, JavaScript, C, C++, C#, Java,
+  + o OR master's degree in Computer Science, Electrical Engineering, Electronics Engineering, Math, Physics, Computer Engineering, Computer Science, or related field AND 5+ years' experience in software engineering, computer science, or related technical discipline with proven experience maintaining and delivering production software coding in languages including, but not limited to, Go, Ruby, Rust, Python, JavaScript, C, C++, C#, Java,
+  + o OR doctorate in Computer Science, Electrical Engineering, Electronics Engineering, Math, Physics, Computer Engineering, Computer Science, or related field AND 3+ years' experience in software engineering, computer science, or related technical discipline with proven experience maintaining and delivering production software coding in languages including, but not limited to, Go, Ruby, Rust, Python, JavaScript, C, C++, C#, Java,
+  + o OR equivalent experience.
+* 2+ years experience in technical leadership roles such as tech lead, team lead or equivalent.
+* Demonstrated experience with large-scale system architecture and design, particularly in cloud-based environments, with a strong understanding of distributed systems and microservices.
+
+**Preferred Qualifications:**
+
+* Experience in one or more scripting languages (e.g., Bash, Python, or a similar language), technologies and software platforms, (e.g., Ruby, React, Go, Javascript/typescript, MySQL, cosmosDB, Elasticsearch), front-end frameworks (e.g., React.js), and / or telemetry dashboard (e.g., Datadog, Sentry, Azure Data Explorer).
+* Experience with Cloud Native Compute Foundation (CNCF) concepts.
+* Experience working closely with product management, design, and other engineering teams to drive cross-functional projects and deliver high-quality products.
+
+  
+Compensation Range: The base salary range for this job is USD $140,400.00 - USD $372,300.00 /Yr.  
+  
+These pay ranges are intended to cover roles based across the United States. An individual's base pay depends on various factors including geographical location and review of experience, knowledge, skills, abilities of the applicant. At GitHub certain roles are eligible for benefits and additional rewards, including annual bonus and stock. These rewards are allocated based on individual impact in role. In addition, certain roles also have the opportunity to earn sales incentives based on revenue or utilization, depending on the terms of the plan and the employee's role.  
+  
+This position will be open for a minimum of 3 days, with applications accepted on an ongoing basis until the position is filled.  
+GitHub Leadership Principles:
+
+**GitHub values**
+
+* Customer-obsessed
+* Ship to learn
+* Growth mindset
+* Own the outcome
+* Better together
+* Diverse and inclusive
+
+**Manager fundamentals**
+
+* Model
+* Coach
+* Care
+
+**Leadership principles**
+
+* Create clarity
+* Generate energy
+* Deliver success
+
+Who We Are: GitHub is the world’s leading AI-powered developer platform with 150 million developers and counting. We’re also home to the biggest open-source community on earth (and 99% of the world’s software has open-source code in its DNA). Many of the apps and programs you use every day are built on GitHub.  
+Our teams are dreamers, doers, and pioneers, leading the way in AI, driving humanitarian efforts around the globe, and even sending open source to Mars (and beyond!). At GitHub, our goal is to create the space you need to do your best work. We’re remote-first and offer competitive pay, generous learning and growth opportunities, and excellent benefits to support you, wherever you are—because we know that people flourish when they can work on their own terms.  
+Join us, and let’s change the world, together.  
+EEO Statement: GitHub is made up of people from a wide variety of backgrounds and lifestyles. We embrace diversity and invite applications from people of all walks of life. We don't discriminate against employees or applicants based on gender identity or expression, sexual orientation, race, religion, age, national origin, citizenship, disability, pregnancy status, veteran status, or any other differences. Also, if you have a disability, please let us know if there's any way we can make the interview process better for you; we're happy to accommodate!",,https://www.indeed.com/cmp/Github,https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/dab6afa7f42ebfc7bf2388f07b723c58,https://github.com,"San Francisco, California, United States",,,
+in-4bb6e5cae3bd0127,indeed,https://www.indeed.com/viewjob?jk=4bb6e5cae3bd0127,https://jobs.lever.co/foodsmart/b1078aa2-d5ad-4799-9770-8d601912a066?lever-source=Indeed,Staff Software Engineer,Foodsmart,"Remote, US",2026-07-07,[],,,,,,True,,,,[],"### **\u007C About us:**
+
+Foodsmart is the leading Foodcare platform in the U.S., built to deliver nutrition-driven healthcare at scale. Powered by a national network of Registered Dietitians, Foodsmart combines personalized clinical nutrition care, behavior change tools, and food benefits to improve member health outcomes while lowering healthcare costs.
+
+Our platform is designed to foster healthier food choices, drive lasting behavior change, and deliver sustainable health outcomes. Through our highly personalized, digital platform, we guide more than 3 million members—including those in employer-sponsored health plans, regional and national Medicaid managed care organizations, Medicare Advantage plans, and commercial insurers—on a tailored journey to eating well while saving time and money.
+
+Foodsmart seamlessly integrates dietary assessments and nutrition counseling with online food ordering and cost-effective meal planning for the entire family, optimizing ingredients both at home and on the go. We partner with national and regional retailers across the U.S., many of whom accept SNAP/EBT, making healthier food more accessible. Additionally, we assist members with SNAP enrollment and management, providing tangible access to nutritious food. In 2024, Foodsmart secured a $200 million investment from TPG’s Rise Fund, which supports entrepreneurs dedicated to achieving the United Nations’ Sustainable Development Goals. This investment helps us expand our reach, particularly to low-income workers who are disproportionately affected by diet-related diseases.
+
+At Foodsmart, our mission is to make nutritious food accessible and affordable for everyone, regardless of economic status. We are committed to a set of core values that shape our culture and work environment:
+
+Customer First - You start with the member and work backwards.  
+Make It Happen - You act with urgency, use data, and hold high standards.  
+One Team - You collaborate with respect and commit as a group.
+
+Whether you're a dietitian, a commercial leader, or a technologist, working at Foodsmart means being part of a team that is passionate, supportive, and driven by a shared purpose. Join us in transforming the way people access and enjoy healthy food.
+
+  
+
+Learn more at www.foodsmart.com
+
+  
+
+**About the role:**
+
+As a Staff Software Engineer with a strong backend focus, you will own and evolve the systems that power Foodsmart’s platform. You will design, build, and operate backend services and data infrastructure that support both member facing experiences and internal clinical workflows. You will also contribute to the frontend when needed, with an emphasis on enabling reliable, scalable, and secure product functionality.
+
+Your work will directly support personalized nutrition journeys and the tools used daily by registered dietitians. You will spend most of your time on backend systems, APIs, and data. You will stay close enough to the frontend to ensure end to end quality and strong product outcomes.
+
+### **You will:**
+
+* Develop and maintain the backend systems powering the Foodsmart web application.
+* Collaborate with front-end engineers to design and implement APIs that effectively serve front-end needs.
+* Establish and uphold development practices, including code reviews and comprehensive testing, to enhance code quality and system performance.
+* Work closely with the product team to comprehend end-user requirements, formulate use cases, and transform those into a robust and efficient backend solution.
+* Debug and resolve production, server-side and database-related issues.
+* Proactively monitor and optimize system performance and scalability.
+* Stay informed about emerging technologies and propose ways to leverage them in current and future backend development.
+
+### **You are:**
+
+* Firm in your understanding of software engineering principles, with strong knowledge of algorithms and data structures.
+* Proficient with backend development tools and experienced with server architecture.
+* Familiar with database design principles, management systems like SQL or NoSQL, and integrating these systems with web applications.
+* Well-versed with code versioning tools, such as Git.
+* Exhibiting strong problem-solving skills, meticulous attention to detail, and a disciplined approach to testing and quality assurance.
+* Adept at managing and optimizing server-side performance and ensuring the scalability of our systems.
+* Capable of effectively communicating technical concepts to other members of the team and stakeholders.
+
+### **You have:**
+
+* 8 - 10 years of proven experience in backend development using one or more popular programming languages, such as JavaScript, TypeScript or Node.js
+* Proficient knowledge of RESTful APIs and experience in designing and implementing them for optimal performance.
+* Strong command of SQL databases, including relational databases like MySQL or PostgreSQL, as well as non-relational databases like DynamoDB. Experience with cloud data warehouses such as Amazon Redshift is a plus.
+* Extensive experience developing functionality using AWS services like Lambda, SQS, RDS and EC2.
+* Experience in low-code development platforms like Retool is a plus.
+* Exposure to Docker and experience working with applications to run in a container orchestration environment, such as Kubernetes.
+* BS or MS in Computer Science or a related field.
+
+Role: Staff Software Engineer
+
+Location: Remote
+
+Base Salary Range: $170,000/yr to $190,000/yr + bonus + benefits
+
+Our salary ranges are determined by role, level, and location. The range displayed on each job posting reflects the minimum and maximum target for new hire salaries at our headquarters in San Francisco, California. Individual pay is determined by work location, job-related skills, experience, and relevant education or training.
+
+**About our benefits and perks:**
+
+Remote-First Company
+
+Unlimited PTO
+
+Flexible & remote location
+
+Healthcare Coverage (Medical, Dental, Vision)
+
+401k & bonus
+
+Registered Dietitian Services
+
+  
+
+Foodsmart is an equal opportunity employer and values diversity. We do not discriminate on the basis of race, religion, color, national origin, gender, sexual orientation, age, marital status, veteran status, disability status, or any other protected class.
+
+  
+
+We may use artificial intelligence (AI) tools to support parts of the hiring process, such as reviewing applications, analyzing resumes, or assessing responses and identifying potential inconsistencies or verification signals in application materials based on available information. These tools assist our recruitment team but do not replace human judgment. Final hiring decisions are ultimately made by humans. If you would like more information about how your data is processed, please contact us.",,https://www.indeed.com/cmp/Foodsmart-1,https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/497c138bb4c4adcdb3dcdbf166cc34e8,https://foodsmart.com/,"595 Pacific Ave., San Francisco CA 94133","1,001 to 5,000",,"Foodsmart is the nation’s leading telenutrition and foodcare platform. By combining expert guidance from registered dietitians with practical, budget-friendly solutions, we empower people to make last"
+in-b08901f5b260826e,indeed,https://www.indeed.com/viewjob?jk=b08901f5b260826e,https://solen-software-group.breezy.hr/p/068b7313c726-software-engineer-cooperative-technologies?source=indeed,Software Engineer — Cooperative Technologies,Solen Software Group,"Remote, US",2026-07-01,[],,,,,,True,,,,[],"**Software Engineer — Cooperative Technologies**
+
+Cooperative Technologies (“CT”) is the only company in the US that provides ceding carrier data for annuity and life insurance exchanges, making the platform the de facto standard for replacement processing. The market for US annuity sales is projected to double to ~$900B by 2030 with CT at the center of that growth.
+
+CT is at an inflection point and looking for future leaders to champion the next phase of growth for the organizations. The company is now searching for an AI force multiplier engineer who can help own a product roadmap and write the code to ship its product. Working in an entrepreneurial fully remote environment, the hired candidate will have high-visibility and autonomy.
+
+**OTE Compensation:** 100k to 120k USD
+
+**What You'll Actually Do**
+
+* Maintain and manage CT's Azure cloud infrastructure such as App Services, Front Door, SQL Server, and Web Application Firewall
+* Manage client security questionnaires, write and maintain security policy documentation, and run disaster recovery testing.
+* Communicate directly with clients during new software installations and troubleshoot connectivity or configuration issues as they arise.
+* Generating 30%+ of your code output using AI-assisted development tools—and using them thoughtfully to accelerate delivery without sacrificing quality.
+* Shepherd end-of-life cycle products while keeping existing systems running smoothly.
+
+**Required Qualifications**
+
+* Bachelor's degree in Computer Science, Software Engineering, or equivalent experience.
+* Hands-on experience with the Windows .NET stack — C#, ASP.NET, WCF, REST, XML/JSON.
+* Direct experience managing Microsoft Azure services including App Services, Front Door, SQL Server, and Web Application Firewall.
+* Demonstrated ability to write, maintain, and troubleshoot code across multiple layers of a web-based application.
+
+**Preferred Qualifications**
+
+* Familiarity with Java in a production or legacy-support context.
+* Experience leveraging open-source libraries, APIs, or no-code tools to solve problems quickly without over-engineering.
+* Prior involvement in security compliance processes with questionnaires, policy documentation, or formal DR testing programs.
+* Experience in a small engineering team or startup environment — comfortable with shifting priorities and picking up work that does not have a clear owner.
+* Exposure to enterprise New Business or policy administration systems in the life insurance industry.
+
+**What Success Looks Like — First 90 Days**
+
+* First client onboarding or connectivity issue resolved end-to-end, with the process documented for future reference.
+* At least one report was built or modified for client invoicing, deployed and confirmed accurately.
+* Azure infrastructure managed independently by monitoring, configuration, and incident response handled without escalation.
+
+**Who You'll Work With**
+
+You'll report to CT's product and engineering leadership and collaborate directly with clients during onboarding and support escalations. You'll work alongside the PM and existing engineers, each covering a broad slice of the product and operations surface.
+
+**What We Offer**
+
+* Genuine end-to-end ownership of infrastructure, security, development, and client communication in a vertical where your work directly affects customer operations.
+* A small, low-bureaucracy environment where good judgment ships quickly.
+* Exposure to the Solen Software Group portfolio company network and operating model.
+* A role with real breadth and immediate impact not a siloed function within a large engineering org.",,https://www.indeed.com/cmp/Solen-Software-Group,,,,,,
+li-4436883667,linkedin,https://www.linkedin.com/jobs/view/4436883667,,UI Engineer,Taxbit,"Salt Lake City, UT",2026-07-08,,,,,,,,,,,,,,https://www.linkedin.com/company/taxbitteam,,,,,,
+li-4294278438,linkedin,https://www.linkedin.com/jobs/view/4294278438,,Frontend Engineer,Elicit,"Oakland, CA",2026-07-08,,,,,,,,,,,,,,https://www.linkedin.com/company/elicit-research,,,,,,
+li-4436878857,linkedin,https://www.linkedin.com/jobs/view/4436878857,,UI Engineer,Taxbit,"Seattle, WA",2026-07-08,,,,,,,,,,,,,,https://www.linkedin.com/company/taxbitteam,,,,,,
+li-4429106316,linkedin,https://www.linkedin.com/jobs/view/4429106316,,Front End Software Engineer,Candid Health,"New York, NY",2026-07-07,,,,,,,,,,,,,,https://www.linkedin.com/company/candid-health,,,,,,
+li-4406568149,linkedin,https://www.linkedin.com/jobs/view/4406568149,,Frontend Software Engineer,Chalk,"San Francisco, CA",2026-07-06,,,,,,,,,,,,,,https://www.linkedin.com/company/chalkai,,,,,,
+li-4387483962,linkedin,https://www.linkedin.com/jobs/view/4387483962,,"Software Engineer, Frontend",Ramp,"New York, NY",2026-07-03,,,,,,,,,,,,,,https://www.linkedin.com/company/ramp,,,,,,
+li-4433591118,linkedin,https://www.linkedin.com/jobs/view/4433591118,,Front-End Developer,Qantas,"Adelaide, South Australia, Australia",2026-06-26,,,,,,,,,,,,,,https://au.linkedin.com/company/qantas,,,,,,
+li-4048167981,linkedin,https://www.linkedin.com/jobs/view/4048167981,,"Software Engineer, Frontend",Ramp,"Miami, FL",2026-06-26,,,,,,,,,,,,,,https://www.linkedin.com/company/ramp,,,,,,
+li-4415282157,linkedin,https://www.linkedin.com/jobs/view/4415282157,,Software Engineer (Web Platform),Hinoki,"San Francisco, CA",2026-05-26,,,,,,,,,,,,,,https://www.linkedin.com/company/hinoki-security,,,,,,
+li-4414164450,linkedin,https://www.linkedin.com/jobs/view/4414164450,,"UI Software Engineer, Developer Workflows",Apple,"Vancouver, British Columbia, Canada",2026-05-13,,,,,,,,,,,,,,https://www.linkedin.com/company/apple,,,,,,
+li-4405250155,linkedin,https://www.linkedin.com/jobs/view/4405250155,,Frontend Engineer,Rebar,"New York, NY",2026-04-22,,,,,,,,,,,,,,https://www.linkedin.com/company/withrebar,,,,,,
+li-4385028051,linkedin,https://www.linkedin.com/jobs/view/4385028051,,Software Engineer - Front End (New York),Edra,"New York, NY",2026-03-18,,,,,,,,,,,,,,https://www.linkedin.com/company/edra-ai,,,,,,
+li-4318505438,linkedin,https://www.linkedin.com/jobs/view/4318505438,,Frontend Engineer,SafetyKit,"San Francisco, CA",2025-10-22,,,,,,,,,,,,,,https://www.linkedin.com/company/safetykit,,,,,,
+li-4419003901,linkedin,https://www.linkedin.com/jobs/view/4419003901,,Software Engineer II (Frontend),"Scribd, Inc.","Portland, OR",,,,,,,,,,,,,,,https://www.linkedin.com/company/scribdinc.,,,,,,
+li-4419022112,linkedin,https://www.linkedin.com/jobs/view/4419022112,,Software Engineer II (Frontend),"Scribd, Inc.","Salt Lake City, UT",,,,,,,,,,,,,,,https://www.linkedin.com/company/scribdinc.,,,,,,

@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "data": {
+    "name": "Remote Python Backend Developer in FinTech",
+    "job_title": "Remote Python Backend Developer in FinTech",
+    "field_domain": "Remote Python Backend Developer in FinTech",
+    "location": null,
+    "work_mode": "any",
+    "experience_level": "any",
+    "employment_type": "any",
+    "salary_min": null,
+    "salary_max": null,
+    "company_slugs": [],
+    "poll_interval_minutes": 60,
+    "posted_within_days": null,
+    "id": "191d1d90-b4ef-4478-9cc1-096a94be6682",
+    "is_active": true,
+    "last_run_at": null,
+    "field_expansion_cache": null,
+    "created_at": "2026-07-03T16:18:20.877624+00:00",
+    "updated_at": "2026-07-03T16:18:20.877624+00:00",
+    "run_id": "43c9ab13-eee9-44cc-b8f9-f2b17442cc5a"
+  },
+  "message": "Pipeline started"
+}

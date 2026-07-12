@@ -16,20 +16,23 @@ import {
 } from "@dnd-kit/core";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { ExternalLink, GripVertical, KanbanSquare, Trash2 } from "lucide-react";
+import { ExternalLink, GripVertical, KanbanSquare, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { applicationsApi } from "@/lib/api";
 import { parseApiError } from "@/lib/types/api";
 import type { ApplicationStatus, JobApplication } from "@/lib/types/application";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NativeSelect } from "@/components/ui/native-select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { AutoApplyDetailsDialog } from "@/components/tracker/auto-apply-details-dialog";
 
 const COLUMNS: { status: ApplicationStatus; label: string }[] = [
   { status: "saved", label: "Saved" },
+  { status: "ready_to_apply", label: "Ready to apply" },
   { status: "applied", label: "Applied" },
   { status: "interviewing", label: "Interviewing" },
   { status: "offer", label: "Offer" },
@@ -38,6 +41,7 @@ const COLUMNS: { status: ApplicationStatus; label: string }[] = [
 
 const COLUMN_ACCENT: Record<ApplicationStatus, string> = {
   saved: "text-muted-foreground",
+  ready_to_apply: "text-blue-500 dark:text-blue-400",
   applied: "text-primary",
   interviewing: "text-warning",
   offer: "text-success",
@@ -48,11 +52,13 @@ function ApplicationCard({
   app,
   onStatusChange,
   onRequestDelete,
+  onViewDetails,
   dragging,
 }: {
   app: JobApplication;
   onStatusChange: (status: ApplicationStatus) => void;
   onRequestDelete: () => void;
+  onViewDetails: () => void;
   dragging?: boolean;
 }) {
   const queryClient = useQueryClient();
@@ -99,6 +105,20 @@ function ApplicationCard({
         </div>
         <p className="text-xs text-muted-foreground">{app.job.company_name}</p>
 
+        {app.auto_prepared && (
+          <div className="flex items-center gap-1.5">
+            <Badge className="h-5 gap-1 bg-blue-500/15 px-2 text-[10px] text-blue-600 dark:text-blue-400">
+              <Sparkles className="h-2.5 w-2.5" />
+              Auto-prepared
+            </Badge>
+            {app.match_score != null && (
+              <Badge className="h-5 bg-primary/15 px-2 text-[10px] text-primary">
+                {Math.round(app.match_score * 100)}% match
+              </Badge>
+            )}
+          </div>
+        )}
+
         <NativeSelect
           value={app.status}
           onChange={(e) => onStatusChange(e.target.value as ApplicationStatus)}
@@ -121,14 +141,21 @@ function ApplicationCard({
           className="h-14 w-full resize-none rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
 
-        <a
-          href={app.job.apply_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-        >
-          Open posting <ExternalLink className="h-3 w-3" />
-        </a>
+        <div className="flex items-center justify-between">
+          <a
+            href={app.job.apply_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+          >
+            Open posting <ExternalLink className="h-3 w-3" />
+          </a>
+          {(app.cover_letter || app.tailored_resume) && (
+            <button onClick={onViewDetails} className="text-xs text-muted-foreground hover:text-foreground hover:underline">
+              View details
+            </button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -170,6 +197,7 @@ export default function TrackerPage() {
   const queryClient = useQueryClient();
   const [activeApp, setActiveApp] = useState<JobApplication | null>(null);
   const [pendingDelete, setPendingDelete] = useState<JobApplication | null>(null);
+  const [detailsApp, setDetailsApp] = useState<JobApplication | null>(null);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["applications"],
@@ -247,7 +275,7 @@ export default function TrackerPage() {
       )}
 
       {isLoading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {COLUMNS.map((col) => (
             <Skeleton key={col.status} className="h-24 w-full" />
           ))}
@@ -259,7 +287,7 @@ export default function TrackerPage() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
             {COLUMNS.map((col) => (
               <Column
                 key={col.status}
@@ -275,6 +303,7 @@ export default function TrackerPage() {
                     dragging={activeApp?.id === app.id}
                     onStatusChange={(status) => statusMutation.mutate({ id: app.id, status })}
                     onRequestDelete={() => setPendingDelete(app)}
+                    onViewDetails={() => setDetailsApp(app)}
                   />
                 ))}
               </Column>
@@ -300,6 +329,12 @@ export default function TrackerPage() {
         title={`Remove ${pendingDelete?.job.title} from tracker?`}
         confirmLabel="Remove"
         onConfirm={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+      />
+
+      <AutoApplyDetailsDialog
+        open={!!detailsApp}
+        onOpenChange={(open) => !open && setDetailsApp(null)}
+        app={detailsApp}
       />
     </div>
   );

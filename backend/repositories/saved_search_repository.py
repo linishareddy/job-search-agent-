@@ -16,32 +16,42 @@ class SavedSearchRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def create(self, data: SavedSearchCreate) -> SavedSearch:
-        search = SavedSearch(**data.model_dump())
+    async def create(self, data: SavedSearchCreate, user_id: uuid.UUID | None = None) -> SavedSearch:
+        search = SavedSearch(**data.model_dump(), user_id=user_id)
         self._session.add(search)
         await self._session.flush()
         return search
 
-    async def get_by_id(self, search_id: uuid.UUID) -> SavedSearch | None:
-        result = await self._session.execute(
-            select(SavedSearch).where(SavedSearch.id == search_id)
-        )
+    async def get_by_id(self, search_id: uuid.UUID, user_id: uuid.UUID | None = None) -> SavedSearch | None:
+        """user_id is an ownership filter for routes reached with a known caller; internal
+        callers (scheduler, pipeline) omit it to operate across all users."""
+        stmt = select(SavedSearch).where(SavedSearch.id == search_id)
+        if user_id is not None:
+            stmt = stmt.where(SavedSearch.user_id == user_id)
+        result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_all(self, page: int = 1, page_size: int = 100) -> tuple[list[SavedSearch], int]:
-        total = (await self._session.execute(select(func.count(SavedSearch.id)))).scalar_one()
+    async def get_all(self, user_id: uuid.UUID, page: int = 1, page_size: int = 100) -> tuple[list[SavedSearch], int]:
+        total = (
+            await self._session.execute(select(func.count(SavedSearch.id)).where(SavedSearch.user_id == user_id))
+        ).scalar_one()
         result = await self._session.execute(
             select(SavedSearch)
+            .where(SavedSearch.user_id == user_id)
             .order_by(SavedSearch.created_at.desc())
             .offset((page - 1) * page_size)
             .limit(page_size)
         )
         return result.scalars().all(), total
 
-    async def update(self, search_id: uuid.UUID, data: SavedSearchUpdate) -> SavedSearch | None:
+    async def update(self, search_id: uuid.UUID, data: SavedSearchUpdate, user_id: uuid.UUID) -> SavedSearch | None:
+        existing = await self.get_by_id(search_id, user_id=user_id)
+        if not existing:
+            return None
+
         updates = data.model_dump(exclude_none=True)
         if not updates:
-            return await self.get_by_id(search_id)
+            return existing
 
         # If field_domain or job_title changed, invalidate field expansion cache
         if "field_domain" in updates or "job_title" in updates:
@@ -56,8 +66,8 @@ class SavedSearchRepository:
         await self._session.flush()
         return await self.get_by_id(search_id)
 
-    async def delete(self, search_id: uuid.UUID) -> bool:
-        search = await self.get_by_id(search_id)
+    async def delete(self, search_id: uuid.UUID, user_id: uuid.UUID) -> bool:
+        search = await self.get_by_id(search_id, user_id=user_id)
         if not search:
             return False
 
@@ -81,16 +91,18 @@ class SavedSearchRepository:
         await job_repo.delete_orphans(candidate_job_ids)
         return True
 
-    async def delete_many(self, search_ids: list[uuid.UUID]) -> int:
+    async def delete_many(self, search_ids: list[uuid.UUID], user_id: uuid.UUID) -> int:
         deleted = 0
         for search_id in search_ids:
-            if await self.delete(search_id):
+            if await self.delete(search_id, user_id=user_id):
                 deleted += 1
         return deleted
 
-    async def get_ids_by_active(self, is_active: bool) -> list[uuid.UUID]:
+    async def get_ids_by_active(self, is_active: bool, user_id: uuid.UUID) -> list[uuid.UUID]:
         result = await self._session.execute(
-            select(SavedSearch.id).where(SavedSearch.is_active.is_(is_active))
+            select(SavedSearch.id).where(
+                SavedSearch.is_active.is_(is_active), SavedSearch.user_id == user_id
+            )
         )
         return [row[0] for row in result.all()]
 

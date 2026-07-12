@@ -31,6 +31,18 @@ class GroqError(Exception):
     pass
 
 
+class AuthError(Exception):
+    def __init__(self, detail: str = "Not authenticated"):
+        self.detail = detail
+        super().__init__(detail)
+
+
+class ConflictError(Exception):
+    def __init__(self, detail: str):
+        self.detail = detail
+        super().__init__(detail)
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(NotFoundError)
     async def not_found_handler(request: Request, exc: NotFoundError) -> JSONResponse:
@@ -43,6 +55,21 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def validation_handler(request: Request, exc: ValidationError) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={"success": False, "message": exc.detail},
+        )
+
+    @app.exception_handler(AuthError)
+    async def auth_error_handler(request: Request, exc: AuthError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"success": False, "message": exc.detail},
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    @app.exception_handler(ConflictError)
+    async def conflict_error_handler(request: Request, exc: ConflictError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
             content={"success": False, "message": exc.detail},
         )
 

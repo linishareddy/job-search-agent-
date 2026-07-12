@@ -104,6 +104,41 @@ class GroqService:
                 "summary": None,
             }
 
+    async def tailor_resume(self, job: dict, resume_text: str) -> dict[str, Any]:
+        """Call Groq to score a resume against a job and produce both structured
+        suggestions and a full tailored resume draft. Uses the smart model — this
+        is a nuanced rewriting task, not simple field extraction."""
+        from prompts.resume_tailor import SYSTEM_PROMPT, USER_TEMPLATE
+
+        user_msg = USER_TEMPLATE.format(
+            job_title=job.get("title", ""),
+            company_name=job.get("company_name", ""),
+            description=(job.get("description_summary") or job.get("description_raw") or "")[:3000],
+            skills=", ".join(job.get("skills") or []) or "(not specified)",
+            resume_text=resume_text[:12000],
+        )
+        try:
+            raw = await self._complete(_SMART_MODEL, SYSTEM_PROMPT, user_msg)
+            return json.loads(raw)
+        except (json.JSONDecodeError, Exception) as e:
+            logger.error(f"Groq resume tailoring failed: {e}")
+            return {
+                "match_score": 0,
+                "matched_keywords": [],
+                "missing_keywords": [],
+                "suggestions": [],
+                "summary_rewrite": None,
+                "gaps": ["Automatic tailoring failed — please try again."],
+                "tailored_resume": resume_text,
+            }
+
+    async def generate_cover_letter(self, job: dict, resume_text: str) -> str:
+        """Non-streaming cover letter generation — collects the same stream used by
+        generate_cover_letter_stream, for callers (auto-apply) that need the full
+        string rather than a token-by-token response."""
+        chunks = [chunk async for chunk in self.generate_cover_letter_stream(job, resume_text)]
+        return "".join(chunks)
+
     async def generate_cover_letter_stream(self, job: dict, resume_text: str) -> AsyncGenerator[str, None]:
         """Stream a tailored cover letter token-by-token — the one Groq call in this
         app that returns genuine free-form prose rather than a JSON object, so it's
