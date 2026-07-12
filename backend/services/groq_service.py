@@ -148,20 +148,26 @@ class GroqService:
                 from services.resume_render_service import sections_to_plain_text
                 result["tailored_resume"] = sections_to_plain_text(result["tailored_sections"])
             return result
-        except (json.JSONDecodeError, Exception) as e:
+        except json.JSONDecodeError as e:
+            logger.error(f"Groq resume tailoring returned invalid JSON: {e}")
+        except Exception as e:
             logger.error(f"Groq resume tailoring failed: {e}")
-            from services.resume_render_service import sections_to_plain_text
-            fallback_sections = resume_sections or {}
-            return {
-                "match_score": 0,
-                "matched_keywords": [],
-                "missing_keywords": [],
-                "suggestions": [],
-                "summary_rewrite": None,
-                "gaps": ["Automatic tailoring failed — please try again."],
-                "tailored_sections": fallback_sections,
-                "tailored_resume": sections_to_plain_text(fallback_sections) if fallback_sections else resume_text,
-            }
+        from services.resume_render_service import sections_to_plain_text
+        fallback_sections = resume_sections or {}
+        try:
+            fallback_text = sections_to_plain_text(fallback_sections) if fallback_sections else resume_text
+        except Exception:
+            fallback_text = resume_text
+        return {
+            "match_score": 0,
+            "matched_keywords": [],
+            "missing_keywords": [],
+            "suggestions": [],
+            "summary_rewrite": None,
+            "gaps": ["Automatic tailoring failed — please try again."],
+            "tailored_sections": fallback_sections,
+            "tailored_resume": fallback_text,
+        }
 
     async def generate_cover_letter(self, job: dict, resume_text: str) -> str:
         """Non-streaming cover letter generation — collects the same stream used by
