@@ -3,6 +3,7 @@ JOOBLE = "jooble"
 REMOTIVE = "remotive"
 REMOTEOK = "remoteok"
 ARBEITNOW = "arbeitnow"
+DICE = "dice"
 LINKEDIN = "linkedin"
 INDEED = "indeed"
 GREENHOUSE = "greenhouse"
@@ -32,6 +33,7 @@ BREADTH_SOURCES = [
     REMOTIVE,
     REMOTEOK,
     ARBEITNOW,
+    DICE,
     LINKEDIN,
     INDEED,
 ]
@@ -45,6 +47,7 @@ SOURCE_RESULT_CAPS = {
     REMOTIVE: 100,
     REMOTEOK: 80,
     ARBEITNOW: 80,
+    DICE: 30,
     LINKEDIN: 30,
     INDEED: 30,
     GREENHOUSE: 500,  # spread across all tracked companies

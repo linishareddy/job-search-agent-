@@ -6,6 +6,7 @@ from schemas.saved_search import SavedSearchResponse
 from services.fetchers.adzuna_fetcher import AdzunaFetcher
 from services.fetchers.arbeitnow_fetcher import ArbeitnowFetcher
 from services.fetchers.ashby_fetcher import AshbyFetcher
+from services.fetchers.dice_fetcher import DiceFetcher
 from services.fetchers.greenhouse_fetcher import GreenhouseFetcher
 from services.fetchers.jooble_fetcher import JoobleFetcher
 from services.fetchers.jobspy_fetchers import ALL_JOBSPY_FETCHERS
@@ -21,6 +22,7 @@ _FETCHERS = [
     RemotiveFetcher(),
     RemoteOKFetcher(),
     ArbeitnowFetcher(),
+    DiceFetcher(),
     *ALL_JOBSPY_FETCHERS,
     GreenhouseFetcher(),
     LeverFetcher(),

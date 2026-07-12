@@ -66,6 +66,7 @@ class Settings(BaseSettings):
     email_from: str = "Job Agent <onboarding@resend.dev>"
     # Global kill-switch — off by default so email is opt-in even once a key is set.
     email_enabled: bool = False
+    frontend_url: str = "http://localhost:3000"
 
     # Seed user created on first startup so pre-existing (pre-auth) rows have an owner
     seed_user_email: str = "you@example.com"
@@ -78,6 +79,9 @@ class Settings(BaseSettings):
     jobspy_us_only: bool = True
     jobspy_country_indeed: str = "USA"
     jobspy_proxies: str = ""
+
+    # Dice official MCP job search (no API key required)
+    dice_mcp_url: str = "https://mcp.dice.com/mcp"
 
     @property
     def jobspy_proxy_list(self) -> list[str] | None:
