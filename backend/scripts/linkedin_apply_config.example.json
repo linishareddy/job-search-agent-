@@ -1,0 +1,37 @@
+{
+  "search": {
+    "keywords": "python developer",
+    "location": "United States",
+    "remote": false
+  },
+  "limits": {
+    "max_jobs": 1,
+    "delay_seconds_min": 3,
+    "delay_seconds_max": 7
+  },
+  "saved_answers": {
+    "first_name": "YourFirstName",
+    "last_name": "YourLastName",
+    "email": "you@example.com",
+    "phone": "+1-555-555-5555",
+    "city": "New York",
+    "state": "NY",
+    "country": "United States",
+    "linkedin_url": "https://www.linkedin.com/in/yourprofile",
+    "years_experience": "5",
+    "work_authorization": "Yes",
+    "require_sponsorship": "No",
+    "salary_expectation": "120000",
+    "start_date": "2 weeks",
+    "cover_letter": "See attached resume. I am excited about this role and my experience aligns well with the requirements."
+  },
+  "question_map": {
+    "authorized to work": "Yes",
+    "require sponsorship": "No",
+    "years of experience": "5",
+    "how many years": "5",
+    "phone": "+1-555-555-5555",
+    "email": "you@example.com"
+  },
+  "resume_path": "../storage/resumes/YOUR_USER_ID/tailored.docx"
+}

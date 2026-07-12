@@ -1,0 +1,4 @@
+# Optional: LinkedIn Easy Apply worker (no LLM)
+# pip install -r requirements-apply.txt && playwright install chromium
+playwright>=1.49.0
+python-dotenv>=1.0.0
